@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#7c3aed" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#2563eb" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <rect width="90" height="90" x="5" y="5" rx="22" fill="url(#grad)" filter="url(#shadow)"/>
+  <!-- Stylized Notebook Pen / Scribble flourish -->
+  <path d="M28 65 Q 40 45, 50 55 T 72 35" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="72" cy="35" r="4" fill="#facc15"/>
+  <line x1="28" y1="73" x2="60" y2="73" stroke="#93c5fd" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 6"/>
+</svg>
