@@ -6,6 +6,7 @@ import { VisualCanvas } from './components/canvas/VisualCanvas';
 import { SplitPane } from './components/ui/SplitPane';
 import { CommandPalette } from './components/ui/CommandPalette';
 import { ShortcutsModal } from './components/ui/ShortcutsModal';
+import { ReloadPrompt } from './components/ui/ReloadPrompt';
 import { ChatTimelineView } from './features/notes/components/ChatTimelineView';
 import { useNoteStore } from './store/useNoteStore';
 import { useCanvasStore } from './store/useCanvasStore';
@@ -52,6 +53,9 @@ export function App() {
 
       {/* Keyboard Shortcuts Cheatsheet (?) */}
       <ShortcutsModal />
+
+      {/* PWA Service Worker Offline & Update Prompt */}
+      <ReloadPrompt />
     </div>
   );
 }

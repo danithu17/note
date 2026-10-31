@@ -44,15 +44,36 @@ import {
   triggerDownload,
 } from '../../utils/export';
 import { exportAnnotatedPdfDocument } from '@/features/pdf/pdfService';
-import { SyncModal } from './SyncModal';
-import { AuthModal } from '../auth/AuthModal';
-import { VersionHistoryModal } from '../history/VersionHistoryModal';
-import { PdfImportModal } from '@/features/pdf/components/PdfImportModal';
-import { AIStudyAssistantModal } from '@/features/ai/components/AIStudyAssistantModal';
-import { FlashcardsModal } from '@/features/flashcards/components/FlashcardsModal';
-import { StudyDashboardModal } from '@/features/focus/components/StudyDashboardModal';
 import { sound } from '../../utils/sound';
 import confetti from 'canvas-confetti';
+
+const SyncModal = React.lazy(() =>
+  import('./SyncModal').then((m) => ({ default: m.SyncModal }))
+);
+const AuthModal = React.lazy(() =>
+  import('../auth/AuthModal').then((m) => ({ default: m.AuthModal }))
+);
+const VersionHistoryModal = React.lazy(() =>
+  import('../history/VersionHistoryModal').then((m) => ({ default: m.VersionHistoryModal }))
+);
+const PdfImportModal = React.lazy(() =>
+  import('@/features/pdf/components/PdfImportModal').then((m) => ({ default: m.PdfImportModal }))
+);
+const AIStudyAssistantModal = React.lazy(() =>
+  import('@/features/ai/components/AIStudyAssistantModal').then((m) => ({
+    default: m.AIStudyAssistantModal,
+  }))
+);
+const FlashcardsModal = React.lazy(() =>
+  import('@/features/flashcards/components/FlashcardsModal').then((m) => ({
+    default: m.FlashcardsModal,
+  }))
+);
+const StudyDashboardModal = React.lazy(() =>
+  import('@/features/focus/components/StudyDashboardModal').then((m) => ({
+    default: m.StudyDashboardModal,
+  }))
+);
 
 export const Header: React.FC = () => {
   const {
@@ -571,22 +592,24 @@ export const Header: React.FC = () => {
         </button>
       </div>
 
-      <SyncModal isOpen={isSyncModalOpen} onClose={() => setIsSyncModalOpen(false)} />
-      <AuthModal />
-      <VersionHistoryModal
-        isOpen={isHistoryModalOpen}
-        onClose={() => setIsHistoryModalOpen(false)}
-      />
-      <PdfImportModal isOpen={isPdfModalOpen} onClose={() => setIsPdfModalOpen(false)} />
-      <AIStudyAssistantModal isOpen={isAiModalOpen} onClose={() => setIsAiModalOpen(false)} />
-      <FlashcardsModal
-        isOpen={isFlashcardsModalOpen}
-        onClose={() => setIsFlashcardsModalOpen(false)}
-      />
-      <StudyDashboardModal
-        isOpen={isStudyDashboardOpen}
-        onClose={() => setIsStudyDashboardOpen(false)}
-      />
+      <React.Suspense fallback={null}>
+        <SyncModal isOpen={isSyncModalOpen} onClose={() => setIsSyncModalOpen(false)} />
+        <AuthModal />
+        <VersionHistoryModal
+          isOpen={isHistoryModalOpen}
+          onClose={() => setIsHistoryModalOpen(false)}
+        />
+        <PdfImportModal isOpen={isPdfModalOpen} onClose={() => setIsPdfModalOpen(false)} />
+        <AIStudyAssistantModal isOpen={isAiModalOpen} onClose={() => setIsAiModalOpen(false)} />
+        <FlashcardsModal
+          isOpen={isFlashcardsModalOpen}
+          onClose={() => setIsFlashcardsModalOpen(false)}
+        />
+        <StudyDashboardModal
+          isOpen={isStudyDashboardOpen}
+          onClose={() => setIsStudyDashboardOpen(false)}
+        />
+      </React.Suspense>
     </header>
   );
 };

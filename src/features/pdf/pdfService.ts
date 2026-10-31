@@ -1,13 +1,6 @@
-import * as pdfjsLib from 'pdfjs-dist';
-import { PDFDocument } from 'pdf-lib';
 import type { LectureNote } from '@/types/note';
 import { drawFreehandStroke, drawShape } from '@/utils/stroke';
 import { triggerDownload } from '@/utils/export';
-
-// Configure PDF.js worker
-if (typeof window !== 'undefined' && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
-}
 
 export interface RenderedPdfPage {
   pageNumber: number;
@@ -20,6 +13,12 @@ export async function renderPdfFileToPages(
   file: File,
   onProgress?: (current: number, total: number) => void
 ): Promise<RenderedPdfPage[]> {
+  // Dynamically load pdfjs-dist only when importing slides to keep initial app bundle small
+  const pdfjsLib = await import('pdfjs-dist');
+  if (typeof window !== 'undefined' && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+  }
+
   const arrayBuffer = await file.arrayBuffer();
   const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
   const pdfDoc = await loadingTask.promise;
@@ -62,6 +61,8 @@ export async function exportAnnotatedPdfDocument(note: LectureNote): Promise<voi
     ? note.pages
     : [{ id: `p_${note.id}_0`, pageIndex: 0, elements: note.canvasElements || [] }];
 
+  // Dynamically load pdf-lib only during PDF generation
+  const { PDFDocument } = await import('pdf-lib');
   const pdfDoc = await PDFDocument.create();
 
   for (const page of pages) {
