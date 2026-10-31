@@ -126,7 +126,7 @@ export const AudioPlaybackIsland: React.FC = () => {
   };
 
   return (
-    <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-1.5 animate-in fade-in slide-in-from-bottom-2 select-none">
+    <div className="absolute top-16 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-1.5 animate-in fade-in slide-in-from-top-2 select-none">
       <div className="flex items-center gap-3 px-4 py-2.5 bg-slate-900/90 dark:bg-slate-900/95 backdrop-blur-md text-white border border-slate-700/80 shadow-2xl rounded-2xl text-xs">
         {/* Play / Pause Toggle */}
         <button

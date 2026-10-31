@@ -99,7 +99,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
   ];
 
   return (
-    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center pointer-events-auto max-w-[96vw]">
+    <div className="absolute bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center pointer-events-auto max-w-[96vw]">
       {/* Mobile collapse / expand handle */}
       <button
         onClick={() => setIsMobileCollapsed(!isMobileCollapsed)}

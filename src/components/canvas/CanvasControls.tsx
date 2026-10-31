@@ -59,7 +59,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({ onClear, hasElem
             ? 'Auto-Shape Recognition ON: Hand-drawn loops & lines automatically snap into shapes'
             : 'Auto-Shape Recognition OFF'
         }
-        className={`flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-xs font-medium shadow-md backdrop-blur-md transition-all border ${
+        className={`hidden sm:flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-3 sm:py-1.5 rounded-full text-xs font-medium shadow-md backdrop-blur-md transition-all border ${
           autoShapeRecognition
             ? 'bg-blue-500/15 border-blue-500/40 text-blue-700 dark:text-blue-300'
             : 'bg-slate-500/15 border-slate-500/30 text-slate-500 dark:text-slate-400'
@@ -73,7 +73,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({ onClear, hasElem
       <div className="flex items-center bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-xl shadow-md border border-slate-200/80 dark:border-slate-800 p-0.5 sm:p-1 text-slate-700 dark:text-slate-200">
         <button
           onClick={() => setZoom((z) => Math.max(0.1, z - 0.1))}
-          className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+          className="hidden sm:flex p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
           title="Zoom Out"
         >
           <ZoomOut className="w-4 h-4" />
@@ -81,7 +81,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({ onClear, hasElem
 
         <button
           onClick={resetView}
-          className="px-2 py-1 text-xs font-mono font-medium hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors min-w-[3.5rem] text-center"
+          className="px-2 py-1 text-xs font-mono font-medium hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors min-w-[2.8rem] text-center"
           title="Reset to 100%"
         >
           {zoomPercent}%
@@ -89,7 +89,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({ onClear, hasElem
 
         <button
           onClick={() => setZoom((z) => Math.min(5, z + 0.1))}
-          className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+          className="hidden sm:flex p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
           title="Zoom In"
         >
           <ZoomIn className="w-4 h-4" />
@@ -97,7 +97,7 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({ onClear, hasElem
 
         <button
           onClick={resetView}
-          className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-l border-slate-200 dark:border-slate-800 ml-1"
+          className="hidden md:flex p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border-l border-slate-200 dark:border-slate-800 ml-1"
           title="Reset View (Ctrl+0)"
         >
           <RotateCcw className="w-3.5 h-3.5 text-slate-500" />

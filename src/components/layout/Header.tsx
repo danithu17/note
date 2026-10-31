@@ -280,6 +280,15 @@ export const Header: React.FC = () => {
           </div>
         </div>
 
+        {/* 🏠 Prominent Home / Landing Page Switcher */}
+        <button
+          onClick={() => setViewMode('landing')}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-all shrink-0 border border-slate-200/60 dark:border-white/5 active:scale-95"
+          title="Return to Landing Page & Product Overview"
+        >
+          <span>🏠 Home</span>
+        </button>
+
         {/* Breadcrumb Hierarchy Navigation */}
         {activeNote && (
           <div className="hidden md:flex items-center gap-1 text-xs text-slate-400 dark:text-slate-300 pl-2 border-l border-slate-200 dark:border-slate-800 max-w-md truncate">
@@ -331,7 +340,7 @@ export const Header: React.FC = () => {
           </kbd>
         </button>
 
-        <div className="flex items-center bg-slate-100/90 dark:bg-slate-800/90 p-1 rounded-xl text-xs border border-slate-200/50 dark:border-slate-700/50">
+        <div className="hidden md:flex items-center bg-slate-100/90 dark:bg-slate-800/90 p-1 rounded-xl text-xs border border-slate-200/50 dark:border-slate-700/50">
           <button
             onClick={() => setLayoutMode('timeline')}
             title="Chat & Timeline Feed View [Tab]"

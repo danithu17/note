@@ -22,6 +22,14 @@ export function App() {
   useEffect(() => {
     initialize();
     useAuthStore.getState().initialize();
+
+    const handleHashChange = () => {
+      const isApp = window.location.hash.includes('app');
+      useCanvasStore.setState({ viewMode: isApp ? 'app' : 'landing' });
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, [initialize]);
 
   if (isLoading) {

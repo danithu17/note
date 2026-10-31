@@ -106,7 +106,8 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
   isCommandPaletteOpen: false,
   isShortcutsModalOpen: false,
   activeModal: null,
-  viewMode: 'app',
+  viewMode:
+    typeof window !== 'undefined' && window.location.hash.includes('app') ? 'app' : 'landing',
   isSoundEnabled: true,
   isFullscreen: false,
   autoShapeRecognition: true,
@@ -242,6 +243,9 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
 
   setViewMode: (viewMode) => {
     sound.click();
+    if (typeof window !== 'undefined') {
+      window.location.hash = viewMode === 'app' ? '#app' : '#landing';
+    }
     set({ viewMode });
   },
 
