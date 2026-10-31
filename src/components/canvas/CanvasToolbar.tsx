@@ -99,7 +99,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
   ];
 
   return (
-    <div className="absolute bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center pointer-events-auto max-w-[96vw]">
+    <div className="absolute bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center pointer-events-auto w-max max-w-[calc(100%-1rem)] sm:max-w-[calc(100%-1.5rem)]">
       {/* Mobile collapse / expand handle */}
       <button
         onClick={() => setIsMobileCollapsed(!isMobileCollapsed)}
@@ -118,32 +118,32 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
 
       {/* Main Apple / Figma Inspired Floating Island Toolbar */}
       {!isMobileCollapsed && (
-        <div className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-200/80 dark:border-slate-800/80 text-slate-700 dark:text-slate-200 transition-all ring-1 ring-black/5 dark:ring-white/5 max-w-[96vw] overflow-x-auto scrollbar-none">
+        <div className="flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2.5 py-1 sm:py-1.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-200/80 dark:border-slate-800/80 text-slate-700 dark:text-slate-200 transition-all ring-1 ring-black/5 dark:ring-white/5 max-w-full overflow-x-auto scrollbar-none">
           {/* Undo / Redo */}
-          <div className="flex items-center gap-0.5 pr-1.5 border-r border-slate-200 dark:border-slate-800">
+          <div className="flex items-center gap-0.5 pr-1 border-r border-slate-200 dark:border-slate-800">
             <button
               onClick={onUndo}
               disabled={!canUndo}
               title="Undo (Ctrl+Z)"
-              className={`p-2 rounded-xl transition-all ${
+              className={`p-1.5 sm:p-2 rounded-xl transition-all ${
                 canUndo
                   ? 'hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95 text-slate-700 dark:text-slate-200'
                   : 'opacity-25 cursor-not-allowed'
               }`}
             >
-              <Undo2 className="w-4 h-4" />
+              <Undo2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
             <button
               onClick={onRedo}
               disabled={!canRedo}
               title="Redo (Ctrl+Y)"
-              className={`p-2 rounded-xl transition-all ${
+              className={`p-1.5 sm:p-2 rounded-xl transition-all ${
                 canRedo
                   ? 'hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95 text-slate-700 dark:text-slate-200'
                   : 'opacity-25 cursor-not-allowed'
               }`}
             >
-              <Redo2 className="w-4 h-4" />
+              <Redo2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
           </div>
 
@@ -155,13 +155,13 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
               setIsGridMenuOpen(false);
             }}
             title="Pen Tool (Shortcut: 1 or P)"
-            className={`p-2 rounded-xl flex items-center justify-center transition-all relative group ${
+            className={`p-1.5 sm:p-2 rounded-xl flex items-center justify-center transition-all relative group ${
               tool === 'pen'
                 ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25 scale-105 font-medium'
                 : 'hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95'
             }`}
           >
-            <Pen className="w-4 h-4" />
+            <Pen className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             {tool === 'pen' && (
               <span
                 className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-slate-900 shadow-xs"
@@ -181,13 +181,13 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
               setIsGridMenuOpen(false);
             }}
             title="Highlighter (Shortcut: 2 or H)"
-            className={`p-2 rounded-xl flex items-center justify-center transition-all relative group ${
+            className={`p-1.5 sm:p-2 rounded-xl flex items-center justify-center transition-all relative group ${
               tool === 'highlighter'
                 ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/25 scale-105 font-medium'
                 : 'hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95'
             }`}
           >
-            <Highlighter className="w-4 h-4" />
+            <Highlighter className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             {tool === 'highlighter' && (
               <span
                 className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-slate-900 shadow-xs"
@@ -211,15 +211,15 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
               setIsGridMenuOpen(false);
             }}
             title={`Eraser (Shortcut: 3 or E) - Mode: ${eraserMode === 'stroke' ? 'Stroke (Obj)' : 'Pixel (Pix)'}`}
-            className={`p-2 rounded-xl flex items-center gap-1 transition-all group ${
+            className={`p-1.5 sm:p-2 rounded-xl flex items-center gap-1 transition-all group ${
               tool === 'eraser'
                 ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/25 scale-105'
                 : 'hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95'
             }`}
           >
-            <Eraser className="w-4 h-4" />
+            <Eraser className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             {tool === 'eraser' && (
-              <span className="text-[10px] font-bold uppercase tracking-wider hidden sm:inline">
+              <span className="text-[9px] font-bold uppercase tracking-wider hidden xl:inline">
                 {eraserMode === 'stroke' ? 'Obj' : 'Pix'}
               </span>
             )}
@@ -238,14 +238,14 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                 if (tool !== 'shape') setTool('shape');
               }}
               title="Geometric Shapes (Shortcut: 4 or S)"
-              className={`p-2 rounded-xl flex items-center gap-1 transition-all group ${
+              className={`p-1.5 sm:p-2 rounded-xl flex items-center gap-0.5 transition-all group ${
                 tool === 'shape'
                   ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/25 scale-105'
                   : 'hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95'
               }`}
             >
-              {shapes.find((s) => s.type === shape)?.icon || <Square className="w-4 h-4" />}
-              <ChevronDown className="w-3 h-3 opacity-70" />
+              {shapes.find((s) => s.type === shape)?.icon || <Square className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+              <ChevronDown className="w-2.5 h-2.5 sm:w-3 sm:h-3 opacity-70" />
               <span className="hidden group-hover:flex absolute -top-8 px-1.5 py-0.5 rounded bg-slate-900 text-white text-[10px] font-mono pointer-events-none whitespace-nowrap">
                 Shapes [4]
               </span>
@@ -286,19 +286,19 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
               setIsGridMenuOpen(false);
             }}
             title="Laser Pointer for Presenting / Lecturing (Shortcut: 5 or L)"
-            className={`p-2 rounded-xl flex items-center justify-center transition-all relative group ${
+            className={`p-1.5 sm:p-2 rounded-xl flex items-center justify-center transition-all relative group ${
               tool === 'laser'
                 ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25 scale-105 font-medium'
                 : 'hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95'
             }`}
           >
-            <Zap className="w-4 h-4 fill-current" />
+            <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current" />
             <span className="hidden group-hover:flex absolute -top-8 px-1.5 py-0.5 rounded bg-slate-900 text-white text-[10px] font-mono pointer-events-none whitespace-nowrap">
               Laser [5]
             </span>
           </button>
 
-          <div className="h-5 w-px bg-slate-200 dark:bg-slate-800 mx-0.5" />
+          <div className="h-4 sm:h-5 w-px bg-slate-200 dark:bg-slate-800 mx-0.5" />
 
           {/* Color Palettes */}
           <div className="flex items-center gap-1">
@@ -309,7 +309,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                   <button
                     key={c}
                     onClick={() => setHighlighterColor(c)}
-                    className={`w-6 h-6 rounded-full transition-all border-2 ${
+                    className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full transition-all border-2 ${
                       highlighterColor === c
                         ? 'scale-110 border-slate-800 dark:border-white shadow-sm'
                         : 'border-transparent hover:scale-105'
@@ -321,11 +321,13 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
             ) : (
               // Pen & Shape colors
               <div className="flex items-center gap-1">
-                {PEN_COLORS.slice(0, 5).map((c) => (
+                {PEN_COLORS.slice(0, 5).map((c, idx) => (
                   <button
                     key={c}
                     onClick={() => setColor(c)}
-                    className={`w-6 h-6 rounded-full transition-all border-2 ${
+                    className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full transition-all border-2 ${
+                      idx >= 4 ? 'hidden sm:block' : ''
+                    } ${
                       color === c
                         ? 'scale-110 border-blue-500 shadow-sm'
                         : 'border-transparent hover:scale-105'
@@ -341,10 +343,10 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                 <div className="relative">
                   <button
                     onClick={() => setIsColorPickerOpen(!isColorPickerOpen)}
-                    className="w-6 h-6 rounded-full flex items-center justify-center border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    className="w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                     title="Custom color"
                   >
-                    <Palette className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
+                    <Palette className="w-3 h-3 text-slate-600 dark:text-slate-400" />
                   </button>
 
                   {isColorPickerOpen && (
@@ -370,16 +372,16 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
             )}
           </div>
 
-          <div className="h-5 w-px bg-slate-200 dark:bg-slate-800 mx-0.5" />
+          <div className="h-4 sm:h-5 w-px bg-slate-200 dark:bg-slate-800 mx-0.5" />
 
           {/* Stroke Width Selector with [ / ] shortcut hints */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5 sm:gap-1">
             {STROKE_WIDTHS.map((w) => (
               <button
                 key={w.value}
                 onClick={() => setStrokeWidth(w.value)}
                 title={`Stroke: ${w.label} (${w.value}px) [Shortcut: [ or ]]`}
-                className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all ${
+                className={`w-5 h-5 sm:w-6 sm:h-6 rounded-lg flex items-center justify-center transition-all ${
                   strokeWidth === w.value
                     ? 'bg-slate-200 dark:bg-slate-700 font-bold'
                     : 'hover:bg-slate-100 dark:hover:bg-slate-800'
@@ -388,15 +390,15 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                 <div
                   className="rounded-full bg-slate-800 dark:bg-slate-200"
                   style={{
-                    width: `${Math.min(14, w.value * 1.5 + 2)}px`,
-                    height: `${Math.min(14, w.value * 1.5 + 2)}px`,
+                    width: `${Math.min(12, w.value * 1.3 + 2)}px`,
+                    height: `${Math.min(12, w.value * 1.3 + 2)}px`,
                   }}
                 />
               </button>
             ))}
           </div>
 
-          <div className="h-5 w-px bg-slate-200 dark:bg-slate-800 mx-0.5" />
+          <div className="h-4 sm:h-5 w-px bg-slate-200 dark:bg-slate-800 mx-0.5" />
 
           {/* Grid Background Selector [G] */}
           <div className="relative">
@@ -407,10 +409,10 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                 setIsColorPickerOpen(false);
               }}
               title="Paper Background & Grid (Shortcut: G)"
-              className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-1 group"
+              className="p-1.5 sm:p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center gap-0.5 group"
             >
-              <Grid className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-              <ChevronDown className="w-3 h-3 opacity-70" />
+              <Grid className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 dark:text-slate-300" />
+              <ChevronDown className="w-2.5 h-2.5 sm:w-3 sm:h-3 opacity-70" />
               <span className="hidden group-hover:flex absolute -top-8 px-1.5 py-0.5 rounded bg-slate-900 text-white text-[10px] font-mono pointer-events-none whitespace-nowrap">
                 Grid [G]
               </span>

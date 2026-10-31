@@ -800,11 +800,15 @@ export const VisualCanvas: React.FC = () => {
         }`}
       />
 
-      {/* Multi-Page Canvas Navigation Pill */}
-      <CanvasPageBar />
-
-      {/* Floating Canvas Controls (Zoom, Palm Rejection, Clear) */}
-      <CanvasControls onClear={handleClear} hasElements={elements.length > 0} />
+      {/* Coordinated Top Canvas Bar: Multi-Page Navigation on left, Canvas Controls on right */}
+      <div className="absolute top-3 inset-x-2 sm:inset-x-3 z-30 flex items-center justify-between gap-1.5 pointer-events-none">
+        <div className="pointer-events-auto shrink min-w-0">
+          <CanvasPageBar />
+        </div>
+        <div className="pointer-events-auto shrink-0">
+          <CanvasControls onClear={handleClear} hasElements={elements.length > 0} />
+        </div>
+      </div>
 
       {/* Floating Bottom Toolbar (Pen, Highlighter, Eraser, Shapes, Laser, Colors, Stroke Width) */}
       <CanvasToolbar
