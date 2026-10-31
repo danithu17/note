@@ -271,6 +271,34 @@ export const CommandPalette: React.FC = () => {
       action: () => setViewMode('landing'),
     },
     {
+      id: 'act-pricing',
+      title: 'Commercial Plans & 14-Day Free Trial',
+      category: 'Billing',
+      shortcut: '',
+      icon: <Sparkles className="w-4 h-4 text-blue-500" />,
+      action: () => openModal('pricing'),
+    },
+    {
+      id: 'act-admin',
+      title: 'Admin Dashboard & Entitlements Control',
+      category: 'Admin',
+      shortcut: 'admin',
+      icon: <HelpCircle className="w-4 h-4 text-purple-500" />,
+      action: () => openModal('admin'),
+    },
+    {
+      id: 'act-reset-demo',
+      title: 'Reset Demo Data to Clean Workspace',
+      category: 'Actions',
+      shortcut: '',
+      icon: <Zap className="w-4 h-4 text-amber-500" />,
+      action: async () => {
+        if (window.confirm('Remove example notes and reset to a clean blank workspace?')) {
+          await useNoteStore.getState().resetWorkspaceToClean();
+        }
+      },
+    },
+    {
       id: 'act-flashcards',
       title: 'Spaced Repetition Flashcards (SM-2)',
       category: 'Study Tools',

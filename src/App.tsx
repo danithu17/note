@@ -12,6 +12,8 @@ import { ChatTimelineView } from './features/notes/components/ChatTimelineView';
 import { ChatAssistantPanel } from './features/assistant/components/ChatAssistantPanel';
 import { LandingPage } from './features/landing/components/LandingPage';
 import { GlobalModals } from './components/layout/GlobalModals';
+import { TrialBanner } from './features/billing/components/TrialBanner';
+import { useEntitlementsStore } from './features/billing/useEntitlementsStore';
 import { useNoteStore } from './store/useNoteStore';
 import { useCanvasStore } from './store/useCanvasStore';
 import { useAuthStore } from './core/auth/useAuthStore';
@@ -23,6 +25,7 @@ export function App() {
   useEffect(() => {
     initialize();
     useAuthStore.getState().initialize();
+    useEntitlementsStore.getState().initialize();
 
     const handleHashChange = () => {
       const isApp = window.location.hash.includes('app');
@@ -59,6 +62,9 @@ export function App() {
         <>
           {/* Top Apple Navigation Bar */}
           <Header />
+
+          {/* 14-Day Free Student Trial Status Banner */}
+          <TrialBanner />
 
           {/* Main Content Workspace */}
           <div className="flex-1 flex overflow-hidden relative pb-14 md:pb-0">

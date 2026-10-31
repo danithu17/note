@@ -16,6 +16,7 @@ import { MarkdownToolbar } from './MarkdownToolbar';
 import { LectureRecorder } from '../audio/LectureRecorder';
 import { exportCanvasToSvg } from '../../utils/export';
 import { sound } from '../../utils/sound';
+import { highlightCodeSyntax } from '@/utils/codeHighlight';
 import confetti from 'canvas-confetti';
 
 const LECTURE_TEMPLATES = [
@@ -210,6 +211,27 @@ export const LectureEditor: React.FC = () => {
     sound.click();
   };
 
+  // Tab key indentation & bracket auto-closing inside markdown / code blocks
+  const handleTextareaKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const value = textarea.value;
+
+      // Insert 2 spaces for standard clean indentation
+      const newValue = value.substring(0, start) + '  ' + value.substring(end);
+      updateMarkdown(newValue);
+
+      setTimeout(() => {
+        textarea.selectionStart = textarea.selectionEnd = start + 2;
+      }, 0);
+    }
+  };
+
   // Copy code block content
   const handleCopyCode = (codeText: string, idx: number) => {
     navigator.clipboard.writeText(codeText);
@@ -240,12 +262,19 @@ export const LectureEditor: React.FC = () => {
           elements.push(
             <div
               key={`code-${idx}`}
-              className="my-3 rounded-2xl bg-slate-900 text-slate-100 p-4 font-mono text-xs overflow-x-auto border border-slate-800 shadow-xl relative group"
+              className="my-3 rounded-2xl bg-slate-950 text-slate-100 p-4 font-mono text-xs overflow-x-auto border border-slate-800/80 shadow-2xl relative group"
             >
-              <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
-                <span className="text-[10px] font-bold uppercase text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-md">
-                  {codeBlockLanguage || 'Code'}
-                </span>
+              <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-slate-800">
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 opacity-60">
+                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80 inline-block" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80 inline-block" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block" />
+                  </div>
+                  <span className="text-[10px] font-bold uppercase text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-md">
+                    {codeBlockLanguage || 'Code'}
+                  </span>
+                </div>
                 <button
                   onClick={() => handleCopyCode(currentCode, thisCodeIdx)}
                   className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-white px-2 py-0.5 rounded bg-slate-800/60 hover:bg-slate-800 transition-colors"
@@ -261,7 +290,9 @@ export const LectureEditor: React.FC = () => {
                   )}
                 </button>
               </div>
-              <pre className="whitespace-pre">{currentCode}</pre>
+              <div className="table w-full font-mono text-xs leading-relaxed overflow-x-auto">
+                {highlightCodeSyntax(currentCode, codeBlockLanguage)}
+              </div>
             </div>
           );
           codeBlockContent = [];
@@ -547,6 +578,7 @@ export const LectureEditor: React.FC = () => {
             ref={textareaRef}
             value={activeNote.markdown}
             onChange={(e) => updateMarkdown(e.target.value)}
+            onKeyDown={handleTextareaKeyDown}
             placeholder="Type lecture notes, markdown, math formulas ($$ ... $$), or paste code..."
             className="w-full h-full resize-none bg-transparent border-0 outline-none font-mono text-sm leading-relaxed text-slate-800 dark:text-slate-200 placeholder:text-slate-400 selection:bg-blue-100 dark:selection:bg-blue-900/60"
           />

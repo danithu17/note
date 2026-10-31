@@ -17,6 +17,7 @@ import {
   Flame,
   Presentation,
   Zap,
+  RotateCcw,
 } from 'lucide-react';
 import { useNoteStore } from '../../store/useNoteStore';
 import { useCanvasStore } from '../../store/useCanvasStore';
@@ -49,6 +50,7 @@ export const Sidebar: React.FC = () => {
     selectedTag,
     setSelectedTag,
     importBackupBundle,
+    resetWorkspaceToClean,
   } = useNoteStore();
 
   const { isSidebarOpen, setSidebarOpen, openModal } = useCanvasStore();
@@ -462,6 +464,25 @@ export const Sidebar: React.FC = () => {
               <span>Trash (30-day restore)</span>
             </div>
             <span className="text-[10px] font-mono text-slate-400">Bin</span>
+          </button>
+
+          <button
+            onClick={async () => {
+              if (
+                window.confirm(
+                  'Remove example notes and start with a fresh, clean blank notebook?'
+                )
+              ) {
+                await resetWorkspaceToClean();
+              }
+            }}
+            className="flex items-center justify-between px-2.5 py-1 rounded-xl text-[11px] text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors"
+            title="Clear pre-loaded example notes"
+          >
+            <span className="flex items-center gap-1.5">
+              <RotateCcw className="w-3 h-3 text-slate-400" />
+              Reset Demo Examples
+            </span>
           </button>
 
           <div className="flex flex-col gap-1 text-[11px]">

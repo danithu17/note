@@ -40,6 +40,11 @@ const TrashModal = React.lazy(() =>
     default: m.TrashModal,
   }))
 );
+const AdminDashboardModal = React.lazy(() =>
+  import('@/features/admin/components/AdminDashboardModal').then((m) => ({
+    default: m.AdminDashboardModal,
+  }))
+);
 
 export const GlobalModals: React.FC = () => {
   const { activeModal, closeModal } = useCanvasStore();
@@ -98,6 +103,10 @@ export const GlobalModals: React.FC = () => {
       />
       <TrashModal
         isOpen={activeModal === 'trash'}
+        onClose={closeModal}
+      />
+      <AdminDashboardModal
+        isOpen={activeModal === 'admin'}
         onClose={closeModal}
       />
     </React.Suspense>

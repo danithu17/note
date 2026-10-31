@@ -8,7 +8,13 @@ import type {
   NotePage,
   SyncStatus,
 } from '@/types/note';
-import { db, initializeDatabase, exportFullDatabaseBackup, importFullDatabaseBackup } from '../db';
+import {
+  db,
+  initializeDatabase,
+  resetToCleanWorkspace,
+  exportFullDatabaseBackup,
+  importFullDatabaseBackup,
+} from '../db';
 import { syncEngine } from '../core/sync/syncEngine';
 import { moveToTrash, restoreFromTrash, permanentlyDelete } from '../core/trash/trashService';
 import { createVersionSnapshot } from '../core/history/versionService';
@@ -54,6 +60,7 @@ interface NoteState {
   setSearchQuery: (query: string) => void;
   setSelectedTag: (tag: string | null) => void;
   getActiveNote: () => LectureNote | undefined;
+  resetWorkspaceToClean: () => Promise<void>;
   exportBackupBundle: () => Promise<any>;
   importBackupBundle: (bundle: any) => Promise<{ importedCount: number }>;
 }
@@ -455,6 +462,11 @@ export const useNoteStore = create<NoteState>((set, get) => ({
 
   setSearchQuery: (searchQuery: string) => set({ searchQuery }),
   setSelectedTag: (selectedTag: string | null) => set({ selectedTag }),
+
+  resetWorkspaceToClean: async () => {
+    await resetToCleanWorkspace();
+    await get().initialize();
+  },
 
   exportBackupBundle: async () => {
     return await exportFullDatabaseBackup();

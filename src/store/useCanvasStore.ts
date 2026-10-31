@@ -19,6 +19,7 @@ export type ActiveModalType =
   | 'history'
   | 'auth'
   | 'trash'
+  | 'admin'
   | null;
 
 export interface CanvasState {
