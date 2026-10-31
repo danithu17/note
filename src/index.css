@@ -1,5 +1,36 @@
 @import 'tailwindcss';
 
+:root {
+  /* Apple Human Interface Guidelines Design Tokens */
+  --apple-bg: #f2f2f7;
+  --apple-surface: #ffffff;
+  --apple-secondary-surface: #f2f2f7;
+  --apple-tertiary-surface: #e5e5ea;
+  --apple-label: #000000;
+  --apple-secondary-label: #8e8e93;
+  --apple-tertiary-label: #c7c7cc;
+  --apple-separator: rgba(60, 60, 67, 0.18);
+  --apple-hairline: 0.5px solid rgba(60, 60, 67, 0.18);
+  --apple-accent: #007aff;
+  --apple-accent-hover: #0062cc;
+  --apple-card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+}
+
+.dark {
+  --apple-bg: #000000;
+  --apple-surface: #1c1c1e;
+  --apple-secondary-surface: #2c2c2e;
+  --apple-tertiary-surface: #3a3a3c;
+  --apple-label: #ffffff;
+  --apple-secondary-label: #8e8e93;
+  --apple-tertiary-label: #48484a;
+  --apple-separator: rgba(84, 84, 88, 0.35);
+  --apple-hairline: 0.5px solid rgba(84, 84, 88, 0.35);
+  --apple-accent: #0a84ff;
+  --apple-accent-hover: #409cff;
+  --apple-card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4), 0 2px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
 @layer base {
   *,
   *::before,
@@ -17,12 +48,20 @@
     padding: 0;
     overflow: hidden;
     font-family:
-      -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      -apple-system,
+      BlinkMacSystemFont,
+      'SF Pro Text',
+      'SF Pro Display',
+      'Inter',
+      system-ui,
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   /* Accessible focus indicators for keyboard navigation */
   :focus-visible {
-    outline: 2px solid #3b82f6;
+    outline: 2px solid var(--apple-accent);
     outline-offset: 2px;
   }
 
@@ -30,10 +69,43 @@
   body {
     overscroll-behavior-y: none;
     touch-action: none;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
   }
 }
 
-/* Custom sleek scrollbars */
+/* Apple Vibrancy & Translucency */
+.apple-blur {
+  background-color: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(25px) saturate(190%);
+  -webkit-backdrop-filter: blur(25px) saturate(190%);
+}
+
+.dark .apple-blur {
+  background-color: rgba(28, 28, 30, 0.82);
+  backdrop-filter: blur(25px) saturate(190%);
+  -webkit-backdrop-filter: blur(25px) saturate(190%);
+}
+
+.apple-hairline-b {
+  border-bottom: 0.5px solid var(--apple-separator);
+}
+
+.apple-hairline-t {
+  border-top: 0.5px solid var(--apple-separator);
+}
+
+.apple-hairline-r {
+  border-right: 0.5px solid var(--apple-separator);
+}
+
+.apple-hairline-l {
+  border-left: 0.5px solid var(--apple-separator);
+}
+
+/* Custom Apple sleek scrollbars */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -44,12 +116,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.3);
+  background: rgba(142, 142, 147, 0.3);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.5);
+  background: rgba(142, 142, 147, 0.6);
 }
 
 /* Dark mode math formulas & code readability */

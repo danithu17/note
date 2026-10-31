@@ -33,6 +33,7 @@ export const ShortcutsModal: React.FC = () => {
     {
       title: 'Quick Power Actions',
       items: [
+        { key: 'Ctrl + J', desc: 'Toggle AI Study Assistant Panel' },
         { key: 'Ctrl + K', desc: 'Command Palette / Quick Search' },
         { key: 'Ctrl + Z', desc: 'Undo Canvas Stroke' },
         { key: 'Ctrl + Y', desc: 'Redo Canvas Stroke' },

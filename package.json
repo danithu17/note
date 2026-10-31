@@ -11,9 +11,15 @@
     "test:watch": "vitest",
     "lint": "oxlint",
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "electron:start": "electron electron/main.cjs",
+    "electron:dev": "vite build && electron electron/main.cjs",
+    "cap:sync": "cap sync",
+    "android:dev": "cap run android"
   },
   "dependencies": {
+    "@capacitor/cli": "^8.6.0",
+    "@capacitor/core": "^8.6.0",
     "@supabase/supabase-js": "^2.118.0",
     "@tailwindcss/vite": "^4.3.3",
     "canvas-confetti": "^1.9.4",
@@ -38,6 +44,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
+    "electron": "^45.2.1",
     "fake-indexeddb": "^6.2.7",
     "jsdom": "^26.0.0",
     "oxlint": "^1.89.0",

@@ -22,6 +22,7 @@ import { useNoteStore } from '../../store/useNoteStore';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useAuthStore } from '@/core/auth/useAuthStore';
 import { useI18nStore } from '@/core/i18n/useI18nStore';
+import { useAssistantStore } from '@/features/assistant/useAssistantStore';
 import { db } from '@/core/db';
 import { ContextMenu } from '../ui/ContextMenu';
 import type { LectureNote } from '../../types/note';
@@ -408,7 +409,7 @@ export const Sidebar: React.FC = () => {
           <div className="grid grid-cols-2 gap-1 text-xs">
             <button
               onClick={() => {
-                openModal('ai');
+                useAssistantStore.getState().setAssistantOpen(true);
                 if (window.innerWidth < 1024) setSidebarOpen(false);
               }}
               className="flex items-center gap-1.5 px-2 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 hover:border-purple-400 hover:text-purple-600 dark:hover:text-purple-400 text-slate-700 dark:text-slate-200 font-medium transition-colors shadow-2xs"

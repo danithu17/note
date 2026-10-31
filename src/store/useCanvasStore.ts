@@ -38,6 +38,7 @@ export interface CanvasState {
   isCommandPaletteOpen: boolean;
   isShortcutsModalOpen: boolean;
   activeModal: ActiveModalType;
+  viewMode: 'app' | 'landing';
   isSoundEnabled: boolean;
   isFullscreen: boolean;
   autoShapeRecognition: boolean;
@@ -75,6 +76,7 @@ export interface CanvasState {
   toggleShortcutsModal: () => void;
   openModal: (modal: ActiveModalType) => void;
   closeModal: () => void;
+  setViewMode: (viewMode: 'app' | 'landing') => void;
   toggleSound: () => void;
   toggleFullscreen: () => void;
   pushHistory: (elements: CanvasElement[]) => void;
@@ -104,6 +106,7 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
   isCommandPaletteOpen: false,
   isShortcutsModalOpen: false,
   activeModal: null,
+  viewMode: 'app',
   isSoundEnabled: true,
   isFullscreen: false,
   autoShapeRecognition: true,
@@ -235,6 +238,11 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
 
   closeModal: () => {
     set({ activeModal: null });
+  },
+
+  setViewMode: (viewMode) => {
+    sound.click();
+    set({ viewMode });
   },
 
   toggleSound: () => {

@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useNoteStore } from '../../store/useNoteStore';
+import { useAssistantStore } from '@/features/assistant/useAssistantStore';
 import confetti from 'canvas-confetti';
 
 export const CommandPalette: React.FC = () => {
@@ -42,6 +43,7 @@ export const CommandPalette: React.FC = () => {
     isDarkMode,
     toggleShortcutsModal,
     openModal,
+    setViewMode,
   } = useCanvasStore();
 
   const { notes, selectNote, createNote } = useNoteStore();
@@ -252,12 +254,20 @@ export const CommandPalette: React.FC = () => {
       action: () => toggleShortcutsModal(),
     },
     {
-      id: 'act-ai-study',
-      title: 'AI Study Assistant (Summarize, Quiz, Q&A)',
+      id: 'act-ai-assistant',
+      title: 'Chat AI Study Assistant (iMessage Style)',
       category: 'Study Tools',
-      shortcut: '',
+      shortcut: 'Cmd+J',
       icon: <Sparkles className="w-4 h-4 text-purple-500" />,
-      action: () => openModal('ai'),
+      action: () => useAssistantStore.getState().toggleAssistant(),
+    },
+    {
+      id: 'act-landing-page',
+      title: 'View ScribbleNote Landing Page & Showcase',
+      category: 'Navigation',
+      shortcut: '',
+      icon: <Layers className="w-4 h-4 text-blue-500" />,
+      action: () => setViewMode('landing'),
     },
     {
       id: 'act-flashcards',

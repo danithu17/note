@@ -1,0 +1,576 @@
+import React, { useState } from 'react';
+import {
+  Sparkles,
+  PenTool,
+  FileText,
+  Presentation,
+  Volume2,
+  Brain,
+  ShieldCheck,
+  Zap,
+  Check,
+  ChevronRight,
+  ArrowRight,
+  Monitor,
+  Smartphone,
+  HardDrive,
+  Flame,
+} from 'lucide-react';
+import confetti from 'canvas-confetti';
+
+interface LandingPageProps {
+  onLaunchApp: () => void;
+  onOpenPricing: () => void;
+}
+
+export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp, onOpenPricing }) => {
+  const [activeTab, setActiveTab] = useState<'canvas' | 'editor' | 'slides' | 'audio' | 'ai'>('canvas');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual');
+
+  const handleStartFree = () => {
+    confetti({ particleCount: 40, spread: 60 });
+    onLaunchApp();
+  };
+
+  return (
+    <div className="min-h-screen bg-[#f2f2f7] dark:bg-[#000000] text-slate-900 dark:text-white font-sans antialiased overflow-y-auto selection:bg-blue-500 selection:text-white">
+      {/* 1. Apple-grade Frosted Glass Top Navigation */}
+      <header className="sticky top-0 z-50 apple-blur border-b border-slate-200/80 dark:border-white/10 px-4 sm:px-8 h-16 flex items-center justify-between transition-colors">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+            <Sparkles className="w-4 h-4 fill-white" />
+          </div>
+          <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+            ScribbleNote
+          </span>
+        </div>
+
+        <nav className="hidden md:flex items-center gap-7 text-xs font-semibold text-slate-600 dark:text-slate-300">
+          <a href="#features" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            Features
+          </a>
+          <a href="#preview" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            Interactive Tour
+          </a>
+          <a href="#pricing" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            Pricing
+          </a>
+          <a href="#platforms" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            Desktop & Mobile
+          </a>
+        </nav>
+
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={onOpenPricing}
+            className="text-xs font-semibold px-3 py-1.5 rounded-full text-slate-700 dark:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-white/10 transition-colors"
+          >
+            Plans
+          </button>
+          <button
+            onClick={handleStartFree}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#007aff] hover:bg-[#0062cc] dark:bg-[#0a84ff] dark:hover:bg-[#409cff] text-white text-xs font-bold shadow-md shadow-blue-500/25 transition-all active:scale-95"
+          >
+            <span>Launch Notebook</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </header>
+
+      {/* 2. Hero Section */}
+      <section className="pt-16 pb-20 px-4 sm:px-6 max-w-5xl mx-auto text-center flex flex-col items-center">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 dark:bg-blue-500/20 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-semibold mb-6 animate-in fade-in">
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>The notebook for lectures, research & creative thinking</span>
+        </div>
+
+        <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-slate-900 dark:text-white leading-[1.08] max-w-4xl">
+          Typed Notes. Natural Handwriting.{' '}
+          <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-500 bg-clip-text text-transparent">
+            Audio & Slides in One Canvas.
+          </span>
+        </h1>
+
+        <p className="mt-5 text-base sm:text-lg text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed">
+          The all-in-one local-first workspace for university students and researchers. Works 100% offline, syncs to the cloud, and puts an iMessage-style AI assistant right inside your notes.
+        </p>
+
+        <div className="mt-8 flex items-center justify-center gap-3.5 flex-wrap">
+          <button
+            onClick={handleStartFree}
+            className="px-6 py-3.5 rounded-2xl bg-[#007aff] hover:bg-[#0062cc] dark:bg-[#0a84ff] text-white text-sm font-bold shadow-xl shadow-blue-500/25 transition-all active:scale-95 flex items-center gap-2"
+          >
+            <span>Get Started Free</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+          <button
+            onClick={onOpenPricing}
+            className="px-6 py-3.5 rounded-2xl bg-white dark:bg-[#1c1c1e] border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/5 text-slate-800 dark:text-white text-sm font-bold transition-all shadow-xs"
+          >
+            View Pro Scholar Plans ($4.99/mo)
+          </button>
+        </div>
+
+        <div className="mt-8 flex items-center justify-center gap-6 text-xs text-slate-500 dark:text-slate-400">
+          <span className="flex items-center gap-1.5">
+            <Check className="w-4 h-4 text-emerald-500" /> 100% Offline IndexedDB
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Check className="w-4 h-4 text-emerald-500" /> Zero AI Training on Notes
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Check className="w-4 h-4 text-emerald-500" /> Multi-Device Cloud Sync
+          </span>
+        </div>
+      </section>
+
+      {/* 3. Live Interactive Product Showcase Tabs */}
+      <section id="preview" className="py-12 px-4 sm:px-8 max-w-6xl mx-auto">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+            Everything you need for lectures in one place
+          </h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Tap a tool below to explore how ScribbleNote reimagines lecture study.
+          </p>
+
+          {/* Interactive Feature Pills Switcher */}
+          <div className="inline-flex items-center gap-1.5 p-1.5 bg-white dark:bg-[#1c1c1e] rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-md mt-6 flex-wrap justify-center">
+            <button
+              onClick={() => setActiveTab('canvas')}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+                activeTab === 'canvas'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5'
+              }`}
+            >
+              <PenTool className="w-3.5 h-3.5" />
+              <span>Freehand Canvas</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('editor')}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+                activeTab === 'editor'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5'
+              }`}
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>Typed Markdown & Math</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('slides')}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+                activeTab === 'slides'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5'
+              }`}
+            >
+              <Presentation className="w-3.5 h-3.5" />
+              <span>Slide Deck Import</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('audio')}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+                activeTab === 'audio'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5'
+              }`}
+            >
+              <Volume2 className="w-3.5 h-3.5" />
+              <span>Audio-Synced Notes</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('ai')}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+                activeTab === 'ai'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5'
+              }`}
+            >
+              <Brain className="w-3.5 h-3.5" />
+              <span>Chat AI Assistant</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Feature Display Window (Apple Mac Window Container) */}
+        <div className="bg-white dark:bg-[#1c1c1e] rounded-3xl border border-slate-200/80 dark:border-white/10 shadow-2xl overflow-hidden p-6 sm:p-8 min-h-[380px] flex flex-col justify-between">
+          {activeTab === 'canvas' && (
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              <div className="flex-1 space-y-4">
+                <span className="text-xs font-extrabold text-blue-600 uppercase tracking-wider">
+                  Infinite Visual Canvas
+                </span>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white">
+                  Smooth 60fps handwriting with 5 background paper grids
+                </h3>
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Powered by perfect-freehand, Apple Pencil / S-Pen pressure detection, palm rejection, and sub-millisecond 2D Quadtree spatial indexing.
+                </p>
+                <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-blue-500" /> Dot matrix, ruled paper, math graph, and isometric grids
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-blue-500" /> Auto-shape recognition snaps rough circles and boxes into perfect geometry
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-blue-500" /> Laser pointer presentation glow for lectures and study groups
+                  </li>
+                </ul>
+              </div>
+              <div className="w-full md:w-1/2 p-6 rounded-2xl bg-slate-100 dark:bg-[#2c2c2e] border border-slate-200 dark:border-white/5 flex flex-col items-center justify-center gap-3 text-center">
+                <div className="w-16 h-16 rounded-full bg-blue-500/10 text-blue-600 flex items-center justify-center">
+                  <PenTool className="w-8 h-8" />
+                </div>
+                <span className="font-bold text-sm">Interactive Freehand Studio</span>
+                <span className="text-xs text-slate-500">Supports Stylus Tilt, Pinch-Zoom & Multi-Page Books</span>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'editor' && (
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              <div className="flex-1 space-y-4">
+                <span className="text-xs font-extrabold text-emerald-600 uppercase tracking-wider">
+                  Markdown & KaTeX Math
+                </span>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white">
+                  Type formulas, format code, and check off action items
+                </h3>
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Full KaTeX mathematical equation rendering ($$...$$), code syntax highlighting with copy buttons, interactive checklists, and lecture templates for CS, Math, and Medicine.
+                </p>
+                <div className="p-4 rounded-xl bg-slate-900 text-slate-100 font-mono text-xs overflow-x-auto">
+                  <span className="text-emerald-400">// Differential Equation Solution</span><br />
+                  <span>{"$$ \\frac{dy}{dx} + P(x)y = Q(x) \\implies I(x) = e^{\\int P(x)dx} $$"}</span>
+                </div>
+              </div>
+              <div className="w-full md:w-1/2 p-6 rounded-2xl bg-slate-100 dark:bg-[#2c2c2e] border border-slate-200 dark:border-white/5 flex flex-col items-center justify-center gap-3 text-center">
+                <FileText className="w-12 h-12 text-emerald-500" />
+                <span className="font-bold text-sm">LaTeX + Code Blocks + Checklists</span>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'slides' && (
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              <div className="flex-1 space-y-4">
+                <span className="text-xs font-extrabold text-blue-600 uppercase tracking-wider">
+                  Slide Deck Annotation
+                </span>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white">
+                  Import professor slides (PDF) and write right over them
+                </h3>
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Drag and drop lecture PDFs or slide decks. Each slide renders as a high-definition canvas background page so you can highlight key points, sketch diagrams, and export annotated lecture decks.
+                </p>
+                <button
+                  onClick={handleStartFree}
+                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all"
+                >
+                  Try PDF Import in Notebook
+                </button>
+              </div>
+              <div className="w-full md:w-1/2 p-6 rounded-2xl bg-slate-100 dark:bg-[#2c2c2e] border border-slate-200 dark:border-white/5 flex flex-col items-center justify-center gap-3 text-center">
+                <Presentation className="w-12 h-12 text-blue-500" />
+                <span className="font-bold text-sm">Vector Layer Annotations</span>
+                <span className="text-xs text-slate-500">Export annotated PDFs with one click</span>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'audio' && (
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              <div className="flex-1 space-y-4">
+                <span className="text-xs font-extrabold text-rose-600 uppercase tracking-wider">
+                  Audio-Synced Recall
+                </span>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white">
+                  Tap any handwritten stroke to hear what the professor said
+                </h3>
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Record lectures while typing or sketching. Every vector stroke and edit is stamped with relative audio milliseconds. Missed a complex explanation? Just tap the diagram to seek directly to that exact moment.
+                </p>
+              </div>
+              <div className="w-full md:w-1/2 p-6 rounded-2xl bg-slate-100 dark:bg-[#2c2c2e] border border-slate-200 dark:border-white/5 flex flex-col items-center justify-center gap-3 text-center">
+                <Volume2 className="w-12 h-12 text-rose-500" />
+                <span className="font-bold text-sm">Timestamped Stroke Audio Sync</span>
+                <span className="text-xs text-slate-500">Binary Blobs with Quota Meter</span>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'ai' && (
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              <div className="flex-1 space-y-4">
+                <span className="text-xs font-extrabold text-purple-600 uppercase tracking-wider">
+                  iMessage-Style Chat Assistant
+                </span>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white">
+                  Ask your lecture notes questions and generate instant flashcards
+                </h3>
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Context-aware assistant that reads your open note, formulas, and slide pages. Summarize 2-hour lectures into executive outlines, generate spaced repetition cards, and quiz yourself before midterms.
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono bg-purple-500/10 text-purple-600 dark:text-purple-400 px-2.5 py-1 rounded-lg">
+                    Shortcut: Cmd / Ctrl + J
+                  </span>
+                </div>
+              </div>
+              <div className="w-full md:w-1/2 p-6 rounded-2xl bg-slate-100 dark:bg-[#2c2c2e] border border-slate-200 dark:border-white/5 flex flex-col items-center justify-center gap-3 text-center">
+                <Brain className="w-12 h-12 text-purple-500" />
+                <span className="font-bold text-sm">AI Study Assistant & SM-2 Flashcards</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 4. Bento Grid (Apple Style Architecture) */}
+      <section id="features" className="py-16 px-4 sm:px-8 max-w-6xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+            Built for Serious Academic Performance
+          </h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Engineered with privacy, speed, and reliability from the ground up.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="p-6 rounded-3xl bg-white dark:bg-[#1c1c1e] border border-slate-200/80 dark:border-white/10 shadow-md flex flex-col justify-between">
+            <div>
+              <ShieldCheck className="w-8 h-8 text-emerald-500 mb-4" />
+              <h3 className="font-bold text-base text-slate-900 dark:text-white mb-1">
+                Zero AI Training on Notes
+              </h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Your intellectual property stays yours. Your notes are stored locally in Dexie IndexedDB and are never used to train commercial AI models.
+              </p>
+            </div>
+            <span className="mt-4 text-[11px] font-mono text-emerald-600 dark:text-emerald-400">
+              FERPA & GDPR Compliant
+            </span>
+          </div>
+
+          <div className="p-6 rounded-3xl bg-white dark:bg-[#1c1c1e] border border-slate-200/80 dark:border-white/10 shadow-md flex flex-col justify-between">
+            <div>
+              <Zap className="w-8 h-8 text-amber-500 mb-4" />
+              <h3 className="font-bold text-base text-slate-900 dark:text-white mb-1">
+                Sub-millisecond 2D Quadtree
+              </h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Spatial indexing and Ramer-Douglas-Peucker point simplification keep canvas rendering silky smooth at 60fps even with 10,000+ vector strokes.
+              </p>
+            </div>
+            <span className="mt-4 text-[11px] font-mono text-amber-600 dark:text-amber-400">
+              O(log N) Spatial Culling
+            </span>
+          </div>
+
+          <div className="p-6 rounded-3xl bg-white dark:bg-[#1c1c1e] border border-slate-200/80 dark:border-white/10 shadow-md flex flex-col justify-between">
+            <div>
+              <Flame className="w-8 h-8 text-rose-500 mb-4" />
+              <h3 className="font-bold text-base text-slate-900 dark:text-white mb-1">
+                Pomodoro Focus Hub
+              </h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Built-in study interval timers with harmonic chime synthesizer, daily study streak counters, and session tracking per subject.
+              </p>
+            </div>
+            <span className="mt-4 text-[11px] font-mono text-rose-600 dark:text-rose-400">
+              Daily Streak & Focus Stats
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Cross-Platform Desktop & Mobile */}
+      <section id="platforms" className="py-16 px-4 sm:px-8 max-w-5xl mx-auto text-center">
+        <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white mb-3">
+          Available on Web, PC Desktop & Android
+        </h2>
+        <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-10">
+          One unified codebase. Same local database, instant offline availability, and multi-device cloud sync everywhere.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-left">
+          <div className="p-6 rounded-3xl bg-white dark:bg-[#1c1c1e] border border-slate-200/80 dark:border-white/10 shadow-md">
+            <Monitor className="w-6 h-6 text-blue-500 mb-3" />
+            <h4 className="font-bold text-sm text-slate-900 dark:text-white">PC & Mac (Electron)</h4>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Native frameless desktop experience with offline file export and global keyboard shortcuts.
+            </p>
+          </div>
+
+          <div className="p-6 rounded-3xl bg-white dark:bg-[#1c1c1e] border border-slate-200/80 dark:border-white/10 shadow-md">
+            <Smartphone className="w-6 h-6 text-indigo-500 mb-3" />
+            <h4 className="font-bold text-sm text-slate-900 dark:text-white">Android (Capacitor)</h4>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Optimized for Android tablets and foldables with S-Pen stylus pressure and native share sheets.
+            </p>
+          </div>
+
+          <div className="p-6 rounded-3xl bg-white dark:bg-[#1c1c1e] border border-slate-200/80 dark:border-white/10 shadow-md">
+            <HardDrive className="w-6 h-6 text-purple-500 mb-3" />
+            <h4 className="font-bold text-sm text-slate-900 dark:text-white">Web PWA</h4>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Zero install required. Open in any modern browser with Workbox service worker caching.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Pricing Section */}
+      <section id="pricing" className="py-20 px-4 sm:px-8 max-w-5xl mx-auto">
+        <div className="text-center mb-10">
+          <span className="text-xs font-extrabold text-blue-600 uppercase tracking-wider">
+            Commercial Plans
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white mt-1">
+            Simple, Transparent Student Pricing
+          </h2>
+
+          {/* Billing Switcher */}
+          <div className="inline-flex items-center bg-white dark:bg-[#1c1c1e] p-1 rounded-2xl border border-slate-200/80 dark:border-white/10 shadow-xs mt-6">
+            <button
+              onClick={() => setBillingCycle('monthly')}
+              className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                billingCycle === 'monthly'
+                  ? 'bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white shadow-2xs'
+                  : 'text-slate-500 dark:text-slate-400'
+              }`}
+            >
+              Monthly Billing
+            </button>
+            <button
+              onClick={() => setBillingCycle('annual')}
+              className={`px-4 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                billingCycle === 'annual'
+                  ? 'bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white shadow-2xs'
+                  : 'text-slate-500 dark:text-slate-400'
+              }`}
+            >
+              <span>Annual Billing</span>
+              <span className="text-[10px] bg-emerald-500 text-white font-bold px-1.5 py-0.2 rounded-full">
+                Save 20%
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Starter */}
+          <div className="p-6 rounded-3xl bg-white dark:bg-[#1c1c1e] border border-slate-200/80 dark:border-white/10 shadow-md flex flex-col justify-between">
+            <div>
+              <h3 className="font-bold text-slate-900 dark:text-white text-base">Starter</h3>
+              <p className="text-xs text-slate-500 mt-1 mb-4">
+                Essential local-first offline lecture notes.
+              </p>
+              <div className="text-3xl font-black mb-4">$0 <span className="text-xs font-normal text-slate-400">/ forever</span></div>
+              <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> Offline Dexie database</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> Freehand drawing & 5 paper grids</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> KaTeX math formulas</li>
+              </ul>
+            </div>
+            <button
+              onClick={handleStartFree}
+              className="mt-6 w-full py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-xs font-bold transition-all"
+            >
+              Launch Free
+            </button>
+          </div>
+
+          {/* Pro Scholar */}
+          <div className="p-6 rounded-3xl bg-white dark:bg-[#1c1c1e] border-2 border-blue-500 shadow-xl shadow-blue-500/10 flex flex-col justify-between relative">
+            <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-extrabold uppercase tracking-wider">
+              Most Popular
+            </span>
+            <div>
+              <h3 className="font-bold text-slate-900 dark:text-white text-base">Pro Scholar</h3>
+              <p className="text-xs text-slate-500 mt-1 mb-4">
+                Full power for university students & researchers.
+              </p>
+              <div className="text-3xl font-black mb-4">
+                {billingCycle === 'annual' ? '$3.99' : '$4.99'}{' '}
+                <span className="text-xs font-normal text-slate-400">/ month</span>
+              </div>
+              <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                <li className="flex items-center gap-2 font-medium"><Check className="w-4 h-4 text-blue-500" /> Multi-device Supabase cloud sync</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-blue-500" /> Slide deck (PDF) import & annotate</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-blue-500" /> Audio-synced lecture notes</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-blue-500" /> AI Study Assistant & SM-2 flashcards</li>
+              </ul>
+            </div>
+            <button
+              onClick={onOpenPricing}
+              className="mt-6 w-full py-2.5 rounded-2xl bg-[#007aff] hover:bg-[#0062cc] text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all active:scale-95"
+            >
+              Upgrade to Pro
+            </button>
+          </div>
+
+          {/* Campus */}
+          <div className="p-6 rounded-3xl bg-white dark:bg-[#1c1c1e] border border-slate-200/80 dark:border-white/10 shadow-md flex flex-col justify-between">
+            <div>
+              <h3 className="font-bold text-slate-900 dark:text-white text-base">Campus / Lab</h3>
+              <p className="text-xs text-slate-500 mt-1 mb-4">
+                For research labs, courses, and study pods.
+              </p>
+              <div className="text-3xl font-black mb-4">
+                {billingCycle === 'annual' ? '$7.99' : '$9.99'}{' '}
+                <span className="text-xs font-normal text-slate-400">/ seat / mo</span>
+              </div>
+              <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                <li className="flex items-center gap-2 font-medium"><Check className="w-4 h-4 text-purple-500" /> Everything in Pro Scholar</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-purple-500" /> Shared course notebooks</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-purple-500" /> Institutional SSO (SAML/Google)</li>
+              </ul>
+            </div>
+            <button
+              onClick={onOpenPricing}
+              className="mt-6 w-full py-2.5 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-all active:scale-95"
+            >
+              Contact Campus Sales
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-8 text-center text-xs text-slate-500 dark:text-slate-400">
+          🛡️ 14-day student money-back guarantee. No questions asked.
+        </div>
+      </section>
+
+      {/* 7. Footer */}
+      <footer className="py-12 border-t border-slate-200/80 dark:border-white/10 px-4 sm:px-8 text-xs text-slate-500 dark:text-slate-400">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <span className="font-extrabold text-slate-900 dark:text-white">ScribbleNote</span>
+            <span>&copy; {new Date().getFullYear()} ScribbleNote Technologies. All rights reserved.</span>
+          </div>
+
+          <div className="flex items-center gap-6">
+            <button onClick={handleStartFree} className="hover:underline">
+              Open App
+            </button>
+            <button onClick={onOpenPricing} className="hover:underline">
+              Pricing
+            </button>
+            <a
+              href="https://github.com/danithu17/note"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:underline"
+            >
+              GitHub
+            </a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};

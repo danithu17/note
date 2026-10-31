@@ -38,6 +38,7 @@ import { useCanvasStore } from '../../store/useCanvasStore';
 import { useNoteStore } from '../../store/useNoteStore';
 import { useAuthStore } from '@/core/auth/useAuthStore';
 import { useI18nStore } from '@/core/i18n/useI18nStore';
+import { useAssistantStore } from '@/features/assistant/useAssistantStore';
 import {
   exportCanvasToPng,
   exportCanvasToSvg,
@@ -98,6 +99,7 @@ export const Header: React.FC = () => {
     isFullscreen,
     activeModal,
     closeModal,
+    setViewMode,
   } = useCanvasStore();
 
   const {
@@ -253,15 +255,22 @@ export const Header: React.FC = () => {
           <Menu className="w-5 h-5" />
         </button>
 
-        <div className="flex items-center gap-2 shrink-0">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20 ring-1 ring-white/20">
+        <div
+          onClick={() => setViewMode('landing')}
+          className="flex items-center gap-2 shrink-0 cursor-pointer group"
+          title="View ScribbleNote Home & Showcase"
+        >
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20 ring-1 ring-white/20 group-hover:scale-105 transition-transform">
             <Sparkles className="w-4 h-4 fill-white" />
           </div>
           <div className="hidden sm:flex flex-col">
             <span className="font-extrabold text-sm sm:text-base tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent flex items-center gap-1.5 leading-tight">
               ScribbleNote
               <button
-                onClick={() => setIsPricingOpen(true)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsPricingOpen(true);
+                }}
                 className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 px-1.5 py-0.2 rounded-md border border-blue-500/20 uppercase transition-colors cursor-pointer"
                 title="View Plans & Commercial Upgrades"
               >
@@ -382,9 +391,9 @@ export const Header: React.FC = () => {
         {/* Study Hub Action Buttons (AI Assistant, Flashcards, Focus Pomodoro, Slide Deck Import) */}
         <div className="hidden sm:flex items-center gap-1 pr-1 border-r border-slate-200/80 dark:border-slate-800">
           <button
-            onClick={() => setIsAiModalOpen(true)}
+            onClick={() => useAssistantStore.getState().toggleAssistant()}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-500/15 via-indigo-500/15 to-blue-500/15 hover:from-purple-500/25 hover:via-indigo-500/25 hover:to-blue-500/25 border border-indigo-500/30 text-indigo-700 dark:text-indigo-300 text-xs font-semibold shadow-xs transition-all active:scale-95"
-            title="AI Study Assistant: Note Summaries, Quiz Generator & 'Ask My Notes'"
+            title="AI Study Assistant: Chat, Summaries, Quiz Generator & 'Ask My Notes' [Cmd/Ctrl+J]"
           >
             <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
             <span className="hidden xl:inline">AI Study</span>
@@ -432,7 +441,7 @@ export const Header: React.FC = () => {
               </div>
               <button
                 onClick={() => {
-                  setIsAiModalOpen(true);
+                  useAssistantStore.getState().setAssistantOpen(true);
                   setIsMobileStudyMenuOpen(false);
                 }}
                 className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
