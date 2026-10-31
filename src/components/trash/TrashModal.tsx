@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { X, Trash2, RotateCcw, Clock } from 'lucide-react';
 import { useNoteStore } from '@/store/useNoteStore';
 import {
@@ -19,34 +19,44 @@ interface TrashModalProps {
 export const TrashModal: React.FC<TrashModalProps> = ({ isOpen, onClose }) => {
   const { initialize } = useNoteStore();
   const [trashedNotes, setTrashedNotes] = useState<LectureNote[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    if (isOpen) {
-      loadTrash();
-    }
-  }, [isOpen]);
-
-  const loadTrash = async () => {
+  const reloadTrash = useCallback(async () => {
     setIsLoading(true);
     const list = await getTrashedNotes();
     setTrashedNotes(list);
     setIsLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let isCancelled = false;
+    getTrashedNotes().then((list) => {
+      if (!isCancelled) {
+        setTrashedNotes(list);
+        setIsLoading(false);
+      }
+    });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   const handleRestore = async (noteId: string) => {
     await restoreFromTrash(noteId);
     confetti({ particleCount: 25, spread: 45 });
-    await loadTrash();
+    await reloadTrash();
     await initialize();
   };
 
   const handlePermanentDelete = async (noteId: string) => {
     if (window.confirm('Permanently delete this note? This action cannot be undone.')) {
       await permanentlyDelete(noteId);
-      await loadTrash();
+      await reloadTrash();
       await initialize();
     }
   };
@@ -58,7 +68,7 @@ export const TrashModal: React.FC<TrashModalProps> = ({ isOpen, onClose }) => {
       )
     ) {
       await emptyTrash();
-      await loadTrash();
+      await reloadTrash();
       await initialize();
     }
   };

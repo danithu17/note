@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import type { Point, StrokeElement, ShapeElement } from '../../types/note';
+import type { Point, StrokeElement, ShapeElement, CanvasElement } from '../../types/note';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useNoteStore } from '../../store/useNoteStore';
 import { drawFreehandStroke, drawShape, elementIntersectsPoint } from '../../utils/stroke';
@@ -16,6 +16,8 @@ interface LaserPoint {
   y: number;
   time: number;
 }
+
+const EMPTY_ELEMENTS: CanvasElement[] = [];
 
 export const VisualCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -54,7 +56,7 @@ export const VisualCanvas: React.FC = () => {
 
   const { getActiveNote, updateCanvasElements, updateMarkdown } = useNoteStore();
   const activeNote = getActiveNote();
-  const elements = activeNote?.canvasElements || [];
+  const elements = activeNote?.canvasElements ?? EMPTY_ELEMENTS;
 
   // In-progress drawing state
   const isDrawingRef = useRef(false);
@@ -251,20 +253,20 @@ export const VisualCanvas: React.FC = () => {
   }, [renderCanvas]);
 
   // Handle Undo
-  const handleUndo = () => {
+  const handleUndo = useCallback(() => {
     const prev = undo(elements);
     if (prev) {
       updateCanvasElements(prev);
     }
-  };
+  }, [elements, undo, updateCanvasElements]);
 
   // Handle Redo
-  const handleRedo = () => {
+  const handleRedo = useCallback(() => {
     const next = redo(elements);
     if (next) {
       updateCanvasElements(next);
     }
-  };
+  }, [elements, redo, updateCanvasElements]);
 
   // Handle Clear
   const handleClear = () => {
@@ -645,6 +647,8 @@ export const VisualCanvas: React.FC = () => {
     increaseStrokeWidth,
     decreaseStrokeWidth,
     updateMarkdown,
+    handleUndo,
+    handleRedo,
   ]);
 
   return (

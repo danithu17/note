@@ -85,11 +85,10 @@ export const Header: React.FC = () => {
     (n) => n.id === (activeNote?.notebookId || activeNotebookId)
   );
 
-  useEffect(() => {
-    if (activeNote) {
-      setTitleInput(activeNote.title || '');
-    }
-  }, [activeNote?.id, activeNote?.title]);
+  const handleStartRename = () => {
+    setTitleInput(activeNote?.title || '');
+    setIsEditingTitle(true);
+  };
 
   useEffect(() => {
     const handleBeforeInstall = (e: Event) => {
@@ -234,7 +233,7 @@ export const Header: React.FC = () => {
               />
             ) : (
               <span
-                onClick={() => setIsEditingTitle(true)}
+                onClick={handleStartRename}
                 className="font-bold text-slate-800 dark:text-slate-200 truncate cursor-pointer hover:underline hover:text-blue-600 max-w-[200px]"
                 title="Click to rename lecture note"
               >

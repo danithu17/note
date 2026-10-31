@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { X, History, RotateCcw, Clock, Check, Plus, Palette } from 'lucide-react';
 import { useNoteStore } from '@/store/useNoteStore';
 import {
@@ -21,25 +21,38 @@ export const VersionHistoryModal: React.FC<VersionHistoryModalProps> = ({ isOpen
   const [versions, setVersions] = useState<VersionRecord[]>([]);
   const [selectedVersion, setSelectedVersion] = useState<VersionRecord | null>(null);
   const [snapshotSummary, setSnapshotSummary] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [restoredId, setRestoredId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (isOpen && activeNote) {
-      loadVersions();
-    }
-  }, [isOpen, activeNote?.id]);
-
-  const loadVersions = async () => {
-    if (!activeNote) return;
+  const reloadVersions = useCallback(async (noteId: string) => {
     setIsLoading(true);
-    const list = await getVersionsForNote(activeNote.id);
+    const list = await getVersionsForNote(noteId);
     setVersions(list);
     if (list.length > 0) {
       setSelectedVersion(list[0]);
     }
     setIsLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    const noteId = activeNote?.id;
+    if (!isOpen || !noteId) return;
+
+    let isCancelled = false;
+    getVersionsForNote(noteId).then((list) => {
+      if (!isCancelled) {
+        setVersions(list);
+        if (list.length > 0) {
+          setSelectedVersion(list[0]);
+        }
+        setIsLoading(false);
+      }
+    });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [isOpen, activeNote?.id]);
 
   if (!isOpen || !activeNote) return null;
 
@@ -48,7 +61,7 @@ export const VersionHistoryModal: React.FC<VersionHistoryModalProps> = ({ isOpen
     if (!activeNote) return;
     const snap = await createVersionSnapshot(activeNote, snapshotSummary.trim() || undefined);
     setSnapshotSummary('');
-    await loadVersions();
+    await reloadVersions(activeNote.id);
     setSelectedVersion(snap);
   };
 

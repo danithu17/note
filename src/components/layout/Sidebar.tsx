@@ -131,7 +131,7 @@ export const Sidebar: React.FC = () => {
           }));
           confetti({ particleCount: 30, spread: 60 });
         }
-      } catch (err) {
+      } catch {
         alert('Invalid ScribbleNote JSON backup file.');
       }
     };
