@@ -245,4 +245,58 @@ describe('Phase 5: Pricing, Plans & 18-Feature Matrix Specification', () => {
       expect(invalid.error).toBe('Invalid or expired coupon code');
     });
   });
+
+  describe('8. Automatic 14-Day Pro Trial Initialization', () => {
+    it('automatically starts a 14-day Pro trial on initialize without requiring user action', () => {
+      localStorage.clear();
+      useEntitlementsStore.setState({ trial: null, subscription: null });
+
+      useEntitlementsStore.getState().initialize();
+
+      const trial = useEntitlementsStore.getState().trial;
+      expect(trial).not.toBeNull();
+      expect(trial?.isTrialActive).toBe(true);
+      expect(trial?.daysRemaining).toBe(14);
+      expect(useEntitlementsStore.getState().can('canvas_advanced')).toBe(true);
+      expect(useEntitlementsStore.getState().can('cloud_sync')).toBe(true);
+    });
+  });
+
+  describe('9. Campus Lab Per-Person Pricing & Multi-Seat Checkout', () => {
+    it('defines Campus Lab with per-person rate ($3.99 / Rs. 790)', () => {
+      const teamPlan = DEFAULT_PLANS.team;
+      expect(teamPlan.name).toBe('Campus Lab');
+      expect(teamPlan.monthlyUsd).toBe(3.99);
+      expect(teamPlan.monthlyLkr).toBe(790);
+      expect(teamPlan.badge).toContain('Campus');
+    });
+
+    it('calculates accurate group checkout amounts based on seat quantity', async () => {
+      // 5 seats checkout via Stripe (USD): 5 * $3.99 = $19.95
+      const usdCheckout = await paymentService.createCheckoutSession(
+        'team',
+        'stripe',
+        undefined,
+        'lab@stanford.edu',
+        'monthly',
+        5
+      );
+      expect(usdCheckout.success).toBe(true);
+      expect(usdCheckout.amount).toBe(19.95);
+      expect(usdCheckout.currency).toBe('USD');
+
+      // 10 seats checkout via PayHere (LKR): 10 * Rs. 790 = Rs. 7,900
+      const lkrCheckout = await paymentService.createCheckoutSession(
+        'team',
+        'payhere',
+        undefined,
+        'lab@uom.lk',
+        'monthly',
+        10
+      );
+      expect(lkrCheckout.success).toBe(true);
+      expect(lkrCheckout.amount).toBe(7900);
+      expect(lkrCheckout.currency).toBe('LKR');
+    });
+  });
 });

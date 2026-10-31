@@ -60,6 +60,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
   const [studentInstitution, setStudentInstitution] = useState('');
   const [uploadedFileName, setUploadedFileName] = useState('');
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [campusSeats, setCampusSeats] = useState(5);
 
   if (!isOpen) return null;
 
@@ -80,7 +81,10 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
     }
   };
 
-  const handleSelectPlan = async (planKey: 'free' | 'pro_student' | 'pro' | 'team') => {
+  const handleSelectPlan = async (
+    planKey: 'free' | 'pro_student' | 'pro' | 'team',
+    seatsCount: number = 1
+  ) => {
     if (planKey === 'free') {
       onClose();
       return;
@@ -105,7 +109,9 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
         planId,
         provider,
         appliedDiscount ? couponCode : undefined,
-        user?.email || 'student@university.edu'
+        user?.email || 'student@university.edu',
+        billingCycle,
+        seatsCount
       );
 
       if (res.success) {
@@ -116,7 +122,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
           alert(`🇱🇰 Redirecting to PayHere secure payment portal (${res.amount} LKR)...`);
         } else {
           alert(
-            `🎉 Subscription activated! Welcome to ScribbleNote PRO. Billed via ${provider.toUpperCase()} (${res.amount} ${res.currency}).`
+            `🎉 Subscription activated! Welcome to ScribbleNote PRO (${planKey === 'team' ? `Campus Lab - ${seatsCount} persons` : 'Pro Scholar'}). Billed via ${provider.toUpperCase()} (${res.amount} ${res.currency}).`
           );
         }
         onClose();
@@ -167,6 +173,10 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
     {
       q: 'What payment methods are supported in Sri Lanka and globally?',
       a: 'Globally, we accept all major Credit/Debit cards and Apple Pay via Stripe (USD). For students and educators in Sri Lanka, we accept local Visa, Mastercard, Genie, eZ Cash, and mCash via PayHere in LKR.',
+    },
+    {
+      q: 'How does Campus Lab per-person pricing work?',
+      a: 'Campus Lab is priced per member ($3.99 / mo or Rs. 790 / mo). University research labs, study pods, and academic departments can select the exact seat count needed with centralized billing on a single invoice or payment card.',
     },
     {
       q: 'Can I cancel my subscription anytime?',
@@ -465,50 +475,149 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
               </button>
             </div>
 
-            {/* 4. Campus / Team */}
-            <div className="p-5 rounded-3xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 flex flex-col justify-between">
+            {/* 4. Campus Lab (Per Person / Seat Pricing & Live Calculator) */}
+            <div className="p-5 rounded-3xl border border-purple-200 dark:border-purple-900/60 bg-purple-50/30 dark:bg-purple-950/20 flex flex-col justify-between relative shadow-xs">
+              <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-purple-600 text-white text-[9px] font-extrabold uppercase tracking-wider">
+                Campus & Labs
+              </span>
+
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-7 h-7 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-600 dark:text-purple-400">
-                    <Users className="w-4 h-4" />
+                    <Building className="w-4 h-4" />
                   </div>
                   <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
-                    {plans.team.name}
+                    {plans.team?.name || 'Campus Lab'}
                   </h3>
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-3 min-h-[30px]">
-                  Collaborative course pods, lab groups, and university departments.
+
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-2 min-h-[30px]">
+                  Research pods, student lab cohorts, and faculty groups with per-person pricing.
                 </p>
-                <div className="text-2xl font-black text-slate-900 dark:text-white mb-3">
-                  {isLkr ? 'Rs. 800' : '$3.99'}{' '}
-                  <span className="text-[11px] font-normal text-slate-400">/ user / mo</span>
+
+                {/* Per Person Price Highlight */}
+                <div className="mb-2">
+                  <div className="text-2xl font-black text-slate-900 dark:text-white">
+                    {isLkr
+                      ? billingCycle === 'annual'
+                        ? 'Rs. 7,990'
+                        : 'Rs. 790'
+                      : billingCycle === 'annual'
+                        ? '$39.99'
+                        : '$3.99'}{' '}
+                    <span className="text-[11px] font-semibold text-purple-600 dark:text-purple-400">
+                      / person / {billingCycle === 'annual' ? 'yr' : 'mo'}
+                    </span>
+                  </div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                    {billingCycle === 'annual'
+                      ? isLkr
+                        ? 'Equivalent to ~Rs. 665 / person / month'
+                        : 'Equivalent to ~$3.33 / person / month (Save 17%)'
+                      : 'Each person billed monthly'}
+                  </div>
                 </div>
 
-                <ul className="space-y-2 text-[11px] text-slate-600 dark:text-slate-300 border-t border-slate-100 dark:border-slate-800 pt-3">
+                {/* Interactive Seat / Person Stepper & Live Calculation */}
+                <div className="my-2.5 p-2.5 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-purple-200/80 dark:border-purple-800/80">
+                  <div className="flex items-center justify-between text-[11px] mb-1.5 font-bold text-slate-700 dark:text-slate-300">
+                    <span className="flex items-center gap-1">
+                      <Users className="w-3.5 h-3.5 text-purple-500" />
+                      <span>Lab Members / Seats:</span>
+                    </span>
+                    <span className="font-mono text-purple-600 dark:text-purple-400 text-xs">
+                      {campusSeats} {campusSeats === 1 ? 'Person' : 'Persons'}
+                    </span>
+                  </div>
+
+                  {/* Stepper + Quick Preset Pills */}
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <div className="flex items-center border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 p-0.5">
+                      <button
+                        type="button"
+                        onClick={() => setCampusSeats((s) => Math.max(2, s - 1))}
+                        disabled={campusSeats <= 2}
+                        className="px-2 py-0.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg disabled:opacity-30 cursor-pointer"
+                      >
+                        -
+                      </button>
+                      <span className="px-2 text-xs font-bold font-mono min-w-[1.8rem] text-center">
+                        {campusSeats}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setCampusSeats((s) => Math.min(200, s + 1))}
+                        className="px-2 py-0.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg cursor-pointer"
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-1 flex-wrap">
+                      {[5, 10, 25, 50].map((preset) => (
+                        <button
+                          key={preset}
+                          type="button"
+                          onClick={() => setCampusSeats(preset)}
+                          className={`px-1.5 py-0.5 text-[10px] font-semibold rounded-lg transition-colors cursor-pointer ${
+                            campusSeats === preset
+                              ? 'bg-purple-600 text-white shadow-xs'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-purple-100 dark:hover:bg-purple-950/60'
+                          }`}
+                        >
+                          {preset}p
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Calculated Total Breakdown */}
+                  <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-purple-100 dark:border-purple-900/40">
+                    <span className="text-slate-500 dark:text-slate-400">Total Group:</span>
+                    <span className="font-extrabold text-purple-700 dark:text-purple-300 font-mono">
+                      {isLkr
+                        ? `Rs. ${(billingCycle === 'annual' ? 7990 : 790) * campusSeats}`
+                        : `$${(((billingCycle === 'annual' ? 39.99 : 3.99) * campusSeats)).toFixed(2)}`}
+                      <span className="text-[10px] font-normal text-slate-400">
+                        {' '}/ {billingCycle === 'annual' ? 'yr' : 'mo'}
+                      </span>
+                    </span>
+                  </div>
+                </div>
+
+                <ul className="space-y-1.5 text-[11px] text-slate-700 dark:text-slate-200 border-t border-purple-100 dark:border-purple-900/40 pt-2.5">
                   <li className="flex items-center gap-2 font-medium">
-                    <Check className="w-3.5 h-3.5 text-purple-500 shrink-0" /> Everything in Pro Scholar
+                    <Check className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+                    <span><strong>Full Pro for each person</strong> ({campusSeats} seats)</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-purple-500 shrink-0" /> Real-time collaboration
+                    <Check className="w-3.5 h-3.5 text-purple-500 shrink-0" /> Real-time canvas collaboration
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-purple-500 shrink-0" /> Shared course repositories
+                    <Check className="w-3.5 h-3.5 text-purple-500 shrink-0" /> Shared lab folders & lecture pools
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-purple-500 shrink-0" /> 100 GB team cloud storage
+                    <Check className="w-3.5 h-3.5 text-purple-500 shrink-0" /> 100 GB pooled cloud (+10GB/person)
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-3.5 h-3.5 text-purple-500 shrink-0" /> 24/7 dedicated support
+                    <Check className="w-3.5 h-3.5 text-purple-500 shrink-0" /> 2,000 AI queries/month per seat
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-3.5 h-3.5 text-purple-500 shrink-0" /> Single consolidated university invoice
                   </li>
                 </ul>
               </div>
 
               <button
-                onClick={() => handleSelectPlan('team')}
+                onClick={() => handleSelectPlan('team', campusSeats)}
                 disabled={isProcessing === 'team'}
-                className="mt-5 w-full py-2 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-md shadow-purple-500/20 transition-all cursor-pointer"
+                className="mt-4 w-full py-2.5 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-md shadow-purple-500/20 transition-all cursor-pointer"
               >
-                {isProcessing === 'team' ? 'Processing...' : 'Contact Campus Team'}
+                {isProcessing === 'team'
+                  ? 'Processing...'
+                  : appliedDiscount
+                    ? `Get Campus Lab (${appliedDiscount}% OFF)`
+                    : `Subscribe for ${campusSeats} Persons`}
               </button>
             </div>
           </div>
@@ -630,7 +739,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
                       <th className="p-3 text-center">Starter Free</th>
                       <th className="p-3 text-center text-indigo-600 dark:text-indigo-400">Pro Student</th>
                       <th className="p-3 text-center text-blue-600 dark:text-blue-400 font-black">Pro Scholar</th>
-                      <th className="p-3 text-center text-purple-600 dark:text-purple-400">Team</th>
+                      <th className="p-3 text-center text-purple-600 dark:text-purple-400">Campus Lab</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">

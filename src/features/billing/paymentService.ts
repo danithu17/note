@@ -73,7 +73,8 @@ class PaymentService {
     provider: PaymentProvider,
     couponCode?: string,
     userEmail: string = 'student@university.edu',
-    billingCycle?: 'monthly' | 'annual'
+    billingCycle?: 'monthly' | 'annual',
+    quantity: number = 1
   ): Promise<CheckoutResult> {
     const plan = DEFAULT_PLANS[planId];
     if (!plan || plan.id === 'free') {
@@ -99,7 +100,7 @@ class PaymentService {
     }
 
     const isLkr = provider === 'payhere';
-    const baseAmount = isLkr
+    const unitPrice = isLkr
       ? resolvedCycle === 'annual'
         ? plan.yearlyLkr
         : plan.monthlyLkr
@@ -107,16 +108,23 @@ class PaymentService {
         ? plan.yearlyUsd
         : plan.monthlyUsd;
 
+    const seatCount = planId === 'team' ? Math.max(1, quantity) : 1;
+    const baseAmount = Number((unitPrice * seatCount).toFixed(2));
+
     const discountAmount = Number(((baseAmount * discountPercent) / 100).toFixed(2));
     const finalAmount = Number(Math.max(0, baseAmount - discountAmount).toFixed(2));
     const orderId = `ord_${provider}_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 6)}`;
+    const lineItemLabel =
+      planId === 'team' && seatCount > 1
+        ? `${plan.name} (${seatCount} persons)`
+        : plan.name;
 
     if (provider === 'payhere') {
       // PayHere Sri Lanka Gateway Parameters
       const returnUrl = encodeURIComponent(window.location.origin + '/#/app?payment=success&order=' + orderId);
       const cancelUrl = encodeURIComponent(window.location.origin + '/#/app?payment=cancel');
       const payhereUrl = `https://sandbox.payhere.lk/pay/checkout?merchant_id=1211111&return_url=${returnUrl}&cancel_url=${cancelUrl}&order_id=${orderId}&items=${encodeURIComponent(
-        plan.name
+        lineItemLabel
       )}&currency=LKR&amount=${finalAmount}&email=${encodeURIComponent(userEmail)}`;
 
       return {

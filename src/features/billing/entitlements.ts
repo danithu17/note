@@ -79,15 +79,16 @@ export const DEFAULT_PLANS: Record<PlanId, Plan> = {
   },
   team: {
     id: 'team',
-    name: 'Team / Education',
+    name: 'Campus Lab',
     monthlyUsd: 3.99,
     yearlyUsd: 39.99,
-    monthlyLkr: 800,
-    yearlyLkr: 8000,
+    monthlyLkr: 790,
+    yearlyLkr: 7990,
     priceUsd: 3.99,
-    priceLkr: 800,
+    priceLkr: 790,
     billingInterval: 'month',
-    description: 'Collaborative academic workspaces, shared courses, and departmental billing.',
+    badge: 'Campus & Research Labs',
+    description: 'Collaborative academic workspaces, research pods, and departmental billing with per-person pricing.',
   },
 };
 

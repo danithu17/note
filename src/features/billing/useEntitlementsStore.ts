@@ -73,7 +73,21 @@ const STORAGE_KEY_AI_USAGE = 'scribblenote_monthly_ai_usage';
 function loadPersistedPlans(): Record<PlanId, Plan> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_PLANS);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return {
+        ...DEFAULT_PLANS,
+        ...parsed,
+        team: {
+          ...DEFAULT_PLANS.team,
+          ...(parsed.team || {}),
+          name:
+            !parsed.team?.name || parsed.team?.name === 'Team / Education'
+              ? DEFAULT_PLANS.team.name
+              : parsed.team.name,
+        },
+      };
+    }
   } catch {
     // fallback
   }
@@ -103,11 +117,11 @@ export const useEntitlementsStore = create<EntitlementsState>((set, get) => ({
     const user = useAuthStore.getState().user;
     const userId = user?.id || 'guest_user';
 
-    // 1. Initialize trial
+    // 1. Initialize trial: Automatically start 14-day Pro trial with NO payment method required
     let currentTrial = getStoredTrial(userId);
-    if (!currentTrial && user && !user.isGuest) {
+    if (!currentTrial) {
       currentTrial = initializeUserTrial(userId);
-    } else if (currentTrial) {
+    } else {
       currentTrial = refreshTrialStatus(currentTrial);
     }
 
@@ -310,3 +324,10 @@ function STORAGE_KEY_AIUsageKey(): string {
   const date = new Date();
   return `${STORAGE_KEY_AI_USAGE}_${date.getFullYear()}_${date.getMonth()}`;
 }
+
+// Automatically re-initialize trial and student verification when user authentication state changes
+useAuthStore.subscribe((state, prevState) => {
+  if (state.user?.id !== prevState.user?.id) {
+    useEntitlementsStore.getState().initialize();
+  }
+});
