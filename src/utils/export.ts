@@ -78,6 +78,27 @@ export function exportCanvasToSvg(
           break;
         }
 
+        case 'triangle': {
+          const midX = startX + w / 2;
+          svgContent += `  <polygon points="${midX},${startY} ${endX},${endY} ${startX},${endY}" stroke="${color}" stroke-width="${strokeWidth}" fill="${fillColor || 'none'}" />\n`;
+          break;
+        }
+
+        case 'star': {
+          const cx = startX + w / 2;
+          const cy = startY + h / 2;
+          const outerR = Math.min(Math.abs(w), Math.abs(h)) / 2;
+          const innerR = outerR * 0.45;
+          const starPts: string[] = [];
+          for (let i = 0; i < 10; i++) {
+            const r = i % 2 === 0 ? outerR : innerR;
+            const angle = (i * Math.PI) / 5 - Math.PI / 2;
+            starPts.push(`${(cx + r * Math.cos(angle)).toFixed(1)},${(cy + r * Math.sin(angle)).toFixed(1)}`);
+          }
+          svgContent += `  <polygon points="${starPts.join(' ')}" stroke="${color}" stroke-width="${strokeWidth}" fill="${fillColor || 'none'}" />\n`;
+          break;
+        }
+
         case 'flowchart-node':
           svgContent += `  <rect x="${Math.min(startX, endX)}" y="${Math.min(startY, endY)}" width="${Math.abs(w)}" height="${Math.abs(h)}" rx="10" stroke="${color}" stroke-width="${strokeWidth}" fill="${fillColor || 'none'}" />\n`;
           break;

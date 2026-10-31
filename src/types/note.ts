@@ -9,7 +9,15 @@ export type ToolType =
   | 'sticky'
   | 'ruler';
 
-export type ShapeType = 'rectangle' | 'circle' | 'arrow' | 'line' | 'diamond' | 'flowchart-node';
+export type ShapeType =
+  | 'rectangle'
+  | 'circle'
+  | 'arrow'
+  | 'line'
+  | 'diamond'
+  | 'flowchart-node'
+  | 'triangle'
+  | 'star';
 
 export type GridType = 'dots' | 'ruled' | 'grid' | 'isometric' | 'blank';
 

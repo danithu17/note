@@ -41,7 +41,7 @@ interface EntitlementsState {
   extendTrial: (additionalDays: number) => void;
   applySubscription: (
     planId: PlanId,
-    provider: 'stripe' | 'payhere' | 'play_store',
+    provider: 'stripe' | 'payhere' | 'play_store' | 'manual',
     billingCycle?: 'monthly' | 'annual'
   ) => void;
   cancelSubscription: () => void;

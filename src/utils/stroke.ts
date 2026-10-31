@@ -190,6 +190,45 @@ export function drawShape(ctx: CanvasRenderingContext2D, shape: ShapeElement) {
       ctx.stroke();
       break;
     }
+
+    case 'triangle': {
+      const midX = x1 + width / 2;
+      ctx.beginPath();
+      ctx.moveTo(midX, y1);
+      ctx.lineTo(x2, y2);
+      ctx.lineTo(x1, y2);
+      ctx.closePath();
+      if (shape.fillColor) {
+        ctx.fillStyle = shape.fillColor;
+        ctx.fill();
+      }
+      ctx.stroke();
+      break;
+    }
+
+    case 'star': {
+      const cx = x1 + width / 2;
+      const cy = y1 + height / 2;
+      const outerR = Math.min(Math.abs(width), Math.abs(height)) / 2;
+      const innerR = outerR * 0.45;
+      const numPoints = 5;
+      ctx.beginPath();
+      for (let i = 0; i < numPoints * 2; i++) {
+        const r = i % 2 === 0 ? outerR : innerR;
+        const angle = (i * Math.PI) / numPoints - Math.PI / 2;
+        const sx = cx + r * Math.cos(angle);
+        const sy = cy + r * Math.sin(angle);
+        if (i === 0) ctx.moveTo(sx, sy);
+        else ctx.lineTo(sx, sy);
+      }
+      ctx.closePath();
+      if (shape.fillColor) {
+        ctx.fillStyle = shape.fillColor;
+        ctx.fill();
+      }
+      ctx.stroke();
+      break;
+    }
   }
 
   ctx.restore();

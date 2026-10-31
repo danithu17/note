@@ -90,6 +90,24 @@ export interface CanvasState {
 const GRIDS: GridType[] = ['dots', 'ruled', 'grid', 'isometric', 'blank'];
 const LAYOUTS: ViewLayoutMode[] = ['split', 'canvas-only', 'notes-only', 'timeline'];
 
+function getInitialDarkMode(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    const stored = localStorage.getItem('scribblenote_dark_mode');
+    if (stored !== null) {
+      const isDark = stored === 'true';
+      if (isDark) document.documentElement.classList.add('dark');
+      else document.documentElement.classList.remove('dark');
+      return isDark;
+    }
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (prefersDark) document.documentElement.classList.add('dark');
+    return prefersDark;
+  } catch {
+    return false;
+  }
+}
+
 export const useCanvasStore = create<CanvasState>((set, get) => ({
   tool: 'pen',
   shape: 'rectangle',
@@ -103,7 +121,7 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
   zoom: 1,
   pan: { x: 0, y: 0 },
   layoutMode: typeof window !== 'undefined' && window.innerWidth < 768 ? 'canvas-only' : 'split',
-  isDarkMode: false,
+  isDarkMode: getInitialDarkMode(),
   isSidebarOpen: typeof window !== 'undefined' && window.innerWidth >= 1024,
   isCommandPaletteOpen: false,
   isShortcutsModalOpen: false,
@@ -209,6 +227,11 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
+    }
+    try {
+      localStorage.setItem('scribblenote_dark_mode', String(nextDark));
+    } catch {
+      // ignore
     }
     set({ isDarkMode: nextDark });
   },

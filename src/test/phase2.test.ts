@@ -144,6 +144,50 @@ describe('Phase 2: Killer Features (Audio Sync, Flashcards, AI, Shape Snapping)'
       expect(shape).not.toBeNull();
       expect(shape?.shape).toBe('rectangle');
     });
+
+    it('detects a hand-drawn triangle accurately', () => {
+      const trianglePoints: Point[] = [];
+      // 3 sides of triangle: (50, 10) -> (90, 80) -> (10, 80) -> (50, 10)
+      for (let t = 0; t <= 10; t++) {
+        trianglePoints.push({ x: 50 + (40 * t) / 10, y: 10 + (70 * t) / 10 });
+      }
+      for (let t = 0; t <= 10; t++) {
+        trianglePoints.push({ x: 90 - (80 * t) / 10, y: 80 });
+      }
+      for (let t = 0; t <= 10; t++) {
+        trianglePoints.push({ x: 10 + (40 * t) / 10, y: 80 - (70 * t) / 10 });
+      }
+
+      const shape = recognizeHandDrawnShape(trianglePoints);
+      expect(shape).not.toBeNull();
+      expect(shape?.shape).toBe('triangle');
+    });
+
+    it('detects a hand-drawn diamond / rhombus accurately', () => {
+      const diamondPoints: Point[] = [];
+      // 4 sides of diamond: (50, 10) -> (90, 50) -> (50, 90) -> (10, 50) -> (50, 10)
+      for (let t = 0; t <= 8; t++) diamondPoints.push({ x: 50 + (40 * t) / 8, y: 10 + (40 * t) / 8 });
+      for (let t = 0; t <= 8; t++) diamondPoints.push({ x: 90 - (40 * t) / 8, y: 50 + (40 * t) / 8 });
+      for (let t = 0; t <= 8; t++) diamondPoints.push({ x: 50 - (40 * t) / 8, y: 90 - (40 * t) / 8 });
+      for (let t = 0; t <= 8; t++) diamondPoints.push({ x: 10 + (40 * t) / 8, y: 50 - (40 * t) / 8 });
+
+      const shape = recognizeHandDrawnShape(diamondPoints);
+      expect(shape).not.toBeNull();
+      expect(shape?.shape).toBe('diamond');
+    });
+
+    it('detects a hand-drawn arrow accurately', () => {
+      const arrowPoints: Point[] = [];
+      // Straight shaft from (10, 50) to (100, 50)
+      for (let x = 10; x <= 100; x += 5) arrowPoints.push({ x, y: 50 });
+      // Barb turning backwards from (100, 50) towards (80, 40)
+      for (let s = 1; s <= 5; s++) arrowPoints.push({ x: 100 - s * 4, y: 50 - s * 2 });
+
+      const shape = recognizeHandDrawnShape(arrowPoints);
+      expect(shape).not.toBeNull();
+      expect(shape?.shape).toBe('arrow');
+      expect(shape?.endX).toBe(100);
+    });
   });
 
   describe('Audio Sync Store & Relative Timestamps', () => {

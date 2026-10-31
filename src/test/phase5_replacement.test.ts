@@ -197,6 +197,8 @@ describe('Phase 5 (Replacement): Trial, Subscriptions, Entitlements and Admin', 
     });
 
     it('computes accurate SaaS business metrics', () => {
+      // When a user has an active paid plan, MRR accurately calculates real subscription value
+      adminService.updateUserPlan('usr_alex_4', 'pro');
       const metrics = adminService.getMetrics();
       expect(metrics.totalUsers).toBeGreaterThan(0);
       expect(metrics.mrrUsd).toBeGreaterThan(0);

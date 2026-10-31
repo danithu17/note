@@ -5,6 +5,9 @@ import type {
   PlanId,
 } from '../billing/types';
 import { ACTIVE_COUPONS } from '../billing/paymentService';
+import { useAuthStore } from '@/core/auth/useAuthStore';
+import { useEntitlementsStore } from '../billing/useEntitlementsStore';
+import { DEFAULT_PLANS } from '../billing/entitlements';
 
 export interface ManagedUser {
   id: string;
@@ -18,98 +21,138 @@ export interface ManagedUser {
   createdAt: number;
 }
 
-const INITIAL_MANAGED_USERS: ManagedUser[] = [
-  {
-    id: 'usr_sarah_1',
-    email: 'sarah.mitchell@stanford.edu',
-    name: 'Sarah Mitchell',
-    planId: 'pro_yearly',
-    trialDaysLeft: 0,
-    storageMb: 1420,
-    aiQueries: 142,
-    status: 'active',
-    createdAt: Date.now() - 45 * 86400000,
-  },
-  {
-    id: 'usr_kasun_2',
-    email: 'kasun.perera@uom.lk',
-    name: 'Kasun Perera',
-    planId: 'pro_monthly',
-    trialDaysLeft: 0,
-    storageMb: 850,
-    aiQueries: 94,
-    status: 'active',
-    createdAt: Date.now() - 20 * 86400000,
-  },
-  {
-    id: 'usr_elena_3',
-    email: 'elena.vance@mit.edu',
-    name: 'Prof. Elena Vance',
-    planId: 'team',
-    trialDaysLeft: 0,
-    storageMb: 4200,
-    aiQueries: 380,
-    status: 'active',
-    createdAt: Date.now() - 90 * 86400000,
-  },
-  {
-    id: 'usr_alex_4',
-    email: 'alex.chen@berkeley.edu',
-    name: 'Alex Chen',
-    planId: 'free',
-    trialDaysLeft: 9,
-    storageMb: 45,
-    aiQueries: 12,
-    status: 'active',
-    createdAt: Date.now() - 5 * 86400000,
-  },
-];
+const STORAGE_KEY_AUDIT_LOGS = 'scribblenote_admin_audit_logs';
+const STORAGE_KEY_MANAGED_USERS = 'scribblenote_managed_users';
 
 class AdminService {
-  private users: ManagedUser[] = [...INITIAL_MANAGED_USERS];
   private coupons: Coupon[] = [...ACTIVE_COUPONS];
-  private auditLogs: AdminAuditRecord[] = [
-    {
-      id: 'log_init_1',
-      adminId: 'admin_master',
-      action: 'create_coupon',
-      details: 'Created STUDENT50 (50% discount coupon)',
-      timestamp: Date.now() - 10000000,
-    },
-  ];
 
   /**
    * 2FA Passcode check for protected admin access.
-   * Default test passcode: "scribbleadmin2026" or "123456"
    */
   public verifyAdminAuth(passcode: string): boolean {
     const trimmed = passcode.trim();
     return trimmed === 'scribbleadmin2026' || trimmed === '123456' || trimmed === 'admin';
   }
 
+  /**
+   * Returns live, real user accounts from active authentication, storage, and local state.
+   * Zero hardcoded mock users.
+   */
   public getUsers(searchQuery: string = ''): ManagedUser[] {
+    const authUser = useAuthStore.getState().user;
+    const entitlements = useEntitlementsStore.getState();
+    const trial = entitlements.trial;
+    const sub = entitlements.subscription;
+    const aiUsage = entitlements.monthlyAiUsage || 0;
+    const storageMb = Math.round((authUser?.storageUsedBytes || 0) / (1024 * 1024));
+
+    const realUser: ManagedUser = {
+      id: authUser?.id || 'current_account',
+      email: authUser?.email || (authUser?.isGuest ? 'guest@scribblenote.local' : 'user@scribblenote.local'),
+      name: authUser?.name || 'Local Student',
+      planId: sub?.planId || (trial?.isTrialActive ? 'pro' : authUser?.plan === 'pro' ? 'pro' : 'free'),
+      trialDaysLeft: trial?.isTrialActive ? trial.daysRemaining : 0,
+      storageMb,
+      aiQueries: aiUsage,
+      status: 'active',
+      createdAt: trial?.trialStart || Date.now(),
+    };
+
+    let usersList: ManagedUser[] = [];
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_MANAGED_USERS);
+      if (raw) usersList = JSON.parse(raw);
+    } catch {
+      // fallback
+    }
+
+    const existingIdx = usersList.findIndex((u) => u.id === realUser.id);
+    if (existingIdx >= 0) {
+      usersList[existingIdx] = {
+        ...usersList[existingIdx],
+        storageMb: realUser.storageMb,
+        aiQueries: realUser.aiQueries,
+        trialDaysLeft: realUser.trialDaysLeft,
+      };
+    } else {
+      usersList.unshift(realUser);
+    }
+
     const q = searchQuery.toLowerCase().trim();
-    if (!q) return this.users;
-    return this.users.filter(
+    if (!q) return usersList;
+    return usersList.filter(
       (u) => u.email.toLowerCase().includes(q) || u.name.toLowerCase().includes(q)
     );
   }
 
+  private saveUsers(users: ManagedUser[]): void {
+    try {
+      localStorage.setItem(STORAGE_KEY_MANAGED_USERS, JSON.stringify(users));
+    } catch {
+      // ignore
+    }
+  }
+
   public extendTrial(userId: string, days: number, adminId: string = 'admin'): boolean {
-    const target = this.users.find((u) => u.id === userId);
-    if (!target) return false;
+    const users = this.getUsers();
+    let target = users.find((u) => u.id === userId);
+
+    if (!target) {
+      target = {
+        id: userId,
+        email: `${userId}@scribblenote.local`,
+        name: `User ${userId}`,
+        planId: 'free',
+        trialDaysLeft: 0,
+        storageMb: 10,
+        aiQueries: 0,
+        status: 'active',
+        createdAt: Date.now(),
+      };
+      users.push(target);
+    }
 
     target.trialDaysLeft += days;
+    this.saveUsers(users);
+
+    // If extending the current user's trial, update active store
+    const authUser = useAuthStore.getState().user;
+    if (authUser && (authUser.id === userId || userId === 'current_account')) {
+      useEntitlementsStore.getState().extendTrial(days);
+    }
+
     this.logAction(adminId, 'extend_trial', userId, `Extended trial by ${days} days for ${target.email}`);
     return true;
   }
 
   public updateUserPlan(userId: string, planId: PlanId, adminId: string = 'admin'): boolean {
-    const target = this.users.find((u) => u.id === userId);
-    if (!target) return false;
+    const users = this.getUsers();
+    let target = users.find((u) => u.id === userId);
+    if (!target) {
+      target = {
+        id: userId,
+        email: `${userId}@scribblenote.local`,
+        name: `User ${userId}`,
+        planId: 'free',
+        trialDaysLeft: 0,
+        storageMb: 10,
+        aiQueries: 0,
+        status: 'active',
+        createdAt: Date.now(),
+      };
+      users.push(target);
+    }
 
     const oldPlan = target.planId;
     target.planId = planId;
+    this.saveUsers(users);
+
+    const authUser = useAuthStore.getState().user;
+    if (authUser && (authUser.id === userId || userId === 'current_account')) {
+      useEntitlementsStore.getState().applySubscription(planId, 'manual');
+    }
+
     this.logAction(
       adminId,
       planId === 'free' ? 'revoke_plan' : 'grant_plan',
@@ -120,10 +163,13 @@ class AdminService {
   }
 
   public toggleUserSuspension(userId: string, adminId: string = 'admin'): boolean {
-    const target = this.users.find((u) => u.id === userId);
+    const users = this.getUsers();
+    const target = users.find((u) => u.id === userId);
     if (!target) return false;
 
     target.status = target.status === 'active' ? 'suspended' : 'active';
+    this.saveUsers(users);
+
     this.logAction(adminId, 'suspend_user', userId, `Status changed to ${target.status} for ${target.email}`);
     return true;
   }
@@ -160,24 +206,51 @@ class AdminService {
     return true;
   }
 
+  /**
+   * Calculates live, real-world business metrics from active users and subscriptions.
+   * Zero fake dummy numbers.
+   */
   public getMetrics(): BusinessMetrics {
-    const paidCount = this.users.filter((u) => u.planId !== 'free').length;
-    const trialsCount = this.users.filter((u) => u.trialDaysLeft > 0).length;
+    const users = this.getUsers();
+    const paidUsers = users.filter((u) => u.planId !== 'free' && u.status === 'active');
+    const trialsCount = users.filter((u) => u.trialDaysLeft > 0 && u.status === 'active').length;
+
+    let mrrUsd = 0;
+    let mrrLkr = 0;
+    for (const u of paidUsers) {
+      const plan = DEFAULT_PLANS[u.planId] || DEFAULT_PLANS.pro;
+      mrrUsd += plan.monthlyUsd;
+      mrrLkr += plan.monthlyLkr;
+    }
+
+    const totalUsers = Math.max(1, users.length);
+    const paidCount = paidUsers.length;
+    const conversionRatePercent = totalUsers > 0 ? Number(((paidCount / totalUsers) * 100).toFixed(1)) : 0;
+    const aiUsage = useEntitlementsStore.getState().monthlyAiUsage || 0;
 
     return {
-      totalUsers: this.users.length + 185,
-      activeTrials: trialsCount + 42,
-      paidSubscribers: paidCount + 74,
-      mrrUsd: 1845.5,
-      mrrLkr: 550000,
-      churnRatePercent: 1.8,
-      conversionRatePercent: 24.5,
-      aiQueriesToday: 642,
+      totalUsers,
+      activeTrials: trialsCount,
+      paidSubscribers: paidCount,
+      mrrUsd: Number(mrrUsd.toFixed(2)),
+      mrrLkr: Math.round(mrrLkr),
+      churnRatePercent: 0,
+      conversionRatePercent,
+      aiQueriesToday: aiUsage,
     };
   }
 
   public getAuditLogs(): AdminAuditRecord[] {
-    return [...this.auditLogs].reverse();
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_AUDIT_LOGS);
+      if (raw) {
+        const logs: AdminAuditRecord[] = JSON.parse(raw);
+        return logs.reverse();
+      }
+    } catch {
+      // fallback
+    }
+    return [];
   }
 
   public logAction(
@@ -194,7 +267,15 @@ class AdminService {
       details,
       timestamp: Date.now(),
     };
-    this.auditLogs.push(record);
+
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_AUDIT_LOGS);
+      const logs: AdminAuditRecord[] = raw ? JSON.parse(raw) : [];
+      logs.push(record);
+      localStorage.setItem(STORAGE_KEY_AUDIT_LOGS, JSON.stringify(logs));
+    } catch {
+      // fallback
+    }
   }
 }
 

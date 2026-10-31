@@ -392,7 +392,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
                           ${metrics.mrrUsd.toLocaleString()} / Rs. {metrics.mrrLkr.toLocaleString()}
                         </span>
                         <span className="text-[10px] text-emerald-500 font-semibold flex items-center gap-0.5">
-                          <TrendingUp className="w-3 h-3" /> +18.4% vs last mo
+                          <TrendingUp className="w-3 h-3" /> Live Real Revenue
                         </span>
                       </div>
 
@@ -409,7 +409,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
                         <span className="text-xl font-black text-purple-600 dark:text-purple-400">
                           {metrics.conversionRatePercent}%
                         </span>
-                        <span className="text-[10px] text-emerald-500 font-semibold">High student retention</span>
+                        <span className="text-[10px] text-emerald-500 font-semibold">Active accounts</span>
                       </div>
 
                       <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 flex flex-col gap-1">
@@ -417,16 +417,16 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
                         <span className="text-xl font-black text-slate-900 dark:text-slate-100">
                           {metrics.churnRatePercent}%
                         </span>
-                        <span className="text-[10px] text-emerald-500 font-semibold">&lt; 2% target</span>
+                        <span className="text-[10px] text-emerald-500 font-semibold">Zero data lock-in</span>
                       </div>
                     </div>
 
                     <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/60 flex items-center justify-between text-xs">
                       <div>
-                        <strong>AI Assistant Budget Telemetry:</strong> {metrics.aiQueriesToday} queries today (est. ~$0.64 total cost). Server-side hard cap is active.
+                        <strong>AI Assistant Telemetry:</strong> {metrics.aiQueriesToday} queries executed. Server-side credit meter active.
                       </div>
                       <span className="font-mono text-[11px] text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full font-bold">
-                        Within Budget
+                        Live Tracking
                       </span>
                     </div>
                   </div>
