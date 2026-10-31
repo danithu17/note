@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Keyboard, Sparkles } from 'lucide-react';
 import { useCanvasStore } from '../../store/useCanvasStore';
+import { ModalPortal } from '@/components/ui/ModalPortal';
 
 export const ShortcutsModal: React.FC = () => {
   const { isShortcutsModalOpen, setShortcutsModalOpen } = useCanvasStore();
@@ -45,10 +46,11 @@ export const ShortcutsModal: React.FC = () => {
   ];
 
   return (
-    <div
-      onClick={() => setShortcutsModalOpen(false)}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in"
-    >
+    <ModalPortal>
+      <div
+        onClick={() => setShortcutsModalOpen(false)}
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in"
+      >
       <div
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 overflow-hidden relative"
@@ -116,5 +118,6 @@ export const ShortcutsModal: React.FC = () => {
         </div>
       </div>
     </div>
+  </ModalPortal>
   );
 };

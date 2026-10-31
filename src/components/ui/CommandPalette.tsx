@@ -25,6 +25,7 @@ import {
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useNoteStore } from '../../store/useNoteStore';
 import { useAssistantStore } from '@/features/assistant/useAssistantStore';
+import { ModalPortal } from '@/components/ui/ModalPortal';
 import confetti from 'canvas-confetti';
 
 export const CommandPalette: React.FC = () => {
@@ -348,10 +349,11 @@ export const CommandPalette: React.FC = () => {
   };
 
   return (
-    <div
-      onClick={() => setCommandPaletteOpen(false)}
-      className="fixed inset-0 z-50 flex items-start justify-center pt-20 p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in"
-    >
+    <ModalPortal>
+      <div
+        onClick={() => setCommandPaletteOpen(false)}
+        className="fixed inset-0 z-50 flex items-start justify-center pt-20 p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in"
+      >
       <div
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-slate-200/90 dark:border-slate-800 overflow-hidden flex flex-col max-h-[70vh] animate-in zoom-in-95 duration-150"
@@ -441,5 +443,6 @@ export const CommandPalette: React.FC = () => {
         </div>
       </div>
     </div>
+  </ModalPortal>
   );
 };

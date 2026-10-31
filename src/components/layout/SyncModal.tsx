@@ -8,6 +8,7 @@ import {
   saveSupabaseConfig,
 } from '@/core/supabase/client';
 import { useAuthStore } from '@/core/auth/useAuthStore';
+import { ModalPortal } from '@/components/ui/ModalPortal';
 import confetti from 'canvas-confetti';
 
 interface SyncModalProps {
@@ -91,8 +92,15 @@ export const SyncModal: React.FC<SyncModalProps> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 overflow-hidden flex flex-col gap-4">
+    <ModalPortal>
+      <div
+        onClick={onClose}
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
+      >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 flex flex-col gap-4"
+        >
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -228,5 +236,6 @@ export const SyncModal: React.FC<SyncModalProps> = ({ isOpen, onClose }) => {
         </form>
       </div>
     </div>
+  </ModalPortal>
   );
 };

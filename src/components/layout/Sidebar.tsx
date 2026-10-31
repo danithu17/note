@@ -26,7 +26,6 @@ import { useAssistantStore } from '@/features/assistant/useAssistantStore';
 import { db } from '@/core/db';
 import { ContextMenu } from '../ui/ContextMenu';
 import type { LectureNote } from '../../types/note';
-import { TrashModal } from '../trash/TrashModal';
 import confetti from 'canvas-confetti';
 
 export const Sidebar: React.FC = () => {
@@ -56,7 +55,6 @@ export const Sidebar: React.FC = () => {
   const { user } = useAuthStore();
   const { t } = useI18nStore();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [isTrashOpen, setIsTrashOpen] = useState(false);
   const [isWsDropdownOpen, setIsWsDropdownOpen] = useState(false);
   const [noteContextMenu, setNoteContextMenu] = useState<{
     x: number;
@@ -456,7 +454,7 @@ export const Sidebar: React.FC = () => {
         {/* Bottom Area: Trash Button & Storage Quota Meter */}
         <div className="p-3 border-t border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-800/50 flex flex-col gap-2.5">
           <button
-            onClick={() => setIsTrashOpen(true)}
+            onClick={() => openModal('trash')}
             className="flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs text-slate-600 dark:text-slate-300 transition-colors"
           >
             <div className="flex items-center gap-2">
@@ -489,8 +487,6 @@ export const Sidebar: React.FC = () => {
           </div>
         </div>
       </aside>
-
-      <TrashModal isOpen={isTrashOpen} onClose={() => setIsTrashOpen(false)} />
 
       {/* Accessible Note Right-Click Context Menu */}
       {noteContextMenu && (

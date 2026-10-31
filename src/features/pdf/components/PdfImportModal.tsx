@@ -3,6 +3,7 @@ import { X, FileUp, Presentation, Loader2 } from 'lucide-react';
 import { renderPdfFileToPages } from '../pdfService';
 import { useNoteStore } from '@/store/useNoteStore';
 import type { NotePage } from '@/types/note';
+import { ModalPortal } from '@/components/ui/ModalPortal';
 import confetti from 'canvas-confetti';
 
 interface PdfImportModalProps {
@@ -89,32 +90,39 @@ export const PdfImportModal: React.FC<PdfImportModalProps> = ({ isOpen, onClose 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-200/80 dark:border-slate-800">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-xs">
-              <Presentation className="w-4 h-4" />
+    <ModalPortal>
+      <div
+        onClick={onClose}
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
+      >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl flex flex-col"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between p-5 border-b border-slate-200/80 dark:border-slate-800 shrink-0">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-xs">
+                <Presentation className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                  Import Lecture Slides (PDF)
+                </h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  Renders slides as canvas backgrounds with vector drawing layers
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                Import Lecture Slides (PDF)
-              </h3>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                Renders slides as canvas backgrounds with vector drawing layers
-              </p>
-            </div>
-          </div>
 
-          <button
-            onClick={onClose}
-            disabled={isProcessing}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+            <button
+              onClick={onClose}
+              disabled={isProcessing}
+              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
 
         {/* Upload Dropzone */}
         <div className="p-6 flex flex-col gap-4 text-xs">
@@ -179,5 +187,6 @@ export const PdfImportModal: React.FC<PdfImportModalProps> = ({ isOpen, onClose 
         </div>
       </div>
     </div>
+  </ModalPortal>
   );
 };

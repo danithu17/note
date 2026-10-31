@@ -12,9 +12,15 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@/core/auth/useAuthStore';
 import { getStoredSupabaseConfig, saveSupabaseConfig } from '@/core/supabase/client';
+import { ModalPortal } from '@/components/ui/ModalPortal';
 import confetti from 'canvas-confetti';
 
-export const AuthModal: React.FC = () => {
+interface AuthModalProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const {
     user,
     isAuthModalOpen,
@@ -25,6 +31,9 @@ export const AuthModal: React.FC = () => {
     signOut,
     error: authError,
   } = useAuthStore();
+
+  const effectiveIsOpen = isOpen ?? isAuthModalOpen;
+  const handleClose = onClose ?? closeAuthModal;
 
   const [tab, setTab] = useState<'signin' | 'signup' | 'magic' | 'cloud'>('signin');
   const [email, setEmail] = useState('');
@@ -39,7 +48,7 @@ export const AuthModal: React.FC = () => {
   const [supabaseAnonKey, setSupabaseAnonKey] = useState(existingConfig?.anonKey || '');
   const [cloudSaved, setCloudSaved] = useState(false);
 
-  if (!isAuthModalOpen) return null;
+  if (!effectiveIsOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,31 +91,38 @@ export const AuthModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col">
-        {/* Modal Header */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-200/80 dark:border-slate-800">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-xs">
-              <Sparkles className="w-4 h-4" />
+    <ModalPortal>
+      <div
+        onClick={handleClose}
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
+      >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl flex flex-col"
+        >
+          {/* Modal Header */}
+          <div className="flex items-center justify-between p-5 border-b border-slate-200/80 dark:border-slate-800 shrink-0">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-xs">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                  {user && !user.isGuest ? 'Your Account' : 'Student & Pro Account'}
+                </h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  {user && !user.isGuest ? user.email : 'Upgrade from guest mode with zero data loss'}
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                {user && !user.isGuest ? 'Your Account' : 'Student & Pro Account'}
-              </h3>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                {user && !user.isGuest ? user.email : 'Upgrade from guest mode with zero data loss'}
-              </p>
-            </div>
-          </div>
 
-          <button
-            onClick={closeAuthModal}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+            <button
+              onClick={handleClose}
+              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
 
         {/* Guest Reassurance Banner */}
         {user?.isGuest && (
@@ -320,5 +336,6 @@ export const AuthModal: React.FC = () => {
         )}
       </div>
     </div>
+  </ModalPortal>
   );
 };

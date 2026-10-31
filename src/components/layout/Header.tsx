@@ -51,39 +51,6 @@ import { exportAnnotatedPdfDocument } from '@/features/pdf/pdfService';
 import { sound } from '../../utils/sound';
 import confetti from 'canvas-confetti';
 
-const SyncModal = React.lazy(() =>
-  import('./SyncModal').then((m) => ({ default: m.SyncModal }))
-);
-const AuthModal = React.lazy(() =>
-  import('../auth/AuthModal').then((m) => ({ default: m.AuthModal }))
-);
-const VersionHistoryModal = React.lazy(() =>
-  import('../history/VersionHistoryModal').then((m) => ({ default: m.VersionHistoryModal }))
-);
-const PdfImportModal = React.lazy(() =>
-  import('@/features/pdf/components/PdfImportModal').then((m) => ({ default: m.PdfImportModal }))
-);
-const AIStudyAssistantModal = React.lazy(() =>
-  import('@/features/ai/components/AIStudyAssistantModal').then((m) => ({
-    default: m.AIStudyAssistantModal,
-  }))
-);
-const FlashcardsModal = React.lazy(() =>
-  import('@/features/flashcards/components/FlashcardsModal').then((m) => ({
-    default: m.FlashcardsModal,
-  }))
-);
-const StudyDashboardModal = React.lazy(() =>
-  import('@/features/focus/components/StudyDashboardModal').then((m) => ({
-    default: m.StudyDashboardModal,
-  }))
-);
-const PricingModal = React.lazy(() =>
-  import('@/features/pricing/components/PricingModal').then((m) => ({
-    default: m.PricingModal,
-  }))
-);
-
 export const Header: React.FC = () => {
   const {
     layoutMode,
@@ -97,8 +64,7 @@ export const Header: React.FC = () => {
     toggleFullscreen,
     isSoundEnabled,
     isFullscreen,
-    activeModal,
-    closeModal,
+    openModal,
     setViewMode,
   } = useCanvasStore();
 
@@ -116,13 +82,6 @@ export const Header: React.FC = () => {
   const activeNote = getActiveNote();
 
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
-  const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
-  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
-  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
-  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
-  const [isFlashcardsModalOpen, setIsFlashcardsModalOpen] = useState(false);
-  const [isStudyDashboardOpen, setIsStudyDashboardOpen] = useState(false);
-  const [isPricingOpen, setIsPricingOpen] = useState(false);
   const [isMobileStudyMenuOpen, setIsMobileStudyMenuOpen] = useState(false);
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [copiedSuccess, setCopiedSuccess] = useState(false);
@@ -269,7 +228,7 @@ export const Header: React.FC = () => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setIsPricingOpen(true);
+                  openModal('pricing');
                 }}
                 className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 px-1.5 py-0.2 rounded-md border border-blue-500/20 uppercase transition-colors cursor-pointer"
                 title="View Plans & Commercial Upgrades"
@@ -409,7 +368,7 @@ export const Header: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setIsFlashcardsModalOpen(true)}
+            onClick={() => openModal('flashcards')}
             className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             title="SM-2 Spaced Repetition Flashcards"
           >
@@ -417,7 +376,7 @@ export const Header: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setIsStudyDashboardOpen(true)}
+            onClick={() => openModal('pomodoro')}
             className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             title="Study Dashboard & Pomodoro Focus Timer"
           >
@@ -425,7 +384,7 @@ export const Header: React.FC = () => {
           </button>
 
           <button
-            onClick={() => setIsPdfModalOpen(true)}
+            onClick={() => openModal('pdf')}
             className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             title="Import PDF Lecture Slides & Annotate"
           >
@@ -460,7 +419,7 @@ export const Header: React.FC = () => {
               </button>
               <button
                 onClick={() => {
-                  setIsFlashcardsModalOpen(true);
+                  openModal('flashcards');
                   setIsMobileStudyMenuOpen(false);
                 }}
                 className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
@@ -470,7 +429,7 @@ export const Header: React.FC = () => {
               </button>
               <button
                 onClick={() => {
-                  setIsStudyDashboardOpen(true);
+                  openModal('pomodoro');
                   setIsMobileStudyMenuOpen(false);
                 }}
                 className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-amber-950/40 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
@@ -480,7 +439,7 @@ export const Header: React.FC = () => {
               </button>
               <button
                 onClick={() => {
-                  setIsPdfModalOpen(true);
+                  openModal('pdf');
                   setIsMobileStudyMenuOpen(false);
                 }}
                 className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
@@ -491,7 +450,7 @@ export const Header: React.FC = () => {
               <div className="h-px bg-slate-200 dark:bg-slate-800 my-0.5" />
               <button
                 onClick={() => {
-                  setIsPricingOpen(true);
+                  openModal('pricing');
                   setIsMobileStudyMenuOpen(false);
                 }}
                 className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors"
@@ -504,7 +463,7 @@ export const Header: React.FC = () => {
         </div>
 
         <button
-          onClick={() => setIsSyncModalOpen(true)}
+          onClick={() => openModal('sync')}
           className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
             syncStatus.state === 'synced'
               ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
@@ -537,7 +496,7 @@ export const Header: React.FC = () => {
         </button>
 
         <button
-          onClick={() => setIsHistoryModalOpen(true)}
+          onClick={() => openModal('history')}
           className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           title="Note Version History & Snapshots"
         >
@@ -760,59 +719,6 @@ export const Header: React.FC = () => {
           {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
         </button>
       </div>
-
-      <React.Suspense fallback={null}>
-        <SyncModal
-          isOpen={isSyncModalOpen || activeModal === 'sync'}
-          onClose={() => {
-            setIsSyncModalOpen(false);
-            closeModal();
-          }}
-        />
-        <AuthModal />
-        <VersionHistoryModal
-          isOpen={isHistoryModalOpen || activeModal === 'history'}
-          onClose={() => {
-            setIsHistoryModalOpen(false);
-            closeModal();
-          }}
-        />
-        <PdfImportModal
-          isOpen={isPdfModalOpen || activeModal === 'pdf'}
-          onClose={() => {
-            setIsPdfModalOpen(false);
-            closeModal();
-          }}
-        />
-        <AIStudyAssistantModal
-          isOpen={isAiModalOpen || activeModal === 'ai'}
-          onClose={() => {
-            setIsAiModalOpen(false);
-            closeModal();
-          }}
-        />
-        <FlashcardsModal
-          isOpen={isFlashcardsModalOpen || activeModal === 'flashcards'}
-          onClose={() => {
-            setIsFlashcardsModalOpen(false);
-            closeModal();
-          }}
-        />
-        <StudyDashboardModal
-          isOpen={isStudyDashboardOpen || activeModal === 'pomodoro'}
-          onClose={() => {
-            setIsStudyDashboardOpen(false);
-            closeModal();
-          }}
-        />
-        <PricingModal
-          isOpen={isPricingOpen || activeModal === 'pricing'}
-          onClose={() => {
-            setIsPricingOpen(false);
-            closeModal();
-          }}
-        />
-      </React.Suspense>
     </header>
   );
 };

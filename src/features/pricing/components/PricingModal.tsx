@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Check, Sparkles, Shield, Zap, GraduationCap, Users } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useAuthStore } from '@/core/auth/useAuthStore';
+import { ModalPortal } from '@/components/ui/ModalPortal';
 
 interface PricingModalProps {
   isOpen: boolean;
@@ -28,8 +29,15 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200 overflow-y-auto">
-      <div className="relative w-full max-w-4xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden my-auto flex flex-col">
+    <ModalPortal>
+      <div
+        onClick={onClose}
+        className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200 overflow-y-auto"
+      >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl my-auto flex flex-col"
+        >
         {/* Header */}
         <div className="p-6 text-center relative border-b border-slate-100 dark:border-slate-800">
           <button
@@ -222,5 +230,6 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
         </div>
       </div>
     </div>
+  </ModalPortal>
   );
 };

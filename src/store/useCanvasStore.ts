@@ -18,6 +18,7 @@ export type ActiveModalType =
   | 'sync'
   | 'history'
   | 'auth'
+  | 'trash'
   | null;
 
 export interface CanvasState {
