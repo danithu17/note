@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import { useAssistantStore } from '../useAssistantStore';
 import { useNoteStore } from '@/store/useNoteStore';
+import { useEntitlementsStore } from '@/features/billing/useEntitlementsStore';
+import { useCanvasStore } from '@/store/useCanvasStore';
 import { db } from '@/core/db';
 import confetti from 'canvas-confetti';
 import { sound } from '@/utils/sound';
@@ -38,7 +40,10 @@ export const ChatAssistantPanel: React.FC = () => {
   } = useAssistantStore();
 
   const { getActiveNote, updateMarkdown, createNote, selectNote } = useNoteStore();
+  const { getRemainingAiCredits, incrementAiUsage } = useEntitlementsStore();
+  const { openModal } = useCanvasStore();
   const activeNote = getActiveNote();
+  const aiCredits = getRemainingAiCredits();
 
   const [input, setInput] = useState('');
   const [copiedMsgId, setCopiedMsgId] = useState<string | null>(null);
@@ -74,11 +79,19 @@ export const ChatAssistantPanel: React.FC = () => {
 
   const handleSend = () => {
     if (!input.trim() || isStreaming) return;
+
+    if (aiCredits.remaining !== null && aiCredits.remaining <= 0) {
+      alert('⚡ You have reached your monthly AI assistant credits. Upgrade to Pro Scholar or start a 14-day free trial for unlimited queries!');
+      openModal('pricing');
+      return;
+    }
+
     const text = input.trim();
     setInput('');
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
+    incrementAiUsage();
     sendMessage(text, activeNote);
   };
 
@@ -219,9 +232,16 @@ export const ChatAssistantPanel: React.FC = () => {
               <span className="font-bold text-sm tracking-tight text-slate-900 dark:text-white">
                 Study Assistant
               </span>
-              <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-1.5 py-0.2 rounded-md">
-                AI
-              </span>
+              <button
+                onClick={() => openModal('pricing')}
+                title="Monthly AI credits balance. Click to view plans or upgrade."
+                className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 px-1.5 py-0.5 rounded-md flex items-center gap-0.5 transition-colors cursor-pointer"
+              >
+                <span>⚡</span>
+                <span>
+                  {aiCredits.total === null ? 'Unlimited' : `${aiCredits.remaining}/${aiCredits.total}`}
+                </span>
+              </button>
             </div>
             <span className="text-[11px] text-slate-400 dark:text-slate-500">
               {activeNote ? activeNote.title : 'Ready to help'}
@@ -384,6 +404,23 @@ export const ChatAssistantPanel: React.FC = () => {
               </button>
             </span>
           ))}
+        </div>
+      )}
+
+      {/* Remaining Credits Banner (Free / low-quota warning) */}
+      {aiCredits.remaining !== null && aiCredits.remaining <= 3 && (
+        <div className="mx-3 mb-1 px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/40 text-[11px] flex items-center justify-between text-amber-800 dark:text-amber-200">
+          <span>
+            {aiCredits.remaining === 0
+              ? '⚡ Monthly AI quota reached.'
+              : `⚡ ${aiCredits.remaining} AI questions left this month.`}
+          </span>
+          <button
+            onClick={() => openModal('pricing')}
+            className="font-semibold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+          >
+            Upgrade Plan
+          </button>
         </div>
       )}
 

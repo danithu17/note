@@ -180,7 +180,7 @@ class AdminService {
     return [...this.auditLogs].reverse();
   }
 
-  private logAction(
+  public logAction(
     adminId: string,
     action: AdminAuditRecord['action'],
     targetUserId?: string,

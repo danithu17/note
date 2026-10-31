@@ -10,12 +10,23 @@ import {
   Tag,
   CreditCard,
   Building,
+  ChevronDown,
+  ChevronUp,
+  Upload,
+  CheckCircle2,
+  HelpCircle,
+  Star,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useAuthStore } from '@/core/auth/useAuthStore';
 import { ModalPortal } from '@/components/ui/ModalPortal';
 import { paymentService, type PaymentProvider } from '../../billing/paymentService';
 import { useEntitlementsStore } from '../../billing/useEntitlementsStore';
+import {
+  detectUserRegion,
+  FEATURE_CATALOG,
+  formatFeatureDisplay,
+} from '../../billing/entitlements';
 import type { PlanId } from '../../billing/types';
 
 interface PricingModalProps {
@@ -25,16 +36,34 @@ interface PricingModalProps {
 
 export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) => {
   const { user } = useAuthStore();
-  const { trial, startTrial, applySubscription } = useEntitlementsStore();
+  const {
+    plans,
+    dynamicEntitlements,
+    trial,
+    startTrial,
+    applySubscription,
+    studentVerification,
+    submitStudentId,
+  } = useEntitlementsStore();
 
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual');
-  const [provider, setProvider] = useState<PaymentProvider>('stripe');
+  const [provider, setProvider] = useState<PaymentProvider>(() => detectUserRegion().provider);
+  const [currency, setCurrency] = useState<'USD' | 'LKR'>(() => detectUserRegion().currency);
   const [couponCode, setCouponCode] = useState('');
   const [appliedDiscount, setAppliedDiscount] = useState<number | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState<string | null>(null);
 
+  // Accordion & verification state
+  const [showMatrix, setShowMatrix] = useState(true);
+  const [showStudentVerification, setShowStudentVerification] = useState(false);
+  const [studentInstitution, setStudentInstitution] = useState('');
+  const [uploadedFileName, setUploadedFileName] = useState('');
+  const [activeFaq, setActiveFaq] = useState<number | null>(null);
+
   if (!isOpen) return null;
+
+  const isLkr = currency === 'LKR';
 
   const handleApplyCoupon = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,16 +73,21 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
     if (res.isValid && res.coupon) {
       setAppliedDiscount(res.coupon.discountPercent);
       setCouponError(null);
-      confetti({ particleCount: 25, spread: 45 });
+      confetti({ particleCount: 30, spread: 50 });
     } else {
       setCouponError(res.error || 'Invalid code');
       setAppliedDiscount(null);
     }
   };
 
-  const handleSelectPlan = async (planKey: 'free' | 'pro' | 'team') => {
+  const handleSelectPlan = async (planKey: 'free' | 'pro_student' | 'pro' | 'team') => {
     if (planKey === 'free') {
       onClose();
+      return;
+    }
+
+    if (planKey === 'pro_student' && studentVerification?.status !== 'verified') {
+      setShowStudentVerification(true);
       return;
     }
 
@@ -62,7 +96,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
         ? billingCycle === 'annual'
           ? 'pro_yearly'
           : 'pro_monthly'
-        : 'team';
+        : planKey;
 
     setIsProcessing(planKey);
 
@@ -75,7 +109,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
       );
 
       if (res.success) {
-        applySubscription(planId, provider);
+        applySubscription(planId, provider, billingCycle);
         confetti({ particleCount: 50, spread: 70 });
 
         if (res.checkoutUrl && provider === 'payhere') {
@@ -99,20 +133,59 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
     onClose();
   };
 
-  const isLkr = provider === 'payhere';
+  const handleStudentIdUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadedFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => {
+      submitStudentId(
+        studentInstitution || 'University Student',
+        file.name,
+        reader.result as string
+      );
+      confetti({ particleCount: 25, spread: 40 });
+      alert('📄 Student ID uploaded! Verification usually takes less than 24 hours.');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const faqs = [
+    {
+      q: 'How does the automatic 14-day Pro trial work?',
+      a: 'Every new account instantly gets 14 days of full Pro Scholar access with no credit card or payment method required. When the trial ends, your account smoothly transitions to the Free tier. Your notes, sketches, and files are NEVER locked or deleted.',
+    },
+    {
+      q: 'What happens to my notes if I downgrade or my trial ends?',
+      a: 'ScribbleNote is strictly local-first with Dexie database storage. You can always view, edit, search, and export all your existing notes, drawings, and PDF annotations even if your subscription expires.',
+    },
+    {
+      q: 'How do I qualify for the Pro Student discount?',
+      a: 'If you register with an institutional educational email (.edu, .ac.lk, .edu.*), verification is instant! Alternatively, upload a photo of your campus student ID card or semester registration letter for same-day manual review.',
+    },
+    {
+      q: 'What payment methods are supported in Sri Lanka and globally?',
+      a: 'Globally, we accept all major Credit/Debit cards and Apple Pay via Stripe (USD). For students and educators in Sri Lanka, we accept local Visa, Mastercard, Genie, eZ Cash, and mCash via PayHere in LKR.',
+    },
+    {
+      q: 'Can I cancel my subscription anytime?',
+      a: 'Yes, with one click in your account settings. You will retain Pro access until the end of your prepaid billing period, with zero hidden cancellation fees.',
+    },
+  ];
 
   return (
     <ModalPortal>
       <div
         onClick={onClose}
-        className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200 overflow-y-auto"
+        className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-md animate-in fade-in duration-200 overflow-y-auto"
       >
         <div
           onClick={(e) => e.stopPropagation()}
-          className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl my-auto flex flex-col"
+          className="relative w-full max-w-5xl max-h-[92vh] overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl my-auto flex flex-col"
         >
           {/* Header */}
-          <div className="p-6 text-center relative border-b border-slate-100 dark:border-slate-800">
+          <div className="p-6 sm:p-8 text-center relative border-b border-slate-100 dark:border-slate-800 shrink-0">
             <button
               onClick={onClose}
               className="absolute top-5 right-5 p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -121,127 +194,215 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
               <X className="w-5 h-5" />
             </button>
 
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-wider mb-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-wider mb-2.5">
               <Sparkles className="w-3.5 h-3.5" /> Commercial Plans & Subscriptions
             </div>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
-              The Ultimate Lecture Notebook
+              Invest in Your Academic Excellence
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mt-1">
-              Supercharge your studies with offline handwriting, slide annotations, audio-sync playback, and AI tools.
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-lg mx-auto mt-1.5">
+              Apple-grade lecture notebook with offline handwriting canvas, PDF markup, synced audio recall, and AI Study Assistant.
             </p>
 
-            {/* Trial Banner or Currency Switcher */}
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+            {/* Controls Bar: Billing Interval & Currency Switchers */}
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
               {/* Billing Cycle Switcher */}
-              <div className="inline-flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl text-xs">
+              <div className="inline-flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl text-xs font-semibold shadow-inner">
                 <button
                   onClick={() => setBillingCycle('monthly')}
-                  className={`px-3.5 py-1.5 rounded-xl font-semibold transition-all ${
+                  className={`px-4 py-1.5 rounded-xl transition-all ${
                     billingCycle === 'monthly'
-                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
-                      : 'text-slate-500'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-bold'
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
                   }`}
                 >
                   Monthly
                 </button>
                 <button
                   onClick={() => setBillingCycle('annual')}
-                  className={`px-3.5 py-1.5 rounded-xl font-semibold transition-all flex items-center gap-1 ${
+                  className={`px-4 py-1.5 rounded-xl transition-all flex items-center gap-1.5 ${
                     billingCycle === 'annual'
-                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
-                      : 'text-slate-500'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-bold'
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
                   }`}
                 >
-                  <span>Annual</span>
-                  <span className="text-[10px] bg-emerald-500 text-white font-bold px-1.5 rounded-full">
-                    -33%
+                  <span>Annual Billing</span>
+                  <span className="text-[10px] bg-emerald-500 text-white font-extrabold px-1.5 py-0.2 rounded-full uppercase tracking-tight">
+                    Save 33%
                   </span>
                 </button>
               </div>
 
-              {/* Currency & Gateway Switcher */}
-              <div className="inline-flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl text-xs">
+              {/* Currency & Regional Gateway Switcher */}
+              <div className="inline-flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl text-xs font-semibold shadow-inner">
                 <button
-                  onClick={() => setProvider('stripe')}
-                  className={`px-3 py-1.5 rounded-xl font-semibold flex items-center gap-1 transition-all ${
-                    provider === 'stripe'
-                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
-                      : 'text-slate-500'
+                  onClick={() => {
+                    setCurrency('USD');
+                    setProvider('stripe');
+                  }}
+                  className={`px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-all ${
+                    currency === 'USD'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-bold'
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
                   }`}
                 >
                   <CreditCard className="w-3.5 h-3.5 text-blue-500" />
-                  <span>Global (USD)</span>
+                  <span>Global (USD $)</span>
                 </button>
                 <button
-                  onClick={() => setProvider('payhere')}
-                  className={`px-3 py-1.5 rounded-xl font-semibold flex items-center gap-1 transition-all ${
-                    provider === 'payhere'
-                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
-                      : 'text-slate-500'
+                  onClick={() => {
+                    setCurrency('LKR');
+                    setProvider('payhere');
+                  }}
+                  className={`px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-all ${
+                    currency === 'LKR'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-bold'
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
                   }`}
                 >
                   <Building className="w-3.5 h-3.5 text-amber-500" />
-                  <span>Sri Lanka (LKR)</span>
+                  <span>Sri Lanka (LKR Rs.)</span>
                 </button>
               </div>
             </div>
 
-            {/* 14-Day Free Trial Reassurance */}
+            {/* 14-Day Free Trial Notice */}
             {(!trial || !trial.isTrialActive) && (
-              <div className="mt-3">
+              <div className="mt-4">
                 <button
                   onClick={handleStartTrialClick}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-xs font-semibold hover:bg-emerald-100 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 text-xs font-semibold hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors shadow-2xs cursor-pointer"
                 >
-                  <span>✨ Click here to start 14-day free Pro trial (No credit card needed)</span>
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>Start 14-day free Pro Scholar trial (No card required)</span>
                 </button>
               </div>
             )}
           </div>
 
-          {/* Pricing Cards Grid */}
-          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-5">
-            {/* 1. Free Student Tier */}
-            <div className="p-5 rounded-3xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 flex flex-col justify-between">
+          {/* Pricing Cards Grid (4 Tiers: Free, Pro Student, Pro Scholar, Team) */}
+          <div className="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* 1. Starter Free */}
+            <div className="p-5 rounded-3xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <GraduationCap className="w-5 h-5 text-slate-500" />
-                  <h3 className="font-bold text-slate-900 dark:text-slate-100">Starter Free</h3>
+                  <div className="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300">
+                    <GraduationCap className="w-4 h-4" />
+                  </div>
+                  <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
+                    {plans.free.name}
+                  </h3>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
-                  Essential offline lecture notes and drawing canvas.
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-3 min-h-[30px]">
+                  {plans.free.description}
                 </p>
-                <div className="text-3xl font-black text-slate-900 dark:text-white mb-4">
+                <div className="text-2xl font-black text-slate-900 dark:text-white mb-3">
                   {isLkr ? 'Rs. 0' : '$0'}{' '}
-                  <span className="text-xs font-normal text-slate-400">/ forever</span>
+                  <span className="text-[11px] font-normal text-slate-400">/ forever</span>
                 </div>
 
-                <ul className="space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
+                <ul className="space-y-2 text-[11px] text-slate-600 dark:text-slate-300 border-t border-slate-100 dark:border-slate-800/80 pt-3">
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-500 shrink-0" /> Local-first offline Dexie database
+                    <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> 30 notes & 3 notebooks
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-500 shrink-0" /> Freehand drawing with 5 grid backgrounds
+                    <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> Local-first Dexie storage
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-500 shrink-0" /> Markdown notes & syntax code blocks
+                    <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> Freehand pen & highlighter
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-500 shrink-0" /> PNG & SVG diagram export
+                    <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> 1 PDF slide annotate
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> 10 AI queries / month
                   </li>
                 </ul>
               </div>
 
               <button
                 onClick={() => handleSelectPlan('free')}
-                className="mt-6 w-full py-2.5 rounded-2xl bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all"
+                className="mt-5 w-full py-2 rounded-2xl bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer"
               >
-                {user?.plan === 'free' ? 'Current Plan' : 'Stay on Free'}
+                {user?.plan === 'free' ? 'Current Plan' : 'Free Forever'}
               </button>
             </div>
 
-            {/* 2. Pro Scholar Tier (Featured) */}
+            {/* 2. Pro Student (Discounted with Verification) */}
+            <div className="p-5 rounded-3xl border border-indigo-200 dark:border-indigo-900/60 bg-indigo-50/30 dark:bg-indigo-950/20 flex flex-col justify-between relative shadow-xs">
+              <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-indigo-600 text-white text-[9px] font-extrabold uppercase tracking-wider">
+                Student Special
+              </span>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-7 h-7 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                    <GraduationCap className="w-4 h-4" />
+                  </div>
+                  <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
+                    {plans.pro_student.name}
+                  </h3>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-3 min-h-[30px]">
+                  Verified student discount (.edu / .ac.lk or campus ID).
+                </p>
+                <div className="text-2xl font-black text-slate-900 dark:text-white mb-3">
+                  {isLkr
+                    ? billingCycle === 'annual'
+                      ? 'Rs. 4,990'
+                      : 'Rs. 590'
+                    : billingCycle === 'annual'
+                      ? '$24.99'
+                      : '$2.99'}{' '}
+                  <span className="text-[11px] font-normal text-slate-400">
+                    / {billingCycle === 'annual' ? 'yr' : 'mo'}
+                  </span>
+                </div>
+
+                <ul className="space-y-2 text-[11px] text-slate-700 dark:text-slate-200 border-t border-indigo-100 dark:border-indigo-900/40 pt-3">
+                  <li className="flex items-center gap-2 font-medium">
+                    <Check className="w-3.5 h-3.5 text-indigo-500 shrink-0" /> Unlimited notes & books
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-3.5 h-3.5 text-indigo-500 shrink-0" /> Cloud sync on all devices
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-3.5 h-3.5 text-indigo-500 shrink-0" /> Unlimited PDF annotation
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-3.5 h-3.5 text-indigo-500 shrink-0" /> Audio-synced lecture notes
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-3.5 h-3.5 text-indigo-500 shrink-0" /> 300 AI queries / month
+                  </li>
+                </ul>
+              </div>
+
+              <div className="mt-5">
+                {studentVerification?.status === 'verified' ? (
+                  <button
+                    onClick={() => handleSelectPlan('pro_student')}
+                    disabled={isProcessing === 'pro_student'}
+                    className="w-full py-2 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-500/20 transition-all cursor-pointer"
+                  >
+                    {isProcessing === 'pro_student'
+                      ? 'Processing...'
+                      : appliedDiscount
+                        ? `Upgrade with ${appliedDiscount}% OFF`
+                        : 'Get Pro Student'}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setShowStudentVerification(true)}
+                    className="w-full py-2 rounded-2xl bg-indigo-100 dark:bg-indigo-900/60 hover:bg-indigo-200 text-indigo-800 dark:text-indigo-200 text-xs font-bold transition-all cursor-pointer"
+                  >
+                    Verify Student Status
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* 3. Pro Scholar (Flagship) */}
             <div className="p-5 rounded-3xl border-2 border-blue-500 bg-white dark:bg-slate-900 shadow-xl shadow-blue-500/10 flex flex-col justify-between relative">
               <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-extrabold uppercase tracking-wider shadow-sm">
                 Most Popular
@@ -249,41 +410,44 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
 
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <Zap className="w-5 h-5 text-blue-500" />
-                  <h3 className="font-bold text-slate-900 dark:text-slate-100">Pro Scholar</h3>
+                  <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                    <Zap className="w-4 h-4" />
+                  </div>
+                  <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
+                    {plans.pro.name}
+                  </h3>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
-                  Full power for university students, educators, and engineers.
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-3 min-h-[30px]">
+                  Full lecture power for university students, educators, and engineers.
                 </p>
-                <div className="text-3xl font-black text-slate-900 dark:text-white mb-4">
+                <div className="text-2xl font-black text-slate-900 dark:text-white mb-3">
                   {isLkr
                     ? billingCycle === 'annual'
-                      ? 'Rs. 1,000'
-                      : 'Rs. 1,500'
+                      ? 'Rs. 7,990'
+                      : 'Rs. 990'
                     : billingCycle === 'annual'
-                      ? '$3.33'
+                      ? '$39.99'
                       : '$4.99'}{' '}
-                  <span className="text-xs font-normal text-slate-400">/ month</span>
+                  <span className="text-[11px] font-normal text-slate-400">
+                    / {billingCycle === 'annual' ? 'yr' : 'mo'}
+                  </span>
                 </div>
 
-                <ul className="space-y-2.5 text-xs text-slate-700 dark:text-slate-200">
+                <ul className="space-y-2 text-[11px] text-slate-700 dark:text-slate-200 border-t border-slate-100 dark:border-slate-800 pt-3">
                   <li className="flex items-center gap-2 font-medium">
-                    <Check className="w-4 h-4 text-blue-500 shrink-0" /> Everything in Starter
+                    <Check className="w-3.5 h-3.5 text-blue-500 shrink-0" /> Everything in Student
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-blue-500 shrink-0" /> Multi-device Supabase cloud sync
+                    <Check className="w-3.5 h-3.5 text-blue-500 shrink-0" /> 10 GB cloud storage
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-blue-500 shrink-0" /> PDF & PPT slide deck import & annotate
+                    <Check className="w-3.5 h-3.5 text-blue-500 shrink-0" /> 500 AI queries / month
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-blue-500 shrink-0" /> Audio-synced seekable lecture notes
+                    <Check className="w-3.5 h-3.5 text-blue-500 shrink-0" /> OCR handwriting search
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-blue-500 shrink-0" /> AI Study Assistant & chat summaries
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-blue-500 shrink-0" /> 10 GB cloud storage allocation
+                    <Check className="w-3.5 h-3.5 text-blue-500 shrink-0" /> 30-day version history
                   </li>
                 </ul>
               </div>
@@ -291,7 +455,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
               <button
                 onClick={() => handleSelectPlan('pro')}
                 disabled={isProcessing === 'pro'}
-                className="mt-6 w-full py-2.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold shadow-md shadow-blue-500/25 transition-all active:scale-95 cursor-pointer"
+                className="mt-5 w-full py-2.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold shadow-md shadow-blue-500/25 transition-all active:scale-95 cursor-pointer"
               >
                 {isProcessing === 'pro'
                   ? 'Processing...'
@@ -301,33 +465,40 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
               </button>
             </div>
 
-            {/* 3. Campus / Team Tier */}
-            <div className="p-5 rounded-3xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 flex flex-col justify-between">
+            {/* 4. Campus / Team */}
+            <div className="p-5 rounded-3xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <Users className="w-5 h-5 text-purple-500" />
-                  <h3 className="font-bold text-slate-900 dark:text-slate-100">Campus / Lab</h3>
+                  <div className="w-7 h-7 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-600 dark:text-purple-400">
+                    <Users className="w-4 h-4" />
+                  </div>
+                  <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
+                    {plans.team.name}
+                  </h3>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
-                  For research groups, university departments, and study pods.
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-3 min-h-[30px]">
+                  Collaborative course pods, lab groups, and university departments.
                 </p>
-                <div className="text-3xl font-black text-slate-900 dark:text-white mb-4">
-                  {isLkr ? 'Rs. 2,500' : '$7.99'}{' '}
-                  <span className="text-xs font-normal text-slate-400">/ seat / mo</span>
+                <div className="text-2xl font-black text-slate-900 dark:text-white mb-3">
+                  {isLkr ? 'Rs. 800' : '$3.99'}{' '}
+                  <span className="text-[11px] font-normal text-slate-400">/ user / mo</span>
                 </div>
 
-                <ul className="space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
+                <ul className="space-y-2 text-[11px] text-slate-600 dark:text-slate-300 border-t border-slate-100 dark:border-slate-800 pt-3">
                   <li className="flex items-center gap-2 font-medium">
-                    <Check className="w-4 h-4 text-purple-500 shrink-0" /> Everything in Pro Scholar
+                    <Check className="w-3.5 h-3.5 text-purple-500 shrink-0" /> Everything in Pro Scholar
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-purple-500 shrink-0" /> Shared workspace & course folders
+                    <Check className="w-3.5 h-3.5 text-purple-500 shrink-0" /> Real-time collaboration
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-purple-500 shrink-0" /> 100 GB team cloud storage
+                    <Check className="w-3.5 h-3.5 text-purple-500 shrink-0" /> Shared course repositories
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-purple-500 shrink-0" /> Priority 24/7 technical support
+                    <Check className="w-3.5 h-3.5 text-purple-500 shrink-0" /> 100 GB team cloud storage
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="w-3.5 h-3.5 text-purple-500 shrink-0" /> 24/7 dedicated support
                   </li>
                 </ul>
               </div>
@@ -335,17 +506,79 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
               <button
                 onClick={() => handleSelectPlan('team')}
                 disabled={isProcessing === 'team'}
-                className="mt-6 w-full py-2.5 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-md shadow-purple-500/20 transition-all active:scale-95 cursor-pointer"
+                className="mt-5 w-full py-2 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-md shadow-purple-500/20 transition-all cursor-pointer"
               >
-                {isProcessing === 'team' ? 'Processing...' : 'Choose Team Plan'}
+                {isProcessing === 'team' ? 'Processing...' : 'Contact Campus Team'}
               </button>
             </div>
           </div>
 
-          {/* Coupon Code Bar */}
-          <div className="px-6 pb-2">
-            <form onSubmit={handleApplyCoupon} className="flex items-center gap-2 p-2 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 max-w-md mx-auto">
-              <Tag className="w-4 h-4 text-slate-400 shrink-0 ml-1" />
+          {/* Student Verification Drawer / Banner */}
+          {showStudentVerification && (
+            <div className="mx-6 sm:mx-8 mb-4 p-5 rounded-3xl bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900/60">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <GraduationCap className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                  <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+                    Verify Your Student Status for $2.99 / Rs. 590 Pricing
+                  </h4>
+                </div>
+                <button
+                  onClick={() => setShowStudentVerification(false)}
+                  className="text-slate-400 hover:text-slate-600 text-xs"
+                >
+                  Close
+                </button>
+              </div>
+
+              {studentVerification?.status === 'verified' ? (
+                <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400 font-bold">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Student status verified ({studentVerification.institution})! You can now subscribe to Pro Student.</span>
+                </div>
+              ) : studentVerification?.status === 'pending' ? (
+                <div className="text-xs text-amber-700 dark:text-amber-300">
+                  ⏳ Document under manual review ({studentVerification.documentName}). We will notify you via email shortly.
+                </div>
+              ) : (
+                <div className="flex flex-col sm:flex-row gap-4 items-center">
+                  <div className="flex-1 text-xs text-slate-600 dark:text-slate-300">
+                    <p className="mb-2">
+                      If you have an educational email ending in <strong>.edu</strong>, <strong>.ac.lk</strong>, or <strong>.sch.lk</strong>, sign in with that address for instant automated verification.
+                    </p>
+                    <p>Or upload your student ID card photo below for same-day manual review:</p>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <input
+                      type="text"
+                      placeholder="University name (e.g. SLIIT, Moratuwa, Stanford)"
+                      value={studentInstitution}
+                      onChange={(e) => setStudentInstitution(e.target.value)}
+                      className="px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200 outline-none"
+                    />
+                    <label className="flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold cursor-pointer transition-colors whitespace-nowrap">
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>{uploadedFileName || 'Upload Student ID'}</span>
+                      <input
+                        type="file"
+                        accept="image/*,.pdf"
+                        onChange={handleStudentIdUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Coupon Code Input */}
+          <div className="px-6 sm:px-8 pb-3">
+            <form
+              onSubmit={handleApplyCoupon}
+              className="flex items-center gap-2 p-2 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 max-w-md mx-auto"
+            >
+              <Tag className="w-4 h-4 text-slate-400 shrink-0 ml-1.5" />
               <input
                 type="text"
                 value={couponCode}
@@ -353,12 +586,12 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
                   setCouponCode(e.target.value);
                   setCouponError(null);
                 }}
-                placeholder="Promo Code (try: STUDENT50)"
+                placeholder="Discount code (try: STUDENT50 or BETA2026)"
                 className="w-full bg-transparent text-xs font-mono uppercase text-slate-800 dark:text-slate-200 outline-none placeholder:text-slate-400 placeholder:normal-case"
               />
               <button
                 type="submit"
-                className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-colors cursor-pointer"
+                className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-colors cursor-pointer"
               >
                 Apply
               </button>
@@ -375,13 +608,137 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
             )}
           </div>
 
+          {/* Full 18-Row Feature Matrix Toggle */}
+          <div className="px-6 sm:px-8 py-3 border-t border-slate-100 dark:border-slate-800">
+            <button
+              onClick={() => setShowMatrix(!showMatrix)}
+              className="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/40 hover:bg-slate-100 dark:hover:bg-slate-800/70 transition-colors text-xs font-bold text-slate-800 dark:text-slate-200"
+            >
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-blue-500" />
+                <span>Compare All 18 Features Side-by-Side</span>
+              </div>
+              {showMatrix ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+
+            {showMatrix && (
+              <div className="mt-3 overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-2xl">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 dark:bg-slate-800/70 text-slate-500 uppercase text-[10px] font-bold border-b border-slate-200 dark:border-slate-800">
+                    <tr>
+                      <th className="p-3 w-1/3">Feature</th>
+                      <th className="p-3 text-center">Starter Free</th>
+                      <th className="p-3 text-center text-indigo-600 dark:text-indigo-400">Pro Student</th>
+                      <th className="p-3 text-center text-blue-600 dark:text-blue-400 font-black">Pro Scholar</th>
+                      <th className="p-3 text-center text-purple-600 dark:text-purple-400">Team</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800/70">
+                    {FEATURE_CATALOG.map((feat) => {
+                      const freeLimit = dynamicEntitlements.free?.[feat.key];
+                      const studentLimit = dynamicEntitlements.pro_student?.[feat.key];
+                      const proLimit = dynamicEntitlements.pro?.[feat.key];
+                      const teamLimit = dynamicEntitlements.team?.[feat.key];
+
+                      return (
+                        <tr key={feat.key} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
+                          <td className="p-3">
+                            <div className="font-semibold text-slate-900 dark:text-slate-100">
+                              {feat.label}
+                            </div>
+                            <div className="text-[10px] text-slate-400">{feat.description}</div>
+                          </td>
+                          <td className="p-3 text-center text-slate-600 dark:text-slate-400">
+                            {formatFeatureDisplay(feat.key, freeLimit)}
+                          </td>
+                          <td className="p-3 text-center font-semibold text-indigo-600 dark:text-indigo-400">
+                            {formatFeatureDisplay(feat.key, studentLimit)}
+                          </td>
+                          <td className="p-3 text-center font-bold text-blue-600 dark:text-blue-400 bg-blue-50/20 dark:bg-blue-950/10">
+                            {formatFeatureDisplay(feat.key, proLimit)}
+                          </td>
+                          <td className="p-3 text-center font-semibold text-purple-600 dark:text-purple-400">
+                            {formatFeatureDisplay(feat.key, teamLimit)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* Testimonial Quotes */}
+          <div className="px-6 sm:px-8 py-4 border-t border-slate-100 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-800 text-xs">
+              <div className="flex items-center gap-1 text-amber-400 mb-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
+                ))}
+              </div>
+              <p className="text-slate-700 dark:text-slate-300 italic mb-2">
+                "The audio sync note player changed how I revise engineering lectures. Clicking a handwritten formula to re-hear what the professor said is brilliant."
+              </p>
+              <span className="text-[11px] font-bold text-slate-900 dark:text-white">
+                — Kasun P., Computer Engineering, University of Moratuwa
+              </span>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/30 border border-slate-200/60 dark:border-slate-800 text-xs">
+              <div className="flex items-center gap-1 text-amber-400 mb-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
+                ))}
+              </div>
+              <p className="text-slate-700 dark:text-slate-300 italic mb-2">
+                "Instant PDF slide annotation plus AI flashcard generation cuts my study prep in half. Well worth the student subscription."
+              </p>
+              <span className="text-[11px] font-bold text-slate-900 dark:text-white">
+                — Sarah L., Pre-Med Student, Stanford University
+              </span>
+            </div>
+          </div>
+
+          {/* FAQ Accordion */}
+          <div className="px-6 sm:px-8 py-4 border-t border-slate-100 dark:border-slate-800">
+            <h4 className="font-bold text-xs uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
+              <HelpCircle className="w-3.5 h-3.5" /> Frequently Asked Questions
+            </h4>
+            <div className="space-y-2">
+              {faqs.map((faq, idx) => (
+                <div
+                  key={idx}
+                  className="rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden"
+                >
+                  <button
+                    onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
+                    className="w-full p-3 text-left text-xs font-semibold flex items-center justify-between text-slate-800 dark:text-slate-200 bg-slate-50/50 dark:bg-slate-800/30 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors"
+                  >
+                    <span>{faq.q}</span>
+                    {activeFaq === idx ? (
+                      <ChevronUp className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    ) : (
+                      <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    )}
+                  </button>
+                  {activeFaq === idx && (
+                    <div className="p-3 text-[11px] leading-relaxed text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Footer Guarantee */}
-          <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 dark:text-slate-400 gap-2">
+          <div className="px-6 sm:px-8 py-4 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 dark:text-slate-400 gap-2 shrink-0">
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4 text-emerald-500" />
-              <span>14-day student money-back guarantee. Cancel anytime with zero penalties.</span>
+              <span>14-day money-back guarantee. Local data is never deleted or locked.</span>
             </div>
-            <span className="font-mono text-[11px]">Secure Checkout via Stripe & PayHere</span>
+            <span className="font-mono text-[11px]">Pay via Stripe (Global) or PayHere (Sri Lanka)</span>
           </div>
         </div>
       </div>

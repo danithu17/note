@@ -1,5 +1,5 @@
 import type { PlanId, Subscription, Coupon } from './types';
-import { PLANS } from './entitlements';
+import { DEFAULT_PLANS } from './entitlements';
 
 export type PaymentProvider = 'stripe' | 'payhere' | 'play_store';
 
@@ -14,7 +14,7 @@ export interface CheckoutResult {
   message?: string;
 }
 
-// Built-in verified educational promo coupons
+// Built-in verified educational promo coupons & launch discounts
 export const ACTIVE_COUPONS: Coupon[] = [
   {
     code: 'STUDENT50',
@@ -30,6 +30,14 @@ export const ACTIVE_COUPONS: Coupon[] = [
     expiresAt: Date.now() + 180 * 24 * 3600 * 1000,
     maxUses: 500,
     usedCount: 88,
+    active: true,
+  },
+  {
+    code: 'BETA2026',
+    discountPercent: 30,
+    expiresAt: Date.now() + 90 * 24 * 3600 * 1000,
+    maxUses: 2000,
+    usedCount: 310,
     active: true,
   },
 ];
@@ -64,9 +72,10 @@ class PaymentService {
     planId: PlanId,
     provider: PaymentProvider,
     couponCode?: string,
-    userEmail: string = 'student@university.edu'
+    userEmail: string = 'student@university.edu',
+    billingCycle?: 'monthly' | 'annual'
   ): Promise<CheckoutResult> {
-    const plan = PLANS[planId];
+    const plan = DEFAULT_PLANS[planId];
     if (!plan || plan.id === 'free') {
       return {
         success: false,
@@ -77,6 +86,10 @@ class PaymentService {
       };
     }
 
+    const resolvedCycle =
+      billingCycle ??
+      (planId === 'pro_yearly' ? 'annual' : planId === 'pro_monthly' ? 'monthly' : 'annual');
+
     let discountPercent = 0;
     if (couponCode) {
       const couponValidation = this.validateCoupon(couponCode);
@@ -86,18 +99,25 @@ class PaymentService {
     }
 
     const isLkr = provider === 'payhere';
-    const baseAmount = isLkr ? plan.priceLkr : plan.priceUsd;
+    const baseAmount = isLkr
+      ? resolvedCycle === 'annual'
+        ? plan.yearlyLkr
+        : plan.monthlyLkr
+      : resolvedCycle === 'annual'
+        ? plan.yearlyUsd
+        : plan.monthlyUsd;
+
     const discountAmount = Number(((baseAmount * discountPercent) / 100).toFixed(2));
     const finalAmount = Number(Math.max(0, baseAmount - discountAmount).toFixed(2));
     const orderId = `ord_${provider}_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 6)}`;
 
     if (provider === 'payhere') {
       // PayHere Sri Lanka Gateway Parameters
-      const payhereUrl = `https://sandbox.payhere.lk/pay/checkout?merchant_id=1211111&return_url=${encodeURIComponent(
-        window.location.origin + '/#/app?payment=success&order=' + orderId
-      )}&cancel_url=${encodeURIComponent(
-        window.location.origin + '/#/app?payment=cancel'
-      )}&order_id=${orderId}&items=${encodeURIComponent(plan.name)}&currency=LKR&amount=${finalAmount}&email=${encodeURIComponent(userEmail)}`;
+      const returnUrl = encodeURIComponent(window.location.origin + '/#/app?payment=success&order=' + orderId);
+      const cancelUrl = encodeURIComponent(window.location.origin + '/#/app?payment=cancel');
+      const payhereUrl = `https://sandbox.payhere.lk/pay/checkout?merchant_id=1211111&return_url=${returnUrl}&cancel_url=${cancelUrl}&order_id=${orderId}&items=${encodeURIComponent(
+        plan.name
+      )}&currency=LKR&amount=${finalAmount}&email=${encodeURIComponent(userEmail)}`;
 
       return {
         success: true,

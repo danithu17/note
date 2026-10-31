@@ -456,37 +456,65 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp, onOpenPri
             >
               <span>Annual Billing</span>
               <span className="text-[10px] bg-emerald-500 text-white font-bold px-1.5 py-0.2 rounded-full">
-                Save 20%
+                Save 33%
               </span>
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Starter */}
-          <div className="p-6 rounded-3xl bg-white dark:bg-[#1c1c1e] border border-slate-200/80 dark:border-white/10 shadow-md flex flex-col justify-between">
+          <div className="p-5 rounded-3xl bg-white dark:bg-[#1c1c1e] border border-slate-200/80 dark:border-white/10 shadow-md flex flex-col justify-between">
             <div>
               <h3 className="font-bold text-slate-900 dark:text-white text-base">Starter</h3>
               <p className="text-xs text-slate-500 mt-1 mb-4">
                 Essential local-first offline lecture notes.
               </p>
-              <div className="text-3xl font-black mb-4">$0 <span className="text-xs font-normal text-slate-400">/ forever</span></div>
+              <div className="text-2xl font-black mb-4">$0 / Rs. 0 <span className="text-xs font-normal text-slate-400">/ forever</span></div>
               <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> 30 notes & 3 notebooks</li>
                 <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> Offline Dexie database</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> Freehand drawing & 5 paper grids</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> KaTeX math formulas</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> 10 AI queries / month</li>
               </ul>
             </div>
             <button
               onClick={handleStartFree}
-              className="mt-6 w-full py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-xs font-bold transition-all"
+              className="mt-6 w-full py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-xs font-bold transition-all cursor-pointer"
             >
               Launch Free
             </button>
           </div>
 
+          {/* Pro Student */}
+          <div className="p-5 rounded-3xl bg-indigo-50/40 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-900/60 shadow-md flex flex-col justify-between relative">
+            <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-indigo-600 text-white text-[10px] font-extrabold uppercase tracking-wider">
+              Student Special
+            </span>
+            <div>
+              <h3 className="font-bold text-slate-900 dark:text-white text-base">Pro Student</h3>
+              <p className="text-xs text-slate-500 mt-1 mb-4">
+                Verified student discount (.edu / .ac.lk or ID).
+              </p>
+              <div className="text-2xl font-black mb-4">
+                {billingCycle === 'annual' ? '$24.99 / yr' : '$2.99 / mo'}{' '}
+                <span className="text-[11px] font-normal text-slate-400 block">or Rs. 590 / mo</span>
+              </div>
+              <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                <li className="flex items-center gap-2 font-medium"><Check className="w-4 h-4 text-indigo-500" /> Unlimited notes & books</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-indigo-500" /> Cloud sync on all devices</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-indigo-500" /> 300 AI queries / month</li>
+              </ul>
+            </div>
+            <button
+              onClick={onOpenPricing}
+              className="mt-6 w-full py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-500/20 transition-all cursor-pointer"
+            >
+              Get Pro Student
+            </button>
+          </div>
+
           {/* Pro Scholar */}
-          <div className="p-6 rounded-3xl bg-white dark:bg-[#1c1c1e] border-2 border-blue-500 shadow-xl shadow-blue-500/10 flex flex-col justify-between relative">
+          <div className="p-5 rounded-3xl bg-white dark:bg-[#1c1c1e] border-2 border-blue-500 shadow-xl shadow-blue-500/10 flex flex-col justify-between relative">
             <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-extrabold uppercase tracking-wider">
               Most Popular
             </span>
@@ -495,45 +523,44 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp, onOpenPri
               <p className="text-xs text-slate-500 mt-1 mb-4">
                 Full power for university students & researchers.
               </p>
-              <div className="text-3xl font-black mb-4">
-                {billingCycle === 'annual' ? '$3.99' : '$4.99'}{' '}
-                <span className="text-xs font-normal text-slate-400">/ month</span>
+              <div className="text-2xl font-black mb-4">
+                {billingCycle === 'annual' ? '$39.99 / yr' : '$4.99 / mo'}{' '}
+                <span className="text-[11px] font-normal text-slate-400 block">or Rs. 990 / mo</span>
               </div>
               <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
-                <li className="flex items-center gap-2 font-medium"><Check className="w-4 h-4 text-blue-500" /> Multi-device Supabase cloud sync</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-blue-500" /> Slide deck (PDF) import & annotate</li>
+                <li className="flex items-center gap-2 font-medium"><Check className="w-4 h-4 text-blue-500" /> Multi-device cloud sync</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-blue-500" /> Slide deck (PDF) markup</li>
                 <li className="flex items-center gap-2"><Check className="w-4 h-4 text-blue-500" /> Audio-synced lecture notes</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-blue-500" /> AI Study Assistant & SM-2 flashcards</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-blue-500" /> 500 AI queries & OCR search</li>
               </ul>
             </div>
             <button
               onClick={onOpenPricing}
-              className="mt-6 w-full py-2.5 rounded-2xl bg-[#007aff] hover:bg-[#0062cc] text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all active:scale-95"
+              className="mt-6 w-full py-2.5 rounded-2xl bg-[#007aff] hover:bg-[#0062cc] text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all active:scale-95 cursor-pointer"
             >
               Upgrade to Pro
             </button>
           </div>
 
           {/* Campus */}
-          <div className="p-6 rounded-3xl bg-white dark:bg-[#1c1c1e] border border-slate-200/80 dark:border-white/10 shadow-md flex flex-col justify-between">
+          <div className="p-5 rounded-3xl bg-white dark:bg-[#1c1c1e] border border-slate-200/80 dark:border-white/10 shadow-md flex flex-col justify-between">
             <div>
               <h3 className="font-bold text-slate-900 dark:text-white text-base">Campus / Lab</h3>
               <p className="text-xs text-slate-500 mt-1 mb-4">
                 For research labs, courses, and study pods.
               </p>
-              <div className="text-3xl font-black mb-4">
-                {billingCycle === 'annual' ? '$7.99' : '$9.99'}{' '}
-                <span className="text-xs font-normal text-slate-400">/ seat / mo</span>
+              <div className="text-2xl font-black mb-4">
+                $3.99 / seat / mo <span className="text-[11px] font-normal text-slate-400 block">or Rs. 800 / seat / mo</span>
               </div>
               <ul className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
                 <li className="flex items-center gap-2 font-medium"><Check className="w-4 h-4 text-purple-500" /> Everything in Pro Scholar</li>
                 <li className="flex items-center gap-2"><Check className="w-4 h-4 text-purple-500" /> Shared course notebooks</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-purple-500" /> Institutional SSO (SAML/Google)</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-purple-500" /> Real-time collaboration</li>
               </ul>
             </div>
             <button
               onClick={onOpenPricing}
-              className="mt-6 w-full py-2.5 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-all active:scale-95"
+              className="mt-6 w-full py-2.5 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-all active:scale-95 cursor-pointer"
             >
               Contact Campus Sales
             </button>

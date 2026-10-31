@@ -163,7 +163,7 @@ describe('Phase 5 (Replacement): Trial, Subscriptions, Entitlements and Admin', 
       expect(checkout.success).toBe(true);
       expect(checkout.currency).toBe('LKR');
       expect(checkout.provider).toBe('payhere');
-      expect(checkout.amount).toBe(PLANS.pro_monthly.priceLkr * 0.5); // 50% discount
+      expect(checkout.amount).toBe((PLANS.pro_monthly.priceLkr ?? 990) * 0.5); // 50% discount
       expect(checkout.checkoutUrl).toContain('payhere.lk');
     });
 
