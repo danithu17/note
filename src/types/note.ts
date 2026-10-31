@@ -63,7 +63,7 @@ export interface LectureNote {
   isPinned?: boolean;
 }
 
-export type ViewLayoutMode = 'split' | 'canvas-only' | 'notes-only';
+export type ViewLayoutMode = 'split' | 'canvas-only' | 'notes-only' | 'timeline';
 
 export interface SyncStatus {
   state: 'offline' | 'syncing' | 'synced' | 'error';

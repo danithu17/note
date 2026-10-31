@@ -21,6 +21,7 @@ import {
   VolumeX,
   Maximize2,
   Minimize2,
+  MessageSquare,
 } from 'lucide-react';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useNoteStore } from '../../store/useNoteStore';
@@ -175,8 +176,21 @@ export const Header: React.FC = () => {
           </kbd>
         </button>
 
-        {/* View Layout Switcher (Notes Only | Split | Canvas Only) */}
+        {/* View Layout Switcher (Timeline | Notes Only | Split | Canvas Only) */}
         <div className="flex items-center bg-slate-100/90 dark:bg-slate-800/90 p-1 rounded-xl text-xs border border-slate-200/50 dark:border-slate-700/50">
+          <button
+            onClick={() => setLayoutMode('timeline')}
+            title="Chat & Timeline Feed View [Tab]"
+            className={`px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-all ${
+              layoutMode === 'timeline'
+                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 font-semibold shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+            }`}
+          >
+            <MessageSquare className="w-3.5 h-3.5" />
+            <span className="hidden md:inline">Feed</span>
+          </button>
+
           <button
             onClick={() => setLayoutMode('notes-only')}
             title="Lecture Notes View [Tab]"

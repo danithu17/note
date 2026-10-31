@@ -59,7 +59,7 @@ interface CanvasState {
 }
 
 const GRIDS: GridType[] = ['dots', 'ruled', 'grid', 'isometric', 'blank'];
-const LAYOUTS: ViewLayoutMode[] = ['split', 'canvas-only', 'notes-only'];
+const LAYOUTS: ViewLayoutMode[] = ['split', 'canvas-only', 'notes-only', 'timeline'];
 
 export const useCanvasStore = create<CanvasState>((set, get) => ({
   tool: 'pen',

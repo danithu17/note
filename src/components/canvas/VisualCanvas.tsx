@@ -172,17 +172,33 @@ export const VisualCanvas: React.FC = () => {
     ctx.restore();
   }, [elements, pan.x, pan.y, zoom, tool, color, strokeWidth, highlighterColor, currentShapePreview]);
 
-  // Laser Pointer Animation Loop
-  useEffect(() => {
-    let animId: number;
-    const animate = () => {
-      if (laserTrailRef.current.length > 0) {
-        renderCanvas();
+  // Laser Pointer trail state & battery-efficient animation
+  const isLaserAnimatingRef = useRef(false);
+
+  const startLaserAnimation = useCallback(() => {
+    if (isLaserAnimatingRef.current) return;
+    isLaserAnimatingRef.current = true;
+
+    const tick = () => {
+      if (document.visibilityState === 'hidden') {
+        isLaserAnimatingRef.current = false;
+        return;
       }
-      animId = requestAnimationFrame(animate);
+
+      const now = Date.now();
+      const active = laserTrailRef.current.filter((p) => now - p.time < 1200);
+      laserTrailRef.current = active;
+
+      renderCanvas();
+
+      if (active.length > 0) {
+        requestAnimationFrame(tick);
+      } else {
+        isLaserAnimatingRef.current = false;
+      }
     };
-    animId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animId);
+
+    requestAnimationFrame(tick);
   }, [renderCanvas]);
 
   // Handle Resize and DPR
@@ -301,7 +317,7 @@ export const VisualCanvas: React.FC = () => {
     } else if (tool === 'laser') {
       sound.laser();
       laserTrailRef.current.push({ x: world.x, y: world.y, time: Date.now() });
-      renderCanvas();
+      startLaserAnimation();
     } else if (tool === 'shape') {
       activeShapeStartRef.current = { x: world.x, y: world.y };
       setCurrentShapePreview({
@@ -364,7 +380,7 @@ export const VisualCanvas: React.FC = () => {
       renderCanvas();
     } else if (tool === 'laser') {
       laserTrailRef.current.push({ x: world.x, y: world.y, time: Date.now() });
-      renderCanvas();
+      startLaserAnimation();
     } else if (tool === 'shape' && activeShapeStartRef.current) {
       setCurrentShapePreview({
         id: 'preview',

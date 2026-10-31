@@ -6,12 +6,13 @@ import { VisualCanvas } from './components/canvas/VisualCanvas';
 import { SplitPane } from './components/ui/SplitPane';
 import { CommandPalette } from './components/ui/CommandPalette';
 import { ShortcutsModal } from './components/ui/ShortcutsModal';
+import { ChatTimelineView } from './features/notes/components/ChatTimelineView';
 import { useNoteStore } from './store/useNoteStore';
 import { useCanvasStore } from './store/useCanvasStore';
 
 export function App() {
   const { initialize, isLoading } = useNoteStore();
-  const { isDarkMode } = useCanvasStore();
+  const { isDarkMode, layoutMode } = useCanvasStore();
 
   useEffect(() => {
     initialize();
@@ -36,11 +37,15 @@ export function App() {
         {/* Notebook Sidebar Drawer */}
         <Sidebar />
 
-        {/* Resizable Hybrid Split Workspace */}
-        <SplitPane
-          left={<LectureEditor />}
-          right={<VisualCanvas />}
-        />
+        {/* Dynamic Workspace Layout: Chat Timeline Feed OR Resizable Hybrid Split Workspace */}
+        {layoutMode === 'timeline' ? (
+          <ChatTimelineView />
+        ) : (
+          <SplitPane
+            left={<LectureEditor />}
+            right={<VisualCanvas />}
+          />
+        )}
       </div>
 
       {/* Global Command Palette (Ctrl+K) */}
