@@ -10,10 +10,15 @@ import {
   Layers,
   HardDrive,
   Mic,
+  Copy,
+  Edit3,
 } from 'lucide-react';
 import { useNoteStore } from '../../store/useNoteStore';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useAuthStore } from '@/core/auth/useAuthStore';
+import { useI18nStore } from '@/core/i18n/useI18nStore';
+import { db } from '@/core/db';
+import { ContextMenu } from '../ui/ContextMenu';
 import type { LectureNote } from '../../types/note';
 import { TrashModal } from '../trash/TrashModal';
 import confetti from 'canvas-confetti';
@@ -43,9 +48,15 @@ export const Sidebar: React.FC = () => {
 
   const { isSidebarOpen, setSidebarOpen } = useCanvasStore();
   const { user } = useAuthStore();
+  const { t } = useI18nStore();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isTrashOpen, setIsTrashOpen] = useState(false);
   const [isWsDropdownOpen, setIsWsDropdownOpen] = useState(false);
+  const [noteContextMenu, setNoteContextMenu] = useState<{
+    x: number;
+    y: number;
+    note: LectureNote;
+  } | null>(null);
 
   // Active workspace & notebooks for this workspace
   const currentWorkspace = workspaces.find((w) => w.id === activeWorkspaceId) || workspaces[0];
@@ -409,6 +420,70 @@ export const Sidebar: React.FC = () => {
       </aside>
 
       <TrashModal isOpen={isTrashOpen} onClose={() => setIsTrashOpen(false)} />
+
+      {/* Accessible Note Right-Click Context Menu */}
+      {noteContextMenu && (
+        <ContextMenu
+          x={noteContextMenu.x}
+          y={noteContextMenu.y}
+          onClose={() => setNoteContextMenu(null)}
+          items={[
+            {
+              id: 'pin',
+              label: noteContextMenu.note.isPinned ? t.actions.unpin : t.actions.pin,
+              icon: <Pin className="w-4 h-4" />,
+              onClick: () => togglePin(noteContextMenu.note.id),
+            },
+            {
+              id: 'rename',
+              label: t.actions.rename,
+              icon: <Edit3 className="w-4 h-4" />,
+              onClick: () => {
+                const newTitle = window.prompt(
+                  'Rename lecture note:',
+                  noteContextMenu.note.title
+                );
+                if (newTitle && newTitle.trim()) {
+                  selectNote(noteContextMenu.note.id);
+                  useNoteStore.getState().updateTitle(newTitle.trim());
+                }
+              },
+            },
+            {
+              id: 'duplicate',
+              label: t.actions.duplicate,
+              icon: <Copy className="w-4 h-4" />,
+              onClick: async () => {
+                const target = noteContextMenu.note;
+                const dup: LectureNote = {
+                  ...target,
+                  id:
+                    'note_' +
+                    Date.now().toString(36) +
+                    Math.random().toString(36).substring(2, 6),
+                  title: `${target.title || 'Untitled Note'} (${t.actions.duplicate})`,
+                  createdAt: Date.now(),
+                  updatedAt: Date.now(),
+                  isPinned: false,
+                };
+                await db.notes.add(dup);
+                useNoteStore.setState((state) => ({
+                  notes: [dup, ...state.notes],
+                  activeNoteId: dup.id,
+                }));
+                confetti({ particleCount: 20, spread: 35 });
+              },
+            },
+            {
+              id: 'delete',
+              label: t.actions.delete,
+              icon: <Trash2 className="w-4 h-4 text-rose-500" />,
+              danger: true,
+              onClick: () => deleteNote(noteContextMenu.note.id),
+            },
+          ]}
+        />
+      )}
     </>
   );
 
@@ -424,6 +499,10 @@ export const Sidebar: React.FC = () => {
         onClick={() => {
           selectNote(note.id);
           if (window.innerWidth < 1024) setSidebarOpen(false);
+        }}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          setNoteContextMenu({ x: e.clientX, y: e.clientY, note });
         }}
         className={`group relative p-3 rounded-2xl cursor-pointer transition-all border ${
           isActive

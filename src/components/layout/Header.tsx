@@ -31,10 +31,12 @@ import {
   Brain,
   Flame,
   Presentation,
+  Globe,
 } from 'lucide-react';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useNoteStore } from '../../store/useNoteStore';
 import { useAuthStore } from '@/core/auth/useAuthStore';
+import { useI18nStore } from '@/core/i18n/useI18nStore';
 import {
   exportCanvasToPng,
   exportCanvasToSvg,
@@ -100,6 +102,7 @@ export const Header: React.FC = () => {
   } = useNoteStore();
 
   const { user, openAuthModal } = useAuthStore();
+  const { locale, setLocale, t } = useI18nStore();
   const activeNote = getActiveNote();
 
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
@@ -109,6 +112,7 @@ export const Header: React.FC = () => {
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [isFlashcardsModalOpen, setIsFlashcardsModalOpen] = useState(false);
   const [isStudyDashboardOpen, setIsStudyDashboardOpen] = useState(false);
+  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [copiedSuccess, setCopiedSuccess] = useState(false);
   const [installPrompt, setInstallPrompt] = useState<any>(null);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -583,10 +587,73 @@ export const Header: React.FC = () => {
           </button>
         )}
 
+        {/* Language Selector (EN | SI | TA) */}
+        <div className="relative">
+          <button
+            onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
+            className="flex items-center gap-1 px-2 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-200/80 dark:border-slate-800"
+            title="Change Language / භාෂාව / மொழி"
+            aria-label="Change Language"
+          >
+            <Globe className="w-3.5 h-3.5 text-blue-500" />
+            <span className="uppercase text-[11px] font-bold">{locale}</span>
+          </button>
+
+          {isLangMenuOpen && (
+            <div className="absolute right-0 top-full mt-2 w-40 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-1.5 flex flex-col gap-0.5 z-50 animate-in fade-in zoom-in-95">
+              <button
+                onClick={() => {
+                  setLocale('en');
+                  setIsLangMenuOpen(false);
+                }}
+                className={`flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-medium transition-colors ${
+                  locale === 'en'
+                    ? 'bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-bold'
+                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+              >
+                <span>English</span>
+                {locale === 'en' && <Check className="w-3.5 h-3.5" />}
+              </button>
+
+              <button
+                onClick={() => {
+                  setLocale('si');
+                  setIsLangMenuOpen(false);
+                }}
+                className={`flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-medium transition-colors ${
+                  locale === 'si'
+                    ? 'bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-bold'
+                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+              >
+                <span>සිංහල</span>
+                {locale === 'si' && <Check className="w-3.5 h-3.5" />}
+              </button>
+
+              <button
+                onClick={() => {
+                  setLocale('ta');
+                  setIsLangMenuOpen(false);
+                }}
+                className={`flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-medium transition-colors ${
+                  locale === 'ta'
+                    ? 'bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-bold'
+                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+              >
+                <span>தமிழ்</span>
+                {locale === 'ta' && <Check className="w-3.5 h-3.5" />}
+              </button>
+            </div>
+          )}
+        </div>
+
         <button
           onClick={toggleDarkMode}
           className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          title={isDarkMode ? 'Switch to Light Mode [D]' : 'Switch to Dark Mode [D]'}
+          title={isDarkMode ? t.navigation.themeLight : t.navigation.themeDark}
+          aria-label={isDarkMode ? t.navigation.themeLight : t.navigation.themeDark}
         >
           {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
         </button>

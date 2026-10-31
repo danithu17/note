@@ -3,12 +3,14 @@ import type { Point, StrokeElement, ShapeElement, CanvasElement } from '../../ty
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useNoteStore } from '../../store/useNoteStore';
 import { drawFreehandStroke, drawShape, elementIntersectsPoint } from '../../utils/stroke';
-import { exportCanvasToSvg } from '../../utils/export';
+import { exportCanvasToSvg, copyCanvasToClipboard } from '../../utils/export';
 import { sound } from '../../utils/sound';
 import { GridOverlay } from './GridOverlay';
 import { CanvasToolbar } from './CanvasToolbar';
 import { CanvasControls } from './CanvasControls';
 import { CanvasPageBar } from './CanvasPageBar';
+import { ContextMenu } from '../ui/ContextMenu';
+import { Undo2, Redo2, Copy, Grid, RotateCcw, Plus, Trash2 } from 'lucide-react';
 import { useAudioSyncStore } from '@/features/audio/useAudioSyncStore';
 import { recognizeHandDrawnShape } from '@/features/canvas/shapeRecognition';
 import { AudioPlaybackIsland } from '@/features/audio/components/AudioPlaybackIsland';
@@ -58,6 +60,7 @@ export const VisualCanvas: React.FC = () => {
     undo,
     redo,
     autoShapeRecognition,
+    resetView,
   } = useCanvasStore();
 
   const { getActiveNote, updateCanvasElements, updateMarkdown } = useNoteStore();
@@ -66,6 +69,7 @@ export const VisualCanvas: React.FC = () => {
 
   const bgImageCacheRef = useRef<Map<string, HTMLImageElement>>(new Map());
   const [bgImageVersion, setBgImageVersion] = useState(0);
+  const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number } | null>(null);
 
   // 2D Quadtree spatial index for viewport culling and O(log N) hit-testing
   const spatialIndexRef = useRef<SpatialIndex>(new SpatialIndex());
@@ -783,6 +787,10 @@ export const VisualCanvas: React.FC = () => {
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          setContextMenuPos({ x: e.clientX, y: e.clientY });
+        }}
         className={`absolute inset-0 block w-full h-full touch-none ${
           tool === 'eraser'
             ? 'cursor-cell'
@@ -808,6 +816,72 @@ export const VisualCanvas: React.FC = () => {
 
       {/* Floating Audio Playback Island for Sync Playback */}
       <AudioPlaybackIsland />
+
+      {/* Accessible Canvas Right-Click Context Menu */}
+      {contextMenuPos && (
+        <ContextMenu
+          x={contextMenuPos.x}
+          y={contextMenuPos.y}
+          onClose={() => setContextMenuPos(null)}
+          items={[
+            {
+              id: 'undo',
+              label: 'Undo',
+              icon: <Undo2 className="w-4 h-4" />,
+              shortcut: 'Ctrl+Z',
+              disabled: undoStack.length === 0,
+              onClick: handleUndo,
+            },
+            {
+              id: 'redo',
+              label: 'Redo',
+              icon: <Redo2 className="w-4 h-4" />,
+              shortcut: 'Ctrl+Y',
+              disabled: redoStack.length === 0,
+              onClick: handleRedo,
+            },
+            {
+              id: 'copy',
+              label: 'Copy Canvas Image',
+              icon: <Copy className="w-4 h-4" />,
+              onClick: async () => {
+                if (canvasRef.current) {
+                  const ok = await copyCanvasToClipboard(canvasRef.current);
+                  if (ok) sound.pop();
+                }
+              },
+            },
+            {
+              id: 'grid',
+              label: 'Cycle Background Grid',
+              icon: <Grid className="w-4 h-4" />,
+              shortcut: 'G',
+              onClick: cycleGridType,
+            },
+            {
+              id: 'reset',
+              label: 'Reset View (100%)',
+              icon: <RotateCcw className="w-4 h-4" />,
+              shortcut: 'Ctrl+0',
+              onClick: resetView,
+            },
+            {
+              id: 'add-page',
+              label: 'Add Canvas Page',
+              icon: <Plus className="w-4 h-4" />,
+              onClick: () => useNoteStore.getState().addPage(),
+            },
+            {
+              id: 'clear',
+              label: 'Clear Page Elements',
+              icon: <Trash2 className="w-4 h-4 text-rose-500" />,
+              danger: true,
+              disabled: elements.length === 0,
+              onClick: handleClear,
+            },
+          ]}
+        />
+      )}
     </div>
   );
 };
