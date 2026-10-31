@@ -92,13 +92,7 @@ $$
 ];
 
 export const LectureEditor: React.FC = () => {
-  const {
-    getActiveNote,
-    updateTitle,
-    updateSubject,
-    updateTags,
-    updateMarkdown,
-  } = useNoteStore();
+  const { getActiveNote, updateTitle, updateSubject, updateTags, updateMarkdown } = useNoteStore();
 
   const { isDarkMode } = useCanvasStore();
   const activeNote = getActiveNote();
@@ -143,7 +137,10 @@ export const LectureEditor: React.FC = () => {
 
     setTimeout(() => {
       textarea.focus();
-      textarea.setSelectionRange(start + prefix.length, start + prefix.length + selectedText.length);
+      textarea.setSelectionRange(
+        start + prefix.length,
+        start + prefix.length + selectedText.length
+      );
     }, 0);
   };
 
@@ -316,19 +313,28 @@ export const LectureEditor: React.FC = () => {
       // Headings
       if (line.startsWith('# ')) {
         elements.push(
-          <h1 key={idx} className="text-2xl font-black text-slate-900 dark:text-slate-100 mt-5 mb-2 pb-1 border-b border-slate-200 dark:border-slate-800 tracking-tight">
+          <h1
+            key={idx}
+            className="text-2xl font-black text-slate-900 dark:text-slate-100 mt-5 mb-2 pb-1 border-b border-slate-200 dark:border-slate-800 tracking-tight"
+          >
             {line.replace('# ', '')}
           </h1>
         );
       } else if (line.startsWith('## ')) {
         elements.push(
-          <h2 key={idx} className="text-xl font-bold text-slate-800 dark:text-slate-200 mt-4 mb-2 tracking-tight">
+          <h2
+            key={idx}
+            className="text-xl font-bold text-slate-800 dark:text-slate-200 mt-4 mb-2 tracking-tight"
+          >
             {line.replace('## ', '')}
           </h2>
         );
       } else if (line.startsWith('### ')) {
         elements.push(
-          <h3 key={idx} className="text-base font-semibold text-slate-800 dark:text-slate-200 mt-3 mb-1">
+          <h3
+            key={idx}
+            className="text-base font-semibold text-slate-800 dark:text-slate-200 mt-3 mb-1"
+          >
             {line.replace('### ', '')}
           </h3>
         );
@@ -357,15 +363,25 @@ export const LectureEditor: React.FC = () => {
         const match = line.match(/^!\[(.*?)\]\((.*?)\)/);
         if (match) {
           elements.push(
-            <div key={idx} className="my-3 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-md">
-              <img src={match[2]} alt={match[1]} className="w-full h-auto max-h-96 object-contain bg-white dark:bg-slate-900" />
+            <div
+              key={idx}
+              className="my-3 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-md"
+            >
+              <img
+                src={match[2]}
+                alt={match[1]}
+                className="w-full h-auto max-h-96 object-contain bg-white dark:bg-slate-900"
+              />
             </div>
           );
         }
       } else if (line.startsWith('- ')) {
         // Bullet list
         elements.push(
-          <li key={idx} className="ml-5 list-disc text-sm text-slate-700 dark:text-slate-300 my-0.5">
+          <li
+            key={idx}
+            className="ml-5 list-disc text-sm text-slate-700 dark:text-slate-300 my-0.5"
+          >
             {line.replace('- ', '')}
           </li>
         );
@@ -535,9 +551,7 @@ export const LectureEditor: React.FC = () => {
             className="w-full h-full resize-none bg-transparent border-0 outline-none font-mono text-sm leading-relaxed text-slate-800 dark:text-slate-200 placeholder:text-slate-400 selection:bg-blue-100 dark:selection:bg-blue-900/60"
           />
         ) : (
-          <div className="prose dark:prose-invert max-w-none">
-            {renderMarkdownPreview()}
-          </div>
+          <div className="prose dark:prose-invert max-w-none">{renderMarkdownPreview()}</div>
         )}
       </div>
     </div>

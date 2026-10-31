@@ -77,7 +77,8 @@ export class ErrorBoundary extends Component<Props, State> {
             <div>
               <h2 className="text-xl font-bold tracking-tight">Something went wrong</h2>
               <p className="text-xs text-slate-400 mt-1">
-                ScribbleNote encountered an unexpected issue. Your local lecture data is safe in IndexedDB.
+                ScribbleNote encountered an unexpected issue. Your local lecture data is safe in
+                IndexedDB.
               </p>
             </div>
 
@@ -101,7 +102,11 @@ export class ErrorBoundary extends Component<Props, State> {
                 className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition-colors"
                 title="Copy Crash Diagnostics"
               >
-                {this.state.copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                {this.state.copied ? (
+                  <Check className="w-4 h-4 text-emerald-400" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )}
               </button>
             </div>
           </div>

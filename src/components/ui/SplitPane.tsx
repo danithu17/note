@@ -47,20 +47,12 @@ export const SplitPane: React.FC<SplitPaneProps> = ({ left, right }) => {
 
   // If in Notes Only mode
   if (layoutMode === 'notes-only') {
-    return (
-      <div className="flex-1 w-full h-full overflow-hidden">
-        {left}
-      </div>
-    );
+    return <div className="flex-1 w-full h-full overflow-hidden">{left}</div>;
   }
 
   // If in Canvas Only mode
   if (layoutMode === 'canvas-only') {
-    return (
-      <div className="flex-1 w-full h-full overflow-hidden">
-        {right}
-      </div>
-    );
+    return <div className="flex-1 w-full h-full overflow-hidden">{right}</div>;
   }
 
   // Split Hybrid Mode

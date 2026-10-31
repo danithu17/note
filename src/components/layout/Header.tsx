@@ -10,7 +10,6 @@ import {
   FileDown,
   Layers,
   Layout,
-  Radio,
   Sparkles,
   Smartphone,
   ChevronDown,
@@ -22,9 +21,17 @@ import {
   Maximize2,
   Minimize2,
   MessageSquare,
+  History,
+  User,
+  Cloud,
+  WifiOff,
+  RefreshCw,
+  ChevronRight,
+  Archive,
 } from 'lucide-react';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useNoteStore } from '../../store/useNoteStore';
+import { useAuthStore } from '@/core/auth/useAuthStore';
 import {
   exportCanvasToPng,
   exportCanvasToSvg,
@@ -34,6 +41,8 @@ import {
   triggerDownload,
 } from '../../utils/export';
 import { SyncModal } from './SyncModal';
+import { AuthModal } from '../auth/AuthModal';
+import { VersionHistoryModal } from '../history/VersionHistoryModal';
 import { sound } from '../../utils/sound';
 import confetti from 'canvas-confetti';
 
@@ -52,15 +61,36 @@ export const Header: React.FC = () => {
     isFullscreen,
   } = useCanvasStore();
 
-  const { getActiveNote } = useNoteStore();
+  const {
+    getActiveNote,
+    notebooks,
+    activeNotebookId,
+    updateTitle,
+    syncStatus,
+    exportBackupBundle,
+  } = useNoteStore();
+
+  const { user, openAuthModal } = useAuthStore();
   const activeNote = getActiveNote();
 
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [copiedSuccess, setCopiedSuccess] = useState(false);
   const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [titleInput, setTitleInput] = useState('');
 
-  // Capture PWA install prompt
+  const currentNotebook = notebooks.find(
+    (n) => n.id === (activeNote?.notebookId || activeNotebookId)
+  );
+
+  useEffect(() => {
+    if (activeNote) {
+      setTitleInput(activeNote.title || '');
+    }
+  }, [activeNote?.id, activeNote?.title]);
+
   useEffect(() => {
     const handleBeforeInstall = (e: Event) => {
       e.preventDefault();
@@ -79,7 +109,9 @@ export const Header: React.FC = () => {
         setInstallPrompt(null);
       }
     } else {
-      alert('To install ScribbleNote, use your browser\'s "Install App" or "Add to Home Screen" option from the address bar or browser menu.');
+      alert(
+        'To install ScribbleNote, use your browser\'s "Install App" or "Add to Home Screen" option from the address bar or browser menu.'
+      );
     }
   };
 
@@ -118,6 +150,18 @@ export const Header: React.FC = () => {
     setIsExportMenuOpen(false);
   };
 
+  const handleExportFullBackup = async () => {
+    const bundle = await exportBackupBundle();
+    triggerDownload(
+      JSON.stringify(bundle, null, 2),
+      `scribblenote_full_backup_${new Date().toISOString().split('T')[0]}.json`,
+      'application/json'
+    );
+    confetti({ particleCount: 35, spread: 50 });
+    sound.pop();
+    setIsExportMenuOpen(false);
+  };
+
   const handleCopySnapshot = async () => {
     const canvas = document.querySelector('canvas');
     if (canvas) {
@@ -131,10 +175,17 @@ export const Header: React.FC = () => {
     setIsExportMenuOpen(false);
   };
 
+  const handleTitleSubmit = async () => {
+    setIsEditingTitle(false);
+    if (titleInput.trim() && activeNote && titleInput.trim() !== activeNote.title) {
+      await updateTitle(titleInput.trim());
+    }
+  };
+
   return (
     <header className="h-14 border-b border-slate-200/90 dark:border-slate-800/90 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl px-3 sm:px-4 flex items-center justify-between shrink-0 select-none z-40 transition-colors">
-      {/* Left: Sidebar Toggle & Brand */}
-      <div className="flex items-center gap-2 sm:gap-3">
+      {/* Left: Sidebar Toggle, Brand, Breadcrumb Title */}
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         <button
           onClick={toggleSidebar}
           className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -143,30 +194,62 @@ export const Header: React.FC = () => {
           <Menu className="w-5 h-5" />
         </button>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20 ring-1 ring-white/20">
             <Sparkles className="w-4 h-4 fill-white" />
           </div>
-          <div className="flex flex-col">
+          <div className="hidden sm:flex flex-col">
             <span className="font-extrabold text-sm sm:text-base tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent flex items-center gap-1.5 leading-tight">
               ScribbleNote
-              <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-1.5 py-0.2 rounded-md border border-blue-500/20">
-                PWA
+              <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-1.5 py-0.2 rounded-md border border-blue-500/20 uppercase">
+                {user?.plan || 'PRO'}
               </span>
-            </span>
-            <span className="text-[10px] text-slate-400 dark:text-slate-300 leading-none hidden sm:inline">
-              Lecture Notes & Visual Canvas
             </span>
           </div>
         </div>
+
+        {/* Breadcrumb Hierarchy Navigation */}
+        {activeNote && (
+          <div className="hidden md:flex items-center gap-1 text-xs text-slate-400 dark:text-slate-300 pl-2 border-l border-slate-200 dark:border-slate-800 max-w-md truncate">
+            <span className="text-slate-600 dark:text-slate-300 font-medium truncate max-w-[120px]">
+              {currentNotebook?.title || activeNote.subject || 'Lecture'}
+            </span>
+            <ChevronRight className="w-3 h-3 text-slate-400 shrink-0" />
+
+            {isEditingTitle ? (
+              <input
+                type="text"
+                autoFocus
+                value={titleInput}
+                onChange={(e) => setTitleInput(e.target.value)}
+                onBlur={handleTitleSubmit}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleTitleSubmit();
+                  if (e.key === 'Escape') {
+                    setTitleInput(activeNote.title || '');
+                    setIsEditingTitle(false);
+                  }
+                }}
+                className="px-1.5 py-0.5 rounded bg-blue-50 dark:bg-slate-800 border border-blue-400 text-xs font-bold text-slate-900 dark:text-slate-100 outline-none w-48"
+              />
+            ) : (
+              <span
+                onClick={() => setIsEditingTitle(true)}
+                className="font-bold text-slate-800 dark:text-slate-200 truncate cursor-pointer hover:underline hover:text-blue-600 max-w-[200px]"
+                title="Click to rename lecture note"
+              >
+                {activeNote.title || 'Untitled Note'}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Center: Command Palette Trigger & View Mode Switcher */}
       <div className="flex items-center gap-2">
-        {/* Quick Search / Command Palette Search Pill */}
         <button
           onClick={toggleCommandPalette}
-          className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100/90 dark:bg-slate-800/80 hover:bg-slate-200/80 dark:hover:bg-slate-700/80 border border-slate-200/60 dark:border-slate-700/60 text-slate-500 dark:text-slate-400 text-xs transition-all shadow-xs"
+          className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100/90 dark:bg-slate-800/80 hover:bg-slate-200/80 dark:hover:bg-slate-700/80 border border-slate-200/60 dark:border-slate-700/60 text-slate-500 dark:text-slate-400 text-xs transition-all shadow-xs"
           title="Quick Command Search [Ctrl+K]"
         >
           <Search className="w-3.5 h-3.5 text-blue-500" />
@@ -176,7 +259,6 @@ export const Header: React.FC = () => {
           </kbd>
         </button>
 
-        {/* View Layout Switcher (Timeline | Notes Only | Split | Canvas Only) */}
         <div className="flex items-center bg-slate-100/90 dark:bg-slate-800/90 p-1 rounded-xl text-xs border border-slate-200/50 dark:border-slate-700/50">
           <button
             onClick={() => setLayoutMode('timeline')}
@@ -232,32 +314,77 @@ export const Header: React.FC = () => {
         </div>
       </div>
 
-      {/* Right: Realtime Sync, Shortcuts, Export, Sound, Theme, Fullscreen */}
+      {/* Right: Cloud Sync, Auth, Version History, Shortcuts, Export, Sound, Theme, Fullscreen */}
       <div className="flex items-center gap-1 sm:gap-1.5">
-        {/* Real-time Multi-Device Sync Pill */}
         <button
           onClick={() => setIsSyncModalOpen(true)}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-slate-700 dark:text-slate-200 border border-slate-200/50 dark:border-slate-700/50"
-          title="Realtime Multi-Device Sync Mesh"
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
+            syncStatus.state === 'synced'
+              ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
+              : syncStatus.state === 'syncing'
+                ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-500/30 animate-pulse'
+                : syncStatus.state === 'offline'
+                  ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-500/30'
+                  : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-500/30'
+          }`}
+          title={`Sync status: ${syncStatus.state} (${syncStatus.mode})`}
         >
-          <Radio className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
-          <span className="hidden lg:inline font-mono">Sync</span>
-          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+          {syncStatus.state === 'synced' ? (
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+          ) : syncStatus.state === 'syncing' ? (
+            <RefreshCw className="w-3 h-3 animate-spin text-blue-500" />
+          ) : syncStatus.state === 'offline' ? (
+            <WifiOff className="w-3 h-3 text-amber-500" />
+          ) : (
+            <Cloud className="w-3 h-3 text-rose-500" />
+          )}
+
+          <span className="hidden lg:inline capitalize">
+            {syncStatus.state === 'synced' ? 'Synced' : syncStatus.state}
+          </span>
+          {syncStatus.pendingQueueCount ? (
+            <span className="text-[10px] font-mono px-1 rounded bg-blue-200 dark:bg-blue-900">
+              {syncStatus.pendingQueueCount}
+            </span>
+          ) : null}
         </button>
 
-        {/* Shortcuts Cheat Sheet [?] */}
+        <button
+          onClick={() => setIsHistoryModalOpen(true)}
+          className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          title="Note Version History & Snapshots"
+        >
+          <History className="w-4 h-4" />
+        </button>
+
+        <button
+          onClick={openAuthModal}
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
+            user?.isGuest
+              ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-blue-400'
+              : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs'
+          }`}
+          title={
+            user?.isGuest ? 'Guest Mode: Click to sign in and upgrade' : `Account: ${user?.email}`
+          }
+        >
+          <User className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">
+            {user?.isGuest ? 'Guest' : user?.name?.split(' ')[0] || 'Account'}
+          </span>
+        </button>
+
         <button
           onClick={toggleShortcutsModal}
-          className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors hidden sm:flex"
           title="Keyboard Shortcuts Cheatsheet [?]"
         >
           <Keyboard className="w-4 h-4" />
         </button>
 
-        {/* Sound FX Toggle */}
         <button
           onClick={toggleSound}
-          className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors hidden sm:flex"
           title={isSoundEnabled ? 'Interface Sound FX: ON' : 'Interface Sound FX: MUTED'}
         >
           {isSoundEnabled ? (
@@ -267,10 +394,9 @@ export const Header: React.FC = () => {
           )}
         </button>
 
-        {/* Fullscreen Immersion Mode [F] */}
         <button
           onClick={toggleFullscreen}
-          className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors hidden sm:flex"
+          className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors hidden lg:flex"
           title="Toggle Fullscreen Immersion [F]"
         >
           {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -289,7 +415,7 @@ export const Header: React.FC = () => {
           </button>
 
           {isExportMenuOpen && (
-            <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-2 flex flex-col gap-1 z-50 animate-in fade-in zoom-in-95">
+            <div className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-2 flex flex-col gap-1 z-50 animate-in fade-in zoom-in-95">
               <div className="text-[10px] uppercase font-bold text-slate-400 px-3 py-1">
                 Export Options
               </div>
@@ -323,7 +449,15 @@ export const Header: React.FC = () => {
                 className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
                 <Share2 className="w-4 h-4 text-amber-500" />
-                <span>Export JSON Backup</span>
+                <span>Export Single Note JSON</span>
+              </button>
+
+              <button
+                onClick={handleExportFullBackup}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                <Archive className="w-4 h-4 text-indigo-500" />
+                <span>Export Full Backup Bundle (.json)</span>
               </button>
 
               <div className="h-px bg-slate-200 dark:bg-slate-800 my-1" />
@@ -335,7 +469,9 @@ export const Header: React.FC = () => {
                 {copiedSuccess ? (
                   <>
                     <Check className="w-4 h-4 text-emerald-500" />
-                    <span className="text-emerald-600 dark:text-emerald-400">Copied to Clipboard!</span>
+                    <span className="text-emerald-600 dark:text-emerald-400">
+                      Copied to Clipboard!
+                    </span>
                   </>
                 ) : (
                   <>
@@ -348,7 +484,6 @@ export const Header: React.FC = () => {
           )}
         </div>
 
-        {/* PWA Install Button */}
         {installPrompt && (
           <button
             onClick={handleInstallApp}
@@ -359,7 +494,6 @@ export const Header: React.FC = () => {
           </button>
         )}
 
-        {/* Dark Mode Toggle [D] */}
         <button
           onClick={toggleDarkMode}
           className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -369,8 +503,12 @@ export const Header: React.FC = () => {
         </button>
       </div>
 
-      {/* Sync Configuration Modal */}
       <SyncModal isOpen={isSyncModalOpen} onClose={() => setIsSyncModalOpen(false)} />
+      <AuthModal />
+      <VersionHistoryModal
+        isOpen={isHistoryModalOpen}
+        onClose={() => setIsHistoryModalOpen(false)}
+      />
     </header>
   );
 };

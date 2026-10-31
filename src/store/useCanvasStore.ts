@@ -1,5 +1,12 @@
 import { create } from 'zustand';
-import type { ToolType, ShapeType, EraserMode, GridType, CanvasElement, ViewLayoutMode } from '../types/note';
+import type {
+  ToolType,
+  ShapeType,
+  EraserMode,
+  GridType,
+  CanvasElement,
+  ViewLayoutMode,
+} from '../types/note';
 import { sound } from '../utils/sound';
 
 interface CanvasState {
@@ -39,7 +46,9 @@ interface CanvasState {
   togglePalmRejection: () => void;
   setPalmRejection: (enabled: boolean) => void;
   setZoom: (zoom: number | ((prev: number) => number)) => void;
-  setPan: (pan: { x: number; y: number } | ((prev: { x: number; y: number }) => { x: number; y: number })) => void;
+  setPan: (
+    pan: { x: number; y: number } | ((prev: { x: number; y: number }) => { x: number; y: number })
+  ) => void;
   resetView: () => void;
   setLayoutMode: (mode: ViewLayoutMode) => void;
   cycleLayoutMode: () => void;

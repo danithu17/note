@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
-import {
-  MessageSquare,
-  Calendar,
-  Send,
-  Plus,
-  Volume2,
-  Layers,
-  ArrowUpRight,
-} from 'lucide-react';
+import { MessageSquare, Calendar, Send, Plus, Volume2, Layers, ArrowUpRight } from 'lucide-react';
 import { useNoteStore } from '@/store/useNoteStore';
 import { useCanvasStore } from '@/store/useCanvasStore';
 import { exportCanvasToSvg } from '@/utils/export';
@@ -61,7 +53,8 @@ export const ChatTimelineView: React.FC = () => {
               </span>
             </h2>
             <p className="text-[11px] text-slate-500">
-              Browse existing lectures like a chat stream, or tap to open in side-by-side Note + Board mode
+              Browse existing lectures like a chat stream, or tap to open in side-by-side Note +
+              Board mode
             </p>
           </div>
         </div>
@@ -87,7 +80,9 @@ export const ChatTimelineView: React.FC = () => {
           const svgPreview = hasCanvas
             ? exportCanvasToSvg(note.canvasElements, 600, 350, false, isDarkMode)
             : null;
-          const base64Svg = svgPreview ? `data:image/svg+xml;utf8,${encodeURIComponent(svgPreview)}` : null;
+          const base64Svg = svgPreview
+            ? `data:image/svg+xml;utf8,${encodeURIComponent(svgPreview)}`
+            : null;
 
           return (
             <div
@@ -153,7 +148,8 @@ export const ChatTimelineView: React.FC = () => {
                   <div className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 text-xs mb-3">
                     <Volume2 className="w-3.5 h-3.5 text-blue-500" />
                     <span className="font-medium text-slate-700 dark:text-slate-300">
-                      {note.audioRecordings.length} Voice Memo{note.audioRecordings.length > 1 ? 's' : ''}
+                      {note.audioRecordings.length} Voice Memo
+                      {note.audioRecordings.length > 1 ? 's' : ''}
                     </span>
                   </div>
                 )}

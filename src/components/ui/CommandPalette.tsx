@@ -58,25 +58,130 @@ export const CommandPalette: React.FC = () => {
   // Static commands list
   const commands = [
     // Tools
-    { id: 'tool-pen', title: 'Pen Tool', category: 'Drawing Tools', shortcut: '1 or P', icon: <Pen className="w-4 h-4 text-blue-500" />, action: () => setTool('pen') },
-    { id: 'tool-highlighter', title: 'Highlighter Tool', category: 'Drawing Tools', shortcut: '2 or H', icon: <Highlighter className="w-4 h-4 text-amber-500" />, action: () => setTool('highlighter') },
-    { id: 'tool-eraser', title: 'Eraser Tool', category: 'Drawing Tools', shortcut: '3 or E', icon: <Eraser className="w-4 h-4 text-rose-500" />, action: () => setTool('eraser') },
-    { id: 'tool-laser', title: 'Laser Pointer (Presentation Glow)', category: 'Drawing Tools', shortcut: '5 or L', icon: <Zap className="w-4 h-4 text-emerald-500" />, action: () => setTool('laser') },
-    { id: 'shape-rect', title: 'Draw Rectangle', category: 'Shapes', shortcut: '4 or S', icon: <Sparkles className="w-4 h-4 text-purple-500" />, action: () => setShape('rectangle') },
-    { id: 'shape-circle', title: 'Draw Circle', category: 'Shapes', shortcut: '', icon: <Sparkles className="w-4 h-4 text-purple-500" />, action: () => setShape('circle') },
-    { id: 'shape-arrow', title: 'Draw Arrow Connector', category: 'Shapes', shortcut: '', icon: <Sparkles className="w-4 h-4 text-purple-500" />, action: () => setShape('arrow') },
+    {
+      id: 'tool-pen',
+      title: 'Pen Tool',
+      category: 'Drawing Tools',
+      shortcut: '1 or P',
+      icon: <Pen className="w-4 h-4 text-blue-500" />,
+      action: () => setTool('pen'),
+    },
+    {
+      id: 'tool-highlighter',
+      title: 'Highlighter Tool',
+      category: 'Drawing Tools',
+      shortcut: '2 or H',
+      icon: <Highlighter className="w-4 h-4 text-amber-500" />,
+      action: () => setTool('highlighter'),
+    },
+    {
+      id: 'tool-eraser',
+      title: 'Eraser Tool',
+      category: 'Drawing Tools',
+      shortcut: '3 or E',
+      icon: <Eraser className="w-4 h-4 text-rose-500" />,
+      action: () => setTool('eraser'),
+    },
+    {
+      id: 'tool-laser',
+      title: 'Laser Pointer (Presentation Glow)',
+      category: 'Drawing Tools',
+      shortcut: '5 or L',
+      icon: <Zap className="w-4 h-4 text-emerald-500" />,
+      action: () => setTool('laser'),
+    },
+    {
+      id: 'shape-rect',
+      title: 'Draw Rectangle',
+      category: 'Shapes',
+      shortcut: '4 or S',
+      icon: <Sparkles className="w-4 h-4 text-purple-500" />,
+      action: () => setShape('rectangle'),
+    },
+    {
+      id: 'shape-circle',
+      title: 'Draw Circle',
+      category: 'Shapes',
+      shortcut: '',
+      icon: <Sparkles className="w-4 h-4 text-purple-500" />,
+      action: () => setShape('circle'),
+    },
+    {
+      id: 'shape-arrow',
+      title: 'Draw Arrow Connector',
+      category: 'Shapes',
+      shortcut: '',
+      icon: <Sparkles className="w-4 h-4 text-purple-500" />,
+      action: () => setShape('arrow'),
+    },
 
     // Views
-    { id: 'view-split', title: 'Split View (Notes + Canvas)', category: 'Layout', shortcut: 'Tab', icon: <Layout className="w-4 h-4 text-blue-500" />, action: () => setLayoutMode('split') },
-    { id: 'view-canvas', title: 'Canvas Only (Full Screen Sketch)', category: 'Layout', shortcut: 'Tab', icon: <Layers className="w-4 h-4 text-blue-500" />, action: () => setLayoutMode('canvas-only') },
-    { id: 'view-notes', title: 'Notes Only (Focused Markdown)', category: 'Layout', shortcut: 'Tab', icon: <FileText className="w-4 h-4 text-blue-500" />, action: () => setLayoutMode('notes-only') },
+    {
+      id: 'view-split',
+      title: 'Split View (Notes + Canvas)',
+      category: 'Layout',
+      shortcut: 'Tab',
+      icon: <Layout className="w-4 h-4 text-blue-500" />,
+      action: () => setLayoutMode('split'),
+    },
+    {
+      id: 'view-canvas',
+      title: 'Canvas Only (Full Screen Sketch)',
+      category: 'Layout',
+      shortcut: 'Tab',
+      icon: <Layers className="w-4 h-4 text-blue-500" />,
+      action: () => setLayoutMode('canvas-only'),
+    },
+    {
+      id: 'view-notes',
+      title: 'Notes Only (Focused Markdown)',
+      category: 'Layout',
+      shortcut: 'Tab',
+      icon: <FileText className="w-4 h-4 text-blue-500" />,
+      action: () => setLayoutMode('notes-only'),
+    },
 
     // Grids
-    { id: 'grid-dots', title: 'Dot Matrix Paper', category: 'Paper Grid', shortcut: 'G', icon: <Grid className="w-4 h-4 text-slate-500" />, action: () => setGridType('dots') },
-    { id: 'grid-ruled', title: 'Ruled Lined Paper', category: 'Paper Grid', shortcut: 'G', icon: <Grid className="w-4 h-4 text-slate-500" />, action: () => setGridType('ruled') },
-    { id: 'grid-math', title: 'Math Graph Grid', category: 'Paper Grid', shortcut: 'G', icon: <Grid className="w-4 h-4 text-slate-500" />, action: () => setGridType('grid') },
-    { id: 'grid-iso', title: 'Isometric 3D Grid', category: 'Paper Grid', shortcut: 'G', icon: <Grid className="w-4 h-4 text-slate-500" />, action: () => setGridType('isometric') },
-    { id: 'grid-blank', title: 'Blank Slate', category: 'Paper Grid', shortcut: 'G', icon: <Grid className="w-4 h-4 text-slate-500" />, action: () => setGridType('blank') },
+    {
+      id: 'grid-dots',
+      title: 'Dot Matrix Paper',
+      category: 'Paper Grid',
+      shortcut: 'G',
+      icon: <Grid className="w-4 h-4 text-slate-500" />,
+      action: () => setGridType('dots'),
+    },
+    {
+      id: 'grid-ruled',
+      title: 'Ruled Lined Paper',
+      category: 'Paper Grid',
+      shortcut: 'G',
+      icon: <Grid className="w-4 h-4 text-slate-500" />,
+      action: () => setGridType('ruled'),
+    },
+    {
+      id: 'grid-math',
+      title: 'Math Graph Grid',
+      category: 'Paper Grid',
+      shortcut: 'G',
+      icon: <Grid className="w-4 h-4 text-slate-500" />,
+      action: () => setGridType('grid'),
+    },
+    {
+      id: 'grid-iso',
+      title: 'Isometric 3D Grid',
+      category: 'Paper Grid',
+      shortcut: 'G',
+      icon: <Grid className="w-4 h-4 text-slate-500" />,
+      action: () => setGridType('isometric'),
+    },
+    {
+      id: 'grid-blank',
+      title: 'Blank Slate',
+      category: 'Paper Grid',
+      shortcut: 'G',
+      icon: <Grid className="w-4 h-4 text-slate-500" />,
+      action: () => setGridType('blank'),
+    },
 
     // Actions
     {
@@ -91,11 +196,54 @@ export const CommandPalette: React.FC = () => {
         confetti({ particleCount: 25, spread: 45 });
       },
     },
-    { id: 'act-theme', title: isDarkMode ? 'Switch to Light Theme' : 'Switch to Dark Theme', category: 'Actions', shortcut: 'D', icon: isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-400" />, action: () => toggleDarkMode() },
-    { id: 'act-palm', title: 'Toggle Palm Rejection (Stylus mode)', category: 'Actions', shortcut: '', icon: <Shield className="w-4 h-4 text-emerald-500" />, action: () => togglePalmRejection() },
-    { id: 'act-fullscreen', title: 'Toggle Fullscreen Immersion', category: 'Actions', shortcut: 'F', icon: <Maximize2 className="w-4 h-4 text-blue-500" />, action: () => toggleFullscreen() },
-    { id: 'act-sound', title: isSoundEnabled ? 'Mute Interface Sound FX' : 'Enable Tactile Sound FX', category: 'Actions', shortcut: '', icon: isSoundEnabled ? <VolumeX className="w-4 h-4 text-slate-400" /> : <Volume2 className="w-4 h-4 text-emerald-500" />, action: () => toggleSound() },
-    { id: 'act-shortcuts', title: 'View All Keyboard Shortcuts', category: 'Actions', shortcut: '?', icon: <HelpCircle className="w-4 h-4 text-purple-400" />, action: () => toggleShortcutsModal() },
+    {
+      id: 'act-theme',
+      title: isDarkMode ? 'Switch to Light Theme' : 'Switch to Dark Theme',
+      category: 'Actions',
+      shortcut: 'D',
+      icon: isDarkMode ? (
+        <Sun className="w-4 h-4 text-amber-400" />
+      ) : (
+        <Moon className="w-4 h-4 text-indigo-400" />
+      ),
+      action: () => toggleDarkMode(),
+    },
+    {
+      id: 'act-palm',
+      title: 'Toggle Palm Rejection (Stylus mode)',
+      category: 'Actions',
+      shortcut: '',
+      icon: <Shield className="w-4 h-4 text-emerald-500" />,
+      action: () => togglePalmRejection(),
+    },
+    {
+      id: 'act-fullscreen',
+      title: 'Toggle Fullscreen Immersion',
+      category: 'Actions',
+      shortcut: 'F',
+      icon: <Maximize2 className="w-4 h-4 text-blue-500" />,
+      action: () => toggleFullscreen(),
+    },
+    {
+      id: 'act-sound',
+      title: isSoundEnabled ? 'Mute Interface Sound FX' : 'Enable Tactile Sound FX',
+      category: 'Actions',
+      shortcut: '',
+      icon: isSoundEnabled ? (
+        <VolumeX className="w-4 h-4 text-slate-400" />
+      ) : (
+        <Volume2 className="w-4 h-4 text-emerald-500" />
+      ),
+      action: () => toggleSound(),
+    },
+    {
+      id: 'act-shortcuts',
+      title: 'View All Keyboard Shortcuts',
+      category: 'Actions',
+      shortcut: '?',
+      icon: <HelpCircle className="w-4 h-4 text-purple-400" />,
+      action: () => toggleShortcutsModal(),
+    },
   ];
 
   // Notes results matching query
@@ -202,9 +350,7 @@ export const CommandPalette: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <span
                       className={`text-[10px] ${
-                        isSelected
-                          ? 'text-blue-100 font-semibold'
-                          : 'text-slate-400'
+                        isSelected ? 'text-blue-100 font-semibold' : 'text-slate-400'
                       }`}
                     >
                       {item.category}

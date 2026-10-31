@@ -8,6 +8,7 @@ import { sound } from '../../utils/sound';
 import { GridOverlay } from './GridOverlay';
 import { CanvasToolbar } from './CanvasToolbar';
 import { CanvasControls } from './CanvasControls';
+import { CanvasPageBar } from './CanvasPageBar';
 import confetti from 'canvas-confetti';
 
 interface LaserPoint {
@@ -159,7 +160,7 @@ export const VisualCanvas: React.FC = () => {
         const alpha = Math.max(0, 1 - age / 1200);
 
         ctx.strokeStyle = `rgba(16, 185, 129, ${alpha})`;
-        ctx.lineWidth = Math.max(3, (strokeWidth * 2) * alpha);
+        ctx.lineWidth = Math.max(3, strokeWidth * 2 * alpha);
 
         ctx.beginPath();
         ctx.moveTo(p1.x, p1.y);
@@ -170,7 +171,17 @@ export const VisualCanvas: React.FC = () => {
     }
 
     ctx.restore();
-  }, [elements, pan.x, pan.y, zoom, tool, color, strokeWidth, highlighterColor, currentShapePreview]);
+  }, [
+    elements,
+    pan.x,
+    pan.y,
+    zoom,
+    tool,
+    color,
+    strokeWidth,
+    highlighterColor,
+    currentShapePreview,
+  ]);
 
   // Laser Pointer trail state & battery-efficient animation
   const isLaserAnimatingRef = useRef(false);
@@ -661,10 +672,13 @@ export const VisualCanvas: React.FC = () => {
           tool === 'eraser'
             ? 'cursor-cell'
             : tool === 'pen' || tool === 'highlighter' || tool === 'laser'
-            ? 'cursor-crosshair'
-            : 'cursor-default'
+              ? 'cursor-crosshair'
+              : 'cursor-default'
         }`}
       />
+
+      {/* Multi-Page Canvas Navigation Pill */}
+      <CanvasPageBar />
 
       {/* Floating Canvas Controls (Zoom, Palm Rejection, Clear) */}
       <CanvasControls onClear={handleClear} hasElements={elements.length > 0} />

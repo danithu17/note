@@ -8,12 +8,7 @@ interface GridOverlayProps {
   isDarkMode: boolean;
 }
 
-export const GridOverlay: React.FC<GridOverlayProps> = ({
-  gridType,
-  zoom,
-  pan,
-  isDarkMode,
-}) => {
+export const GridOverlay: React.FC<GridOverlayProps> = ({ gridType, zoom, pan, isDarkMode }) => {
   if (gridType === 'blank') {
     return (
       <div
@@ -30,8 +25,8 @@ export const GridOverlay: React.FC<GridOverlayProps> = ({
 
   const baseSpacing = 28;
   const scaledSpacing = baseSpacing * zoom;
-  const offsetX = (pan.x % scaledSpacing + scaledSpacing) % scaledSpacing;
-  const offsetY = (pan.y % scaledSpacing + scaledSpacing) % scaledSpacing;
+  const offsetX = ((pan.x % scaledSpacing) + scaledSpacing) % scaledSpacing;
+  const offsetY = ((pan.y % scaledSpacing) + scaledSpacing) % scaledSpacing;
 
   let backgroundStyle: React.CSSProperties = {};
 

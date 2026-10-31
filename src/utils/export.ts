@@ -107,7 +107,10 @@ export function triggerDownload(content: string | Blob, filename: string, mimeTy
 /**
  * Exports current canvas drawing to PNG
  */
-export function exportCanvasToPng(canvas: HTMLCanvasElement, filename: string = 'scribble-drawing.png') {
+export function exportCanvasToPng(
+  canvas: HTMLCanvasElement,
+  filename: string = 'scribble-drawing.png'
+) {
   canvas.toBlob((blob) => {
     if (blob) {
       triggerDownload(blob, filename, 'image/png');
@@ -127,9 +130,7 @@ export async function copyCanvasToClipboard(canvas: HTMLCanvasElement): Promise<
           return;
         }
         try {
-          await navigator.clipboard.write([
-            new ClipboardItem({ 'image/png': blob }),
-          ]);
+          await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
           resolve(true);
         } catch {
           resolve(false);

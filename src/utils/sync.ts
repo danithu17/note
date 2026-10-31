@@ -127,7 +127,10 @@ class RealtimeSyncManager {
       }
       // Also write to localStorage for cross-context storage event fallback
       if (msg.type === 'NOTE_UPDATED' || msg.type === 'CANVAS_UPDATED') {
-        localStorage.setItem('scribble_last_sync_event', JSON.stringify({ ...msg, ts: Date.now() }));
+        localStorage.setItem(
+          'scribble_last_sync_event',
+          JSON.stringify({ ...msg, ts: Date.now() })
+        );
       }
     } catch (err) {
       console.warn('Failed to broadcast message', err);

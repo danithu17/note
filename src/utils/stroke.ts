@@ -77,10 +77,7 @@ export function drawFreehandStroke(
 /**
  * Renders geometric shapes (rectangle, circle, arrow, line, diamond, flowchart node)
  */
-export function drawShape(
-  ctx: CanvasRenderingContext2D,
-  shape: ShapeElement
-) {
+export function drawShape(ctx: CanvasRenderingContext2D, shape: ShapeElement) {
   ctx.save();
   ctx.strokeStyle = shape.color;
   ctx.lineWidth = shape.strokeWidth;
@@ -201,7 +198,15 @@ export function drawShape(
 /**
  * Check if a point is close to a line segment
  */
-function isPointNearSegment(px: number, py: number, x1: number, y1: number, x2: number, y2: number, threshold: number): boolean {
+function isPointNearSegment(
+  px: number,
+  py: number,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  threshold: number
+): boolean {
   const dx = x2 - x1;
   const dy = y2 - y1;
   const lengthSquared = dx * dx + dy * dy;
@@ -232,12 +237,15 @@ export function elementIntersectsPoint(
 ): boolean {
   if (element.type === 'stroke') {
     const pts = element.points;
-    const threshold = eraserRadius + (element.size / 2);
+    const threshold = eraserRadius + element.size / 2;
     for (let i = 0; i < pts.length; i++) {
       if (Math.hypot(pts[i].x - ex, pts[i].y - ey) <= threshold) {
         return true;
       }
-      if (i > 0 && isPointNearSegment(ex, ey, pts[i - 1].x, pts[i - 1].y, pts[i].x, pts[i].y, threshold)) {
+      if (
+        i > 0 &&
+        isPointNearSegment(ex, ey, pts[i - 1].x, pts[i - 1].y, pts[i].x, pts[i].y, threshold)
+      ) {
         return true;
       }
     }
@@ -264,7 +272,12 @@ export function elementIntersectsPoint(
 
     // If filled, check inside
     if (element.fillColor) {
-      if (ex >= minX - threshold && ex <= maxX + threshold && ey >= minY - threshold && ey <= maxY + threshold) {
+      if (
+        ex >= minX - threshold &&
+        ex <= maxX + threshold &&
+        ey >= minY - threshold &&
+        ey <= maxY + threshold
+      ) {
         return true;
       }
     }

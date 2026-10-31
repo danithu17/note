@@ -9,6 +9,7 @@ import { ShortcutsModal } from './components/ui/ShortcutsModal';
 import { ChatTimelineView } from './features/notes/components/ChatTimelineView';
 import { useNoteStore } from './store/useNoteStore';
 import { useCanvasStore } from './store/useCanvasStore';
+import { useAuthStore } from './core/auth/useAuthStore';
 
 export function App() {
   const { initialize, isLoading } = useNoteStore();
@@ -16,6 +17,7 @@ export function App() {
 
   useEffect(() => {
     initialize();
+    useAuthStore.getState().initialize();
   }, [initialize]);
 
   if (isLoading) {
@@ -41,10 +43,7 @@ export function App() {
         {layoutMode === 'timeline' ? (
           <ChatTimelineView />
         ) : (
-          <SplitPane
-            left={<LectureEditor />}
-            right={<VisualCanvas />}
-          />
+          <SplitPane left={<LectureEditor />} right={<VisualCanvas />} />
         )}
       </div>
 

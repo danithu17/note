@@ -3,6 +3,7 @@ import { Mic, Square, Play, Pause, Trash2, Volume2 } from 'lucide-react';
 import { AudioRecorder } from '../../utils/audio';
 import type { AudioRecording } from '../../types/note';
 import { useNoteStore } from '../../store/useNoteStore';
+import { saveAudioAttachment, getAttachmentBlob } from '@/core/db/attachments';
 
 export const LectureRecorder: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
@@ -41,10 +42,12 @@ export const LectureRecorder: React.FC = () => {
 
   const handleStopRecording = async () => {
     if (!recorderRef.current) return;
-    const recording = await recorderRef.current.stop();
+    const result = await recorderRef.current.stop();
     setIsRecording(false);
 
-    if (recording && activeNote) {
+    if (result && activeNote) {
+      const recording = await saveAudioAttachment(activeNote.id, result.blob, result.duration);
+
       const updatedRecordings = [...(activeNote.audioRecordings || []), recording];
       useNoteStore.setState((state) => {
         const updated = {
@@ -59,7 +62,7 @@ export const LectureRecorder: React.FC = () => {
     }
   };
 
-  const handlePlayToggle = (rec: AudioRecording) => {
+  const handlePlayToggle = async (rec: AudioRecording) => {
     if (playingId === rec.id) {
       audioPlayerRef.current?.pause();
       setPlayingId(null);
@@ -67,7 +70,23 @@ export const LectureRecorder: React.FC = () => {
       if (!audioPlayerRef.current) {
         audioPlayerRef.current = new Audio();
       }
-      const audioUrl = rec.blobUrl || rec.base64Data || '';
+
+      let audioUrl = rec.blobUrl;
+      if (!audioUrl && rec.attachmentId) {
+        const blob = await getAttachmentBlob(rec.attachmentId);
+        if (blob) {
+          audioUrl = URL.createObjectURL(blob);
+        }
+      }
+      if (!audioUrl && rec.base64Data) {
+        audioUrl = rec.base64Data;
+      }
+
+      if (!audioUrl) {
+        alert('Audio recording could not be loaded.');
+        return;
+      }
+
       audioPlayerRef.current.src = audioUrl;
       audioPlayerRef.current.play();
       setPlayingId(rec.id);
@@ -122,38 +141,43 @@ export const LectureRecorder: React.FC = () => {
         ) : (
           <button
             onClick={handleStartRecording}
-            className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-sm font-medium"
+            className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all shadow-xs font-medium active:scale-95"
           >
-            <Mic className="w-3.5 h-3.5" /> Record Clip
+            <Mic className="w-3.5 h-3.5" />
+            <span>Record Memo</span>
           </button>
         )}
       </div>
 
-      {/* List of recordings */}
+      {/* Recordings list */}
       {recordings.length > 0 && (
-        <div className="flex flex-col gap-1.5 mt-1 max-h-32 overflow-y-auto pr-1">
+        <div className="flex flex-col gap-1.5 mt-1">
           {recordings.map((rec) => (
             <div
               key={rec.id}
               className="flex items-center justify-between p-2 rounded-lg bg-white dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60"
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 overflow-hidden">
                 <button
                   onClick={() => handlePlayToggle(rec)}
-                  className="p-1 rounded-md bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 hover:scale-105 transition-transform"
+                  className="p-1.5 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
                 >
                   {playingId === rec.id ? (
-                    <Pause className="w-3 h-3" />
+                    <Pause className="w-3 h-3 fill-current" />
                   ) : (
-                    <Play className="w-3 h-3 fill-current" />
+                    <Play className="w-3 h-3 fill-current ml-0.5" />
                   )}
                 </button>
-                <div className="flex flex-col">
-                  <span className="text-[11px] font-medium text-slate-800 dark:text-slate-200 truncate max-w-[140px]">
+                <div className="flex flex-col truncate">
+                  <span className="font-medium text-slate-800 dark:text-slate-200 truncate">
                     {rec.name}
                   </span>
-                  <span className="text-[10px] text-slate-600 dark:text-slate-300 font-mono">
-                    {formatTime(rec.duration)}
+                  <span className="text-[10px] text-slate-600 dark:text-slate-300">
+                    {formatTime(rec.duration)} •{' '}
+                    {new Date(rec.createdAt).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
                   </span>
                 </div>
               </div>
@@ -163,7 +187,7 @@ export const LectureRecorder: React.FC = () => {
                 className="p-1 text-slate-600 dark:text-slate-300 hover:text-rose-500 rounded transition-colors"
                 title="Delete recording"
               >
-                <Trash2 className="w-3 h-3" />
+                <Trash2 className="w-3.5 h-3.5" />
               </button>
             </div>
           ))}

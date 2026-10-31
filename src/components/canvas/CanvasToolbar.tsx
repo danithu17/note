@@ -387,7 +387,10 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
               >
                 <div
                   className="rounded-full bg-slate-800 dark:bg-slate-200"
-                  style={{ width: `${Math.min(14, w.value * 1.5 + 2)}px`, height: `${Math.min(14, w.value * 1.5 + 2)}px` }}
+                  style={{
+                    width: `${Math.min(14, w.value * 1.5 + 2)}px`,
+                    height: `${Math.min(14, w.value * 1.5 + 2)}px`,
+                  }}
                 />
               </button>
             ))}
@@ -418,7 +421,9 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
               <div className="absolute bottom-full mb-3 right-0 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-2 flex flex-col gap-1 min-w-[160px] animate-in fade-in zoom-in-95">
                 <div className="text-[10px] uppercase font-bold text-slate-400 px-2 py-1 flex items-center justify-between">
                   <span>Background Style</span>
-                  <kbd className="text-[9px] font-mono px-1 bg-slate-100 dark:bg-slate-800 rounded">G</kbd>
+                  <kbd className="text-[9px] font-mono px-1 bg-slate-100 dark:bg-slate-800 rounded">
+                    G
+                  </kbd>
                 </div>
                 {gridOptions.map((g) => (
                   <button
@@ -434,7 +439,9 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
                     }`}
                   >
                     <span>{g.label}</span>
-                    {gridType === g.type && <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />}
+                    {gridType === g.type && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                    )}
                   </button>
                 ))}
               </div>

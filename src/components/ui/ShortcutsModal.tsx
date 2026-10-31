@@ -88,10 +88,7 @@ export const ShortcutsModal: React.FC = () => {
               </h3>
               <div className="flex flex-col gap-2">
                 {sec.items.map((item) => (
-                  <div
-                    key={item.key}
-                    className="flex items-center justify-between text-xs gap-2"
-                  >
+                  <div key={item.key} className="flex items-center justify-between text-xs gap-2">
                     <span className="text-slate-700 dark:text-slate-300 text-[11px]">
                       {item.desc}
                     </span>
@@ -107,7 +104,13 @@ export const ShortcutsModal: React.FC = () => {
 
         {/* Bottom Tip */}
         <div className="mt-5 p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200/50 dark:border-blue-800/50 text-xs text-blue-800 dark:text-blue-300 flex items-center justify-between">
-          <span>💡 Press <kbd className="px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900 font-mono text-[10px] font-bold">Ctrl+K</kbd> anytime to open the global Command Search bar.</span>
+          <span>
+            💡 Press{' '}
+            <kbd className="px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900 font-mono text-[10px] font-bold">
+              Ctrl+K
+            </kbd>{' '}
+            anytime to open the global Command Search bar.
+          </span>
           <span className="text-[10px] font-semibold text-blue-500">Press ESC to dismiss</span>
         </div>
       </div>
