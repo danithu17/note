@@ -586,7 +586,7 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
                   setCouponCode(e.target.value);
                   setCouponError(null);
                 }}
-                placeholder="Discount code (try: STUDENT50 or BETA2026)"
+                placeholder="Enter promo or coupon code"
                 className="w-full bg-transparent text-xs font-mono uppercase text-slate-800 dark:text-slate-200 outline-none placeholder:text-slate-400 placeholder:normal-case"
               />
               <button

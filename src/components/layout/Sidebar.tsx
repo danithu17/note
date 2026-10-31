@@ -18,7 +18,6 @@ import {
   Presentation,
   Zap,
   RotateCcw,
-  ShieldAlert,
 } from 'lucide-react';
 import { useNoteStore } from '../../store/useNoteStore';
 import { useCanvasStore } from '../../store/useCanvasStore';
@@ -465,19 +464,6 @@ export const Sidebar: React.FC = () => {
               <span>Trash (30-day restore)</span>
             </div>
             <span className="text-[10px] font-mono text-slate-400">Bin</span>
-          </button>
-
-          <button
-            onClick={() => openModal('admin')}
-            className="flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/60 text-xs text-purple-700 dark:text-purple-300 transition-colors cursor-pointer"
-          >
-            <div className="flex items-center gap-2">
-              <ShieldAlert className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-              <span className="font-semibold">Admin Dashboard</span>
-            </div>
-            <span className="text-[10px] font-mono bg-purple-200/80 dark:bg-purple-900/80 px-1.5 py-0.2 rounded-md font-bold">
-              2FA
-            </span>
           </button>
 
           <button

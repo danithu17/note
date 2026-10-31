@@ -28,13 +28,32 @@ export function App() {
     useEntitlementsStore.getState().initialize();
 
     const handleHashChange = () => {
-      const isApp = window.location.hash.includes('app');
-      useCanvasStore.setState({ viewMode: isApp ? 'app' : 'landing' });
+      const hash = window.location.hash.toLowerCase();
+      if (hash.includes('admin')) {
+        useCanvasStore.setState({ activeModal: 'admin', viewMode: 'app' });
+      } else {
+        const isApp = hash.includes('app');
+        useCanvasStore.setState({ viewMode: isApp ? 'app' : 'landing' });
+      }
     };
 
+    handleHashChange();
     window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, [initialize]);
+
+    // Secret Admin keyboard shortcut: Ctrl+Shift+A / Cmd+Shift+A
+    const handleAdminKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'a' || e.key === 'A')) {
+        e.preventDefault();
+        openModal('admin');
+      }
+    };
+    window.addEventListener('keydown', handleAdminKey);
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('keydown', handleAdminKey);
+    };
+  }, [initialize, openModal]);
 
   if (isLoading) {
     return (

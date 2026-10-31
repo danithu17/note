@@ -23,17 +23,12 @@ import {
   MessageSquare,
   History,
   User,
-  Cloud,
-  WifiOff,
-  RefreshCw,
   ChevronRight,
   Archive,
   Brain,
   Flame,
   Presentation,
-  Globe,
-  Zap,
-  ShieldAlert,
+  MoreHorizontal,
 } from 'lucide-react';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useNoteStore } from '../../store/useNoteStore';
@@ -83,8 +78,7 @@ export const Header: React.FC = () => {
   const activeNote = getActiveNote();
 
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
-  const [isMobileStudyMenuOpen, setIsMobileStudyMenuOpen] = useState(false);
-  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const [copiedSuccess, setCopiedSuccess] = useState(false);
   const [installPrompt, setInstallPrompt] = useState<any>(null);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -204,12 +198,12 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className="h-14 border-b border-slate-200/90 dark:border-slate-800/90 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl px-3 sm:px-4 flex items-center justify-between shrink-0 select-none z-40 transition-colors">
-      {/* Left: Sidebar Toggle, Brand, Breadcrumb Title */}
-      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+    <header className="h-14 border-b border-slate-200/90 dark:border-slate-800/90 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl px-3 sm:px-4 flex items-center justify-between shrink-0 select-none z-40 transition-colors gap-2">
+      {/* 1. Left: Sidebar Toggle, Brand (Logo + Name + Badge), Breadcrumb Title */}
+      <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 min-w-0">
         <button
           onClick={toggleSidebar}
-          className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0 cursor-pointer"
           title="Toggle Notebook Sidebar [B]"
         >
           <Menu className="w-5 h-5" />
@@ -218,12 +212,12 @@ export const Header: React.FC = () => {
         <div
           onClick={() => setViewMode('landing')}
           className="flex items-center gap-2 shrink-0 cursor-pointer group"
-          title="View ScribbleNote Home & Showcase"
+          title="Return to ScribbleNote Home & Showcase"
         >
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20 ring-1 ring-white/20 group-hover:scale-105 transition-transform">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20 ring-1 ring-white/20 group-hover:scale-105 transition-transform shrink-0">
             <Sparkles className="w-4 h-4 fill-white" />
           </div>
-          <div className="hidden sm:flex flex-col">
+          <div className="flex flex-col shrink-0">
             <span className="font-extrabold text-sm sm:text-base tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent flex items-center gap-1.5 leading-tight">
               ScribbleNote
               <button
@@ -240,23 +234,13 @@ export const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* 🏠 Prominent Home / Landing Page Switcher */}
-        <button
-          onClick={() => setViewMode('landing')}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-all shrink-0 border border-slate-200/60 dark:border-white/5 active:scale-95"
-          title="Return to Landing Page & Product Overview"
-        >
-          <span>🏠 Home</span>
-        </button>
-
-        {/* Breadcrumb Hierarchy Navigation */}
+        {/* Note Breadcrumb (Visible only on xl+ screens to prevent any overlap on laptops) */}
         {activeNote && (
-          <div className="hidden md:flex items-center gap-1 text-xs text-slate-400 dark:text-slate-300 pl-2 border-l border-slate-200 dark:border-slate-800 max-w-md truncate">
-            <span className="text-slate-600 dark:text-slate-300 font-medium truncate max-w-[120px]">
+          <div className="hidden xl:flex items-center gap-1 text-xs text-slate-400 dark:text-slate-400 pl-2 border-l border-slate-200 dark:border-slate-800 truncate max-w-[180px]">
+            <span className="text-slate-600 dark:text-slate-300 font-medium truncate">
               {currentNotebook?.title || activeNote.subject || 'Lecture'}
             </span>
             <ChevronRight className="w-3 h-3 text-slate-400 shrink-0" />
-
             {isEditingTitle ? (
               <input
                 type="text"
@@ -271,13 +255,13 @@ export const Header: React.FC = () => {
                     setIsEditingTitle(false);
                   }
                 }}
-                className="px-1.5 py-0.5 rounded bg-blue-50 dark:bg-slate-800 border border-blue-400 text-xs font-bold text-slate-900 dark:text-slate-100 outline-none w-48"
+                className="px-1.5 py-0.5 rounded bg-blue-50 dark:bg-slate-800 border border-blue-400 text-xs font-bold text-slate-900 dark:text-slate-100 outline-none w-36"
               />
             ) : (
               <span
                 onClick={handleStartRename}
-                className="font-bold text-slate-800 dark:text-slate-200 truncate cursor-pointer hover:underline hover:text-blue-600 max-w-[200px]"
-                title="Click to rename lecture note"
+                className="font-bold text-slate-800 dark:text-slate-200 truncate cursor-pointer hover:underline hover:text-blue-600"
+                title="Click to rename note"
               >
                 {activeNote.title || 'Untitled Note'}
               </span>
@@ -286,282 +270,120 @@ export const Header: React.FC = () => {
         )}
       </div>
 
-      {/* Center: Command Palette Trigger & View Mode Switcher */}
-      <div className="flex items-center gap-2">
-        <button
-          onClick={toggleCommandPalette}
-          className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100/90 dark:bg-slate-800/80 hover:bg-slate-200/80 dark:hover:bg-slate-700/80 border border-slate-200/60 dark:border-slate-700/60 text-slate-500 dark:text-slate-400 text-xs transition-all shadow-xs"
-          title="Quick Command Search [Ctrl+K]"
-        >
-          <Search className="w-3.5 h-3.5 text-blue-500" />
-          <span>Quick actions & search...</span>
-          <kbd className="px-1.5 py-0.5 rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-[10px] font-mono text-slate-500 dark:text-slate-300 font-bold">
-            Ctrl+K
-          </kbd>
-        </button>
-
-        <div className="hidden md:flex items-center bg-slate-100/90 dark:bg-slate-800/90 p-1 rounded-xl text-xs border border-slate-200/50 dark:border-slate-700/50">
+      {/* 2. Center: Layout Mode Switcher (Feed | Notes | Split | Canvas) */}
+      <div className="hidden sm:flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center bg-slate-100 dark:bg-slate-800/90 p-1 rounded-2xl text-xs border border-slate-200/60 dark:border-slate-700/60 shadow-2xs">
           <button
             onClick={() => setLayoutMode('timeline')}
             title="Chat & Timeline Feed View [Tab]"
-            className={`px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-all ${
+            className={`px-2.5 py-1 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer ${
               layoutMode === 'timeline'
-                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 font-semibold shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 font-bold shadow-xs'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <MessageSquare className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Feed</span>
+            <span className="hidden lg:inline text-[11px]">Feed</span>
           </button>
 
           <button
             onClick={() => setLayoutMode('notes-only')}
             title="Lecture Notes View [Tab]"
-            className={`px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-all ${
+            className={`px-2.5 py-1 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer ${
               layoutMode === 'notes-only'
-                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 font-semibold shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 font-bold shadow-xs'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <FileCode className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Notes</span>
+            <span className="hidden lg:inline text-[11px]">Notes</span>
           </button>
 
           <button
             onClick={() => setLayoutMode('split')}
             title="Split Hybrid View [Tab]"
-            className={`px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-all ${
+            className={`px-2.5 py-1 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer ${
               layoutMode === 'split'
-                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 font-semibold shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 font-bold shadow-xs'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <Layout className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Split</span>
+            <span className="hidden lg:inline text-[11px]">Split</span>
           </button>
 
           <button
             onClick={() => setLayoutMode('canvas-only')}
             title="Visual Canvas View [Tab]"
-            className={`px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-all ${
+            className={`px-2.5 py-1 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer ${
               layoutMode === 'canvas-only'
-                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 font-semibold shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 font-bold shadow-xs'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Canvas</span>
+            <span className="hidden lg:inline text-[11px]">Canvas</span>
           </button>
         </div>
       </div>
 
-      {/* Right: Cloud Sync, Auth, Version History, Shortcuts, Export, Sound, Theme, Fullscreen */}
-      <div className="flex items-center gap-1 sm:gap-1.5">
-        {/* Study Hub Action Buttons (AI Assistant, Flashcards, Focus Pomodoro, Slide Deck Import) */}
-        <div className="hidden sm:flex items-center gap-1 pr-1 border-r border-slate-200/80 dark:border-slate-800">
-          <button
-            onClick={() => useAssistantStore.getState().toggleAssistant()}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-500/15 via-indigo-500/15 to-blue-500/15 hover:from-purple-500/25 hover:via-indigo-500/25 hover:to-blue-500/25 border border-indigo-500/30 text-indigo-700 dark:text-indigo-300 text-xs font-semibold shadow-xs transition-all active:scale-95"
-            title="AI Study Assistant: Chat, Summaries, Quiz Generator & 'Ask My Notes' [Cmd/Ctrl+J]"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
-            <span className="hidden xl:inline">AI Study</span>
-          </button>
+      {/* 3. Right: Essential Primary Tools & Consolidated Overflow Menu */}
+      <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+        {/* Quick Command Search [Ctrl+K] Button */}
+        <button
+          onClick={toggleCommandPalette}
+          className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          title="Quick Actions & Command Palette [Ctrl+K]"
+        >
+          <Search className="w-4 h-4 text-blue-500" />
+        </button>
 
-          <button
-            onClick={() => openModal('flashcards')}
-            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            title="SM-2 Spaced Repetition Flashcards"
-          >
-            <Brain className="w-4 h-4 text-purple-500" />
-          </button>
+        {/* AI Study Assistant (Direct Action) */}
+        <button
+          onClick={() => useAssistantStore.getState().toggleAssistant()}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-xs transition-all active:scale-95 cursor-pointer"
+          title="AI Study Assistant [Cmd/Ctrl+J]"
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          <span className="hidden md:inline">Assistant</span>
+        </button>
 
-          <button
-            onClick={() => openModal('pomodoro')}
-            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            title="Study Dashboard & Pomodoro Focus Timer"
-          >
-            <Flame className="w-4 h-4 text-amber-500" />
-          </button>
+        {/* Spaced Repetition Flashcards */}
+        <button
+          onClick={() => openModal('flashcards')}
+          className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          title="Flashcards (SM-2 Spaced Repetition)"
+        >
+          <Brain className="w-4 h-4 text-purple-500" />
+        </button>
 
-          <button
-            onClick={() => openModal('pdf')}
-            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            title="Import PDF Lecture Slides & Annotate"
-          >
-            <Presentation className="w-4 h-4 text-blue-500" />
-          </button>
-        </div>
-
-        {/* Mobile Study Hub Dropdown Trigger (< sm) */}
-        <div className="relative sm:hidden">
-          <button
-            onClick={() => setIsMobileStudyMenuOpen(!isMobileStudyMenuOpen)}
-            className="p-1.5 rounded-xl text-purple-600 dark:text-purple-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            title="Study Tools & AI"
-          >
-            <Sparkles className="w-4 h-4" />
-          </button>
-
-          {isMobileStudyMenuOpen && (
-            <div className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-2 flex flex-col gap-1 z-50 animate-in fade-in zoom-in-95">
-              <div className="text-[10px] uppercase font-bold text-slate-400 px-2 py-1">
-                Study Tools & AI
-              </div>
-              <button
-                onClick={() => {
-                  useAssistantStore.getState().setAssistantOpen(true);
-                  setIsMobileStudyMenuOpen(false);
-                }}
-                className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-purple-500" />
-                <span>AI Study Assistant</span>
-              </button>
-              <button
-                onClick={() => {
-                  openModal('flashcards');
-                  setIsMobileStudyMenuOpen(false);
-                }}
-                className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-              >
-                <Brain className="w-3.5 h-3.5 text-indigo-500" />
-                <span>Flashcards (SM-2)</span>
-              </button>
-              <button
-                onClick={() => {
-                  openModal('pomodoro');
-                  setIsMobileStudyMenuOpen(false);
-                }}
-                className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-amber-950/40 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
-              >
-                <Flame className="w-3.5 h-3.5 text-amber-500" />
-                <span>Focus Pomodoro</span>
-              </button>
-              <button
-                onClick={() => {
-                  openModal('pdf');
-                  setIsMobileStudyMenuOpen(false);
-                }}
-                className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-              >
-                <Presentation className="w-3.5 h-3.5 text-blue-500" />
-                <span>Import PDF Slides</span>
-              </button>
-              <div className="h-px bg-slate-200 dark:bg-slate-800 my-0.5" />
-              <button
-                onClick={() => {
-                  openModal('pricing');
-                  setIsMobileStudyMenuOpen(false);
-                }}
-                className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors"
-              >
-                <Zap className="w-3.5 h-3.5 text-blue-500" />
-                <span>Upgrade to Pro</span>
-              </button>
-            </div>
-          )}
-        </div>
-
+        {/* Sync Status Badge */}
         <button
           onClick={() => openModal('sync')}
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
+          className={`flex items-center gap-1.5 px-2 py-1 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
             syncStatus.state === 'synced'
               ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
               : syncStatus.state === 'syncing'
                 ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-500/30 animate-pulse'
-                : syncStatus.state === 'offline'
-                  ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-500/30'
-                  : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-500/30'
+                : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-500/30'
           }`}
           title={`Sync status: ${syncStatus.state} (${syncStatus.mode})`}
         >
-          {syncStatus.state === 'synced' ? (
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-          ) : syncStatus.state === 'syncing' ? (
-            <RefreshCw className="w-3 h-3 animate-spin text-blue-500" />
-          ) : syncStatus.state === 'offline' ? (
-            <WifiOff className="w-3 h-3 text-amber-500" />
-          ) : (
-            <Cloud className="w-3 h-3 text-rose-500" />
-          )}
-
-          <span className="hidden lg:inline capitalize">
+          <span
+            className={`w-2 h-2 rounded-full ${
+              syncStatus.state === 'synced' ? 'bg-emerald-500' : 'bg-amber-500'
+            }`}
+          />
+          <span className="hidden lg:inline text-[11px] capitalize">
             {syncStatus.state === 'synced' ? 'Synced' : syncStatus.state}
           </span>
-          {syncStatus.pendingQueueCount ? (
-            <span className="text-[10px] font-mono px-1 rounded bg-blue-200 dark:bg-blue-900">
-              {syncStatus.pendingQueueCount}
-            </span>
-          ) : null}
-        </button>
-
-        <button
-          onClick={() => openModal('history')}
-          className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          title="Note Version History & Snapshots"
-        >
-          <History className="w-4 h-4" />
-        </button>
-
-        <button
-          onClick={openAuthModal}
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
-            user?.isGuest
-              ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-blue-400'
-              : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs'
-          }`}
-          title={
-            user?.isGuest ? 'Guest Mode: Click to sign in and upgrade' : `Account: ${user?.email}`
-          }
-        >
-          <User className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">
-            {user?.isGuest ? 'Guest' : user?.name?.split(' ')[0] || 'Account'}
-          </span>
-        </button>
-
-        <button
-          onClick={() => openModal('admin')}
-          className="p-2 rounded-xl text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/40 transition-colors"
-          title="Admin Dashboard & Entitlements Control (2FA)"
-        >
-          <ShieldAlert className="w-4 h-4" />
-        </button>
-
-        <button
-          onClick={toggleShortcutsModal}
-          className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors hidden sm:flex"
-          title="Keyboard Shortcuts Cheatsheet [?]"
-        >
-          <Keyboard className="w-4 h-4" />
-        </button>
-
-        <button
-          onClick={toggleSound}
-          className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors hidden sm:flex"
-          title={isSoundEnabled ? 'Interface Sound FX: ON' : 'Interface Sound FX: MUTED'}
-        >
-          {isSoundEnabled ? (
-            <Volume2 className="w-4 h-4 text-emerald-500" />
-          ) : (
-            <VolumeX className="w-4 h-4 text-slate-400" />
-          )}
-        </button>
-
-        <button
-          onClick={toggleFullscreen}
-          className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors hidden lg:flex"
-          title="Toggle Fullscreen Immersion [F]"
-        >
-          {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
         </button>
 
         {/* Export Dropdown Menu */}
         <div className="relative">
           <button
             onClick={() => setIsExportMenuOpen(!isExportMenuOpen)}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition-all active:scale-95"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition-all active:scale-95 cursor-pointer"
             title="Export Options"
           >
             <Download className="w-3.5 h-3.5" />
@@ -577,7 +399,7 @@ export const Header: React.FC = () => {
 
               <button
                 onClick={handleExportPng}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 <Download className="w-4 h-4 text-blue-500" />
                 <span>Export Drawing as PNG</span>
@@ -585,7 +407,7 @@ export const Header: React.FC = () => {
 
               <button
                 onClick={handleExportSvg}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 <FileCode className="w-4 h-4 text-emerald-500" />
                 <span>Export Vector SVG</span>
@@ -593,7 +415,7 @@ export const Header: React.FC = () => {
 
               <button
                 onClick={handleExportMarkdown}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 <FileDown className="w-4 h-4 text-purple-500" />
                 <span>Export Note (.md + Sketch)</span>
@@ -601,7 +423,7 @@ export const Header: React.FC = () => {
 
               <button
                 onClick={handleExportJson}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 <Share2 className="w-4 h-4 text-amber-500" />
                 <span>Export Single Note JSON</span>
@@ -609,7 +431,7 @@ export const Header: React.FC = () => {
 
               <button
                 onClick={handleExportFullBackup}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 <Archive className="w-4 h-4 text-indigo-500" />
                 <span>Export Full Backup Bundle (.json)</span>
@@ -617,7 +439,7 @@ export const Header: React.FC = () => {
 
               <button
                 onClick={handleExportAnnotatedPdf}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 <Presentation className="w-4 h-4 text-rose-500" />
                 <span>Export Annotated Slides (PDF)</span>
@@ -627,7 +449,7 @@ export const Header: React.FC = () => {
 
               <button
                 onClick={handleCopySnapshot}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 {copiedSuccess ? (
                   <>
@@ -647,86 +469,173 @@ export const Header: React.FC = () => {
           )}
         </div>
 
-        {installPrompt && (
-          <button
-            onClick={handleInstallApp}
-            className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            title="Install ScribbleNote PWA"
-          >
-            <Smartphone className="w-4 h-4 text-blue-500" />
-          </button>
-        )}
+        {/* User Account / Sign In */}
+        <button
+          onClick={openAuthModal}
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+            user?.isGuest
+              ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-blue-400'
+              : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs'
+          }`}
+          title={
+            user?.isGuest ? 'Guest Mode: Click to sign in and upgrade' : `Account: ${user?.email}`
+          }
+        >
+          <User className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">
+            {user?.isGuest ? 'Guest' : user?.name?.split(' ')[0] || 'Account'}
+          </span>
+        </button>
 
-        {/* Language Selector (EN | SI | TA) */}
-        <div className="relative">
-          <button
-            onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
-            className="flex items-center gap-1 px-2 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-200/80 dark:border-slate-800"
-            title="Change Language / භාෂාව / மொழி"
-            aria-label="Change Language"
-          >
-            <Globe className="w-3.5 h-3.5 text-blue-500" />
-            <span className="uppercase text-[11px] font-bold">{locale}</span>
-          </button>
-
-          {isLangMenuOpen && (
-            <div className="absolute right-0 top-full mt-2 w-40 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-1.5 flex flex-col gap-0.5 z-50 animate-in fade-in zoom-in-95">
-              <button
-                onClick={() => {
-                  setLocale('en');
-                  setIsLangMenuOpen(false);
-                }}
-                className={`flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-medium transition-colors ${
-                  locale === 'en'
-                    ? 'bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-bold'
-                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-                }`}
-              >
-                <span>English</span>
-                {locale === 'en' && <Check className="w-3.5 h-3.5" />}
-              </button>
-
-              <button
-                onClick={() => {
-                  setLocale('si');
-                  setIsLangMenuOpen(false);
-                }}
-                className={`flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-medium transition-colors ${
-                  locale === 'si'
-                    ? 'bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-bold'
-                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-                }`}
-              >
-                <span>සිංහල</span>
-                {locale === 'si' && <Check className="w-3.5 h-3.5" />}
-              </button>
-
-              <button
-                onClick={() => {
-                  setLocale('ta');
-                  setIsLangMenuOpen(false);
-                }}
-                className={`flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-medium transition-colors ${
-                  locale === 'ta'
-                    ? 'bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-bold'
-                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-                }`}
-              >
-                <span>தமிழ்</span>
-                {locale === 'ta' && <Check className="w-3.5 h-3.5" />}
-              </button>
-            </div>
-          )}
-        </div>
-
+        {/* Dark/Light Theme Toggle */}
         <button
           onClick={toggleDarkMode}
-          className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          className="p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           title={isDarkMode ? t.navigation.themeLight : t.navigation.themeDark}
           aria-label={isDarkMode ? t.navigation.themeLight : t.navigation.themeDark}
         >
           {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
         </button>
+
+        {/* More Tools Overflow Dropdown (...) */}
+        <div className="relative">
+          <button
+            onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
+            className={`p-2 rounded-xl transition-colors cursor-pointer ${
+              isMoreMenuOpen
+                ? 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+            title="More Options & Study Tools"
+          >
+            <MoreHorizontal className="w-4 h-4" />
+          </button>
+
+          {isMoreMenuOpen && (
+            <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-2 flex flex-col gap-1 z-50 animate-in fade-in zoom-in-95">
+              <div className="text-[10px] uppercase font-bold text-slate-400 px-3 py-1">
+                Study Tools
+              </div>
+
+              <button
+                onClick={() => {
+                  openModal('pdf');
+                  setIsMoreMenuOpen(false);
+                }}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <Presentation className="w-4 h-4 text-blue-500" />
+                <span>Import PDF Slides</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  openModal('pomodoro');
+                  setIsMoreMenuOpen(false);
+                }}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <Flame className="w-4 h-4 text-amber-500" />
+                <span>Pomodoro Focus Timer</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  openModal('history');
+                  setIsMoreMenuOpen(false);
+                }}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <History className="w-4 h-4 text-slate-400" />
+                <span>Version Snapshots</span>
+              </button>
+
+              <div className="h-px bg-slate-200 dark:bg-slate-800 my-1" />
+              <div className="text-[10px] uppercase font-bold text-slate-400 px-3 py-1">
+                Settings & Preferences
+              </div>
+
+              <button
+                onClick={() => {
+                  toggleSound();
+                  setIsMoreMenuOpen(false);
+                }}
+                className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-2.5">
+                  {isSoundEnabled ? (
+                    <Volume2 className="w-4 h-4 text-emerald-500" />
+                  ) : (
+                    <VolumeX className="w-4 h-4 text-slate-400" />
+                  )}
+                  <span>Sound Effects</span>
+                </div>
+                <span className="text-[10px] text-slate-400">{isSoundEnabled ? 'ON' : 'OFF'}</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  toggleShortcutsModal();
+                  setIsMoreMenuOpen(false);
+                }}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <Keyboard className="w-4 h-4 text-slate-400" />
+                <span>Keyboard Shortcuts [?]</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  toggleFullscreen();
+                  setIsMoreMenuOpen(false);
+                }}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                <span>{isFullscreen ? 'Exit Fullscreen' : 'Fullscreen Immersion [F]'}</span>
+              </button>
+
+              <div className="h-px bg-slate-200 dark:bg-slate-800 my-1" />
+              <div className="text-[10px] uppercase font-bold text-slate-400 px-3 py-1">
+                Language
+              </div>
+              <div className="flex items-center gap-1 px-2 pb-1">
+                {(['en', 'si', 'ta'] as const).map((lang) => (
+                  <button
+                    key={lang}
+                    onClick={() => {
+                      setLocale(lang);
+                      setIsMoreMenuOpen(false);
+                    }}
+                    className={`flex-1 py-1 rounded-lg text-xs font-bold uppercase transition-colors cursor-pointer ${
+                      locale === lang
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                    }`}
+                  >
+                    {lang}
+                  </button>
+                ))}
+              </div>
+
+              {installPrompt && (
+                <>
+                  <div className="h-px bg-slate-200 dark:bg-slate-800 my-1" />
+                  <button
+                    onClick={() => {
+                      handleInstallApp();
+                      setIsMoreMenuOpen(false);
+                    }}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
+                  >
+                    <Smartphone className="w-4 h-4" />
+                    <span>Install App (PWA)</span>
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

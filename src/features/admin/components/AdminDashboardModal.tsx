@@ -280,13 +280,13 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
                     setPasscode(e.target.value);
                     setAuthError(false);
                   }}
-                  placeholder="Passcode (try: scribbleadmin2026 or 123456)"
+                  placeholder="Enter 2FA Admin Passcode"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-center font-mono text-xs tracking-wider outline-none text-slate-800 dark:text-slate-200"
                   autoFocus
                 />
                 {authError && (
                   <div className="text-xs text-rose-500 font-semibold">
-                    Incorrect admin passcode. Try: scribbleadmin2026 or 123456
+                    Incorrect admin passcode. Access denied.
                   </div>
                 )}
                 <button
