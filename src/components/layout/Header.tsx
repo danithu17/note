@@ -33,6 +33,7 @@ import {
   Presentation,
   Globe,
   Zap,
+  ShieldAlert,
 } from 'lucide-react';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useNoteStore } from '../../store/useNoteStore';
@@ -518,6 +519,14 @@ export const Header: React.FC = () => {
           <span className="hidden sm:inline">
             {user?.isGuest ? 'Guest' : user?.name?.split(' ')[0] || 'Account'}
           </span>
+        </button>
+
+        <button
+          onClick={() => openModal('admin')}
+          className="p-2 rounded-xl text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/40 transition-colors"
+          title="Admin Dashboard & Entitlements Control (2FA)"
+        >
+          <ShieldAlert className="w-4 h-4" />
         </button>
 
         <button
