@@ -30,17 +30,17 @@ export const CanvasPageBar: React.FC = () => {
   };
 
   return (
-    <div className="absolute top-4 left-4 z-30 flex flex-col gap-2">
+    <div className="absolute top-3 sm:top-4 left-2 sm:left-4 z-30 flex flex-col gap-2">
       {/* Main Page Navigation Bar */}
-      <div className="flex items-center gap-1.5 p-1.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 shadow-md rounded-2xl text-xs select-none">
+      <div className="flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 shadow-md rounded-2xl text-xs select-none">
         <button
           onClick={() => setIsPageDrawerOpen(!isPageDrawerOpen)}
-          className="flex items-center gap-1.5 px-2.5 py-1 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium transition-colors"
+          className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-medium transition-colors"
           title="Toggle Canvas Page List"
         >
-          <Layers className="w-3.5 h-3.5 text-blue-500" />
+          <Layers className="w-3.5 h-3.5 text-blue-500 shrink-0" />
           <span>
-            Page {activePageIndex + 1} of {totalPages}
+            <span className="hidden sm:inline">Page </span>{activePageIndex + 1}/{totalPages}
           </span>
         </button>
 

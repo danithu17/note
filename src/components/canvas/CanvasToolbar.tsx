@@ -118,7 +118,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
 
       {/* Main Apple / Figma Inspired Floating Island Toolbar */}
       {!isMobileCollapsed && (
-        <div className="flex items-center gap-1 sm:gap-1.5 px-3 py-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-200/80 dark:border-slate-800/80 text-slate-700 dark:text-slate-200 transition-all ring-1 ring-black/5 dark:ring-white/5">
+        <div className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-200/80 dark:border-slate-800/80 text-slate-700 dark:text-slate-200 transition-all ring-1 ring-black/5 dark:ring-white/5 max-w-[96vw] overflow-x-auto scrollbar-none">
           {/* Undo / Redo */}
           <div className="flex items-center gap-0.5 pr-1.5 border-r border-slate-200 dark:border-slate-800">
             <button

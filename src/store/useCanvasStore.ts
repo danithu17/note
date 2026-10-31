@@ -9,7 +9,18 @@ import type {
 } from '../types/note';
 import { sound } from '../utils/sound';
 
-interface CanvasState {
+export type ActiveModalType =
+  | 'ai'
+  | 'flashcards'
+  | 'pomodoro'
+  | 'pdf'
+  | 'pricing'
+  | 'sync'
+  | 'history'
+  | 'auth'
+  | null;
+
+export interface CanvasState {
   tool: ToolType;
   shape: ShapeType;
   eraserMode: EraserMode;
@@ -26,6 +37,7 @@ interface CanvasState {
   isSidebarOpen: boolean;
   isCommandPaletteOpen: boolean;
   isShortcutsModalOpen: boolean;
+  activeModal: ActiveModalType;
   isSoundEnabled: boolean;
   isFullscreen: boolean;
   autoShapeRecognition: boolean;
@@ -61,6 +73,8 @@ interface CanvasState {
   toggleCommandPalette: () => void;
   setShortcutsModalOpen: (open: boolean) => void;
   toggleShortcutsModal: () => void;
+  openModal: (modal: ActiveModalType) => void;
+  closeModal: () => void;
   toggleSound: () => void;
   toggleFullscreen: () => void;
   pushHistory: (elements: CanvasElement[]) => void;
@@ -89,6 +103,7 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
   isSidebarOpen: typeof window !== 'undefined' && window.innerWidth >= 1024,
   isCommandPaletteOpen: false,
   isShortcutsModalOpen: false,
+  activeModal: null,
   isSoundEnabled: true,
   isFullscreen: false,
   autoShapeRecognition: true,
@@ -211,6 +226,15 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
   toggleShortcutsModal: () => {
     sound.pop();
     set((state) => ({ isShortcutsModalOpen: !state.isShortcutsModalOpen }));
+  },
+
+  openModal: (modal) => {
+    sound.click();
+    set({ activeModal: modal });
+  },
+
+  closeModal: () => {
+    set({ activeModal: null });
   },
 
   toggleSound: () => {

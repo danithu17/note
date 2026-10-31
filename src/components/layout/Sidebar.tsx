@@ -12,6 +12,11 @@ import {
   Mic,
   Copy,
   Edit3,
+  Sparkles,
+  Brain,
+  Flame,
+  Presentation,
+  Zap,
 } from 'lucide-react';
 import { useNoteStore } from '../../store/useNoteStore';
 import { useCanvasStore } from '../../store/useCanvasStore';
@@ -46,7 +51,7 @@ export const Sidebar: React.FC = () => {
     importBackupBundle,
   } = useNoteStore();
 
-  const { isSidebarOpen, setSidebarOpen } = useCanvasStore();
+  const { isSidebarOpen, setSidebarOpen, openModal } = useCanvasStore();
   const { user } = useAuthStore();
   const { t } = useI18nStore();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -379,6 +384,71 @@ export const Sidebar: React.FC = () => {
                 No matching lecture notes found.
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Study Hub & Quick Tools */}
+        <div className="p-2.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 flex flex-col gap-1.5 shrink-0">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-[10px] uppercase font-bold text-slate-400">
+              Study Hub & Tools
+            </span>
+            <button
+              onClick={() => {
+                openModal('pricing');
+                if (window.innerWidth < 1024) setSidebarOpen(false);
+              }}
+              className="text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-0.5"
+            >
+              <Zap className="w-2.5 h-2.5 text-blue-500" />
+              <span>Plans</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 gap-1 text-xs">
+            <button
+              onClick={() => {
+                openModal('ai');
+                if (window.innerWidth < 1024) setSidebarOpen(false);
+              }}
+              className="flex items-center gap-1.5 px-2 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 hover:border-purple-400 hover:text-purple-600 dark:hover:text-purple-400 text-slate-700 dark:text-slate-200 font-medium transition-colors shadow-2xs"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+              <span className="truncate text-[11px]">AI Study</span>
+            </button>
+
+            <button
+              onClick={() => {
+                openModal('flashcards');
+                if (window.innerWidth < 1024) setSidebarOpen(false);
+              }}
+              className="flex items-center gap-1.5 px-2 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-400 text-slate-700 dark:text-slate-200 font-medium transition-colors shadow-2xs"
+            >
+              <Brain className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+              <span className="truncate text-[11px]">Flashcards</span>
+            </button>
+
+            <button
+              onClick={() => {
+                openModal('pomodoro');
+                if (window.innerWidth < 1024) setSidebarOpen(false);
+              }}
+              className="flex items-center gap-1.5 px-2 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 hover:border-amber-400 hover:text-amber-600 dark:hover:text-amber-400 text-slate-700 dark:text-slate-200 font-medium transition-colors shadow-2xs"
+            >
+              <Flame className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+              <span className="truncate text-[11px]">Focus Timer</span>
+            </button>
+
+            <button
+              onClick={() => {
+                openModal('pdf');
+                if (window.innerWidth < 1024) setSidebarOpen(false);
+              }}
+              className="flex items-center gap-1.5 px-2 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 text-slate-700 dark:text-slate-200 font-medium transition-colors shadow-2xs"
+            >
+              <Presentation className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+              <span className="truncate text-[11px]">PDF Slides</span>
+            </button>
           </div>
         </div>
 

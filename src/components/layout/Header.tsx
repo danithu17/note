@@ -32,6 +32,7 @@ import {
   Flame,
   Presentation,
   Globe,
+  Zap,
 } from 'lucide-react';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useNoteStore } from '../../store/useNoteStore';
@@ -76,6 +77,11 @@ const StudyDashboardModal = React.lazy(() =>
     default: m.StudyDashboardModal,
   }))
 );
+const PricingModal = React.lazy(() =>
+  import('@/features/pricing/components/PricingModal').then((m) => ({
+    default: m.PricingModal,
+  }))
+);
 
 export const Header: React.FC = () => {
   const {
@@ -90,6 +96,8 @@ export const Header: React.FC = () => {
     toggleFullscreen,
     isSoundEnabled,
     isFullscreen,
+    activeModal,
+    closeModal,
   } = useCanvasStore();
 
   const {
@@ -112,6 +120,8 @@ export const Header: React.FC = () => {
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [isFlashcardsModalOpen, setIsFlashcardsModalOpen] = useState(false);
   const [isStudyDashboardOpen, setIsStudyDashboardOpen] = useState(false);
+  const [isPricingOpen, setIsPricingOpen] = useState(false);
+  const [isMobileStudyMenuOpen, setIsMobileStudyMenuOpen] = useState(false);
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [copiedSuccess, setCopiedSuccess] = useState(false);
   const [installPrompt, setInstallPrompt] = useState<any>(null);
@@ -250,9 +260,13 @@ export const Header: React.FC = () => {
           <div className="hidden sm:flex flex-col">
             <span className="font-extrabold text-sm sm:text-base tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent flex items-center gap-1.5 leading-tight">
               ScribbleNote
-              <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-1.5 py-0.2 rounded-md border border-blue-500/20 uppercase">
+              <button
+                onClick={() => setIsPricingOpen(true)}
+                className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 px-1.5 py-0.2 rounded-md border border-blue-500/20 uppercase transition-colors cursor-pointer"
+                title="View Plans & Commercial Upgrades"
+              >
                 {user?.plan || 'PRO'}
-              </span>
+              </button>
             </span>
           </div>
         </div>
@@ -399,6 +413,76 @@ export const Header: React.FC = () => {
           >
             <Presentation className="w-4 h-4 text-blue-500" />
           </button>
+        </div>
+
+        {/* Mobile Study Hub Dropdown Trigger (< sm) */}
+        <div className="relative sm:hidden">
+          <button
+            onClick={() => setIsMobileStudyMenuOpen(!isMobileStudyMenuOpen)}
+            className="p-1.5 rounded-xl text-purple-600 dark:text-purple-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            title="Study Tools & AI"
+          >
+            <Sparkles className="w-4 h-4" />
+          </button>
+
+          {isMobileStudyMenuOpen && (
+            <div className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-2 flex flex-col gap-1 z-50 animate-in fade-in zoom-in-95">
+              <div className="text-[10px] uppercase font-bold text-slate-400 px-2 py-1">
+                Study Tools & AI
+              </div>
+              <button
+                onClick={() => {
+                  setIsAiModalOpen(true);
+                  setIsMobileStudyMenuOpen(false);
+                }}
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-purple-50 dark:hover:bg-purple-950/40 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+                <span>AI Study Assistant</span>
+              </button>
+              <button
+                onClick={() => {
+                  setIsFlashcardsModalOpen(true);
+                  setIsMobileStudyMenuOpen(false);
+                }}
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+              >
+                <Brain className="w-3.5 h-3.5 text-indigo-500" />
+                <span>Flashcards (SM-2)</span>
+              </button>
+              <button
+                onClick={() => {
+                  setIsStudyDashboardOpen(true);
+                  setIsMobileStudyMenuOpen(false);
+                }}
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-amber-950/40 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+              >
+                <Flame className="w-3.5 h-3.5 text-amber-500" />
+                <span>Focus Pomodoro</span>
+              </button>
+              <button
+                onClick={() => {
+                  setIsPdfModalOpen(true);
+                  setIsMobileStudyMenuOpen(false);
+                }}
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
+                <Presentation className="w-3.5 h-3.5 text-blue-500" />
+                <span>Import PDF Slides</span>
+              </button>
+              <div className="h-px bg-slate-200 dark:bg-slate-800 my-0.5" />
+              <button
+                onClick={() => {
+                  setIsPricingOpen(true);
+                  setIsMobileStudyMenuOpen(false);
+                }}
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors"
+              >
+                <Zap className="w-3.5 h-3.5 text-blue-500" />
+                <span>Upgrade to Pro</span>
+              </button>
+            </div>
+          )}
         </div>
 
         <button
@@ -660,21 +744,55 @@ export const Header: React.FC = () => {
       </div>
 
       <React.Suspense fallback={null}>
-        <SyncModal isOpen={isSyncModalOpen} onClose={() => setIsSyncModalOpen(false)} />
+        <SyncModal
+          isOpen={isSyncModalOpen || activeModal === 'sync'}
+          onClose={() => {
+            setIsSyncModalOpen(false);
+            closeModal();
+          }}
+        />
         <AuthModal />
         <VersionHistoryModal
-          isOpen={isHistoryModalOpen}
-          onClose={() => setIsHistoryModalOpen(false)}
+          isOpen={isHistoryModalOpen || activeModal === 'history'}
+          onClose={() => {
+            setIsHistoryModalOpen(false);
+            closeModal();
+          }}
         />
-        <PdfImportModal isOpen={isPdfModalOpen} onClose={() => setIsPdfModalOpen(false)} />
-        <AIStudyAssistantModal isOpen={isAiModalOpen} onClose={() => setIsAiModalOpen(false)} />
+        <PdfImportModal
+          isOpen={isPdfModalOpen || activeModal === 'pdf'}
+          onClose={() => {
+            setIsPdfModalOpen(false);
+            closeModal();
+          }}
+        />
+        <AIStudyAssistantModal
+          isOpen={isAiModalOpen || activeModal === 'ai'}
+          onClose={() => {
+            setIsAiModalOpen(false);
+            closeModal();
+          }}
+        />
         <FlashcardsModal
-          isOpen={isFlashcardsModalOpen}
-          onClose={() => setIsFlashcardsModalOpen(false)}
+          isOpen={isFlashcardsModalOpen || activeModal === 'flashcards'}
+          onClose={() => {
+            setIsFlashcardsModalOpen(false);
+            closeModal();
+          }}
         />
         <StudyDashboardModal
-          isOpen={isStudyDashboardOpen}
-          onClose={() => setIsStudyDashboardOpen(false)}
+          isOpen={isStudyDashboardOpen || activeModal === 'pomodoro'}
+          onClose={() => {
+            setIsStudyDashboardOpen(false);
+            closeModal();
+          }}
+        />
+        <PricingModal
+          isOpen={isPricingOpen || activeModal === 'pricing'}
+          onClose={() => {
+            setIsPricingOpen(false);
+            closeModal();
+          }}
         />
       </React.Suspense>
     </header>

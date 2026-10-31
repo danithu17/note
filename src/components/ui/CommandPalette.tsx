@@ -18,6 +18,9 @@ import {
   VolumeX,
   Maximize2,
   HelpCircle,
+  Brain,
+  Flame,
+  Presentation,
 } from 'lucide-react';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useNoteStore } from '../../store/useNoteStore';
@@ -38,6 +41,7 @@ export const CommandPalette: React.FC = () => {
     isSoundEnabled,
     isDarkMode,
     toggleShortcutsModal,
+    openModal,
   } = useCanvasStore();
 
   const { notes, selectNote, createNote } = useNoteStore();
@@ -246,6 +250,46 @@ export const CommandPalette: React.FC = () => {
       shortcut: '?',
       icon: <HelpCircle className="w-4 h-4 text-purple-400" />,
       action: () => toggleShortcutsModal(),
+    },
+    {
+      id: 'act-ai-study',
+      title: 'AI Study Assistant (Summarize, Quiz, Q&A)',
+      category: 'Study Tools',
+      shortcut: '',
+      icon: <Sparkles className="w-4 h-4 text-purple-500" />,
+      action: () => openModal('ai'),
+    },
+    {
+      id: 'act-flashcards',
+      title: 'Spaced Repetition Flashcards (SM-2)',
+      category: 'Study Tools',
+      shortcut: '',
+      icon: <Brain className="w-4 h-4 text-indigo-500" />,
+      action: () => openModal('flashcards'),
+    },
+    {
+      id: 'act-pomodoro',
+      title: 'Study Dashboard & Focus Timer (Pomodoro)',
+      category: 'Study Tools',
+      shortcut: '',
+      icon: <Flame className="w-4 h-4 text-amber-500" />,
+      action: () => openModal('pomodoro'),
+    },
+    {
+      id: 'act-pdf',
+      title: 'Import PDF / PPT Slides & Annotate',
+      category: 'Study Tools',
+      shortcut: '',
+      icon: <Presentation className="w-4 h-4 text-blue-500" />,
+      action: () => openModal('pdf'),
+    },
+    {
+      id: 'act-pricing',
+      title: 'View Commercial Plans & Upgrade to Pro',
+      category: 'Account & Plans',
+      shortcut: '',
+      icon: <Zap className="w-4 h-4 text-blue-500" />,
+      action: () => openModal('pricing'),
     },
   ];
 
