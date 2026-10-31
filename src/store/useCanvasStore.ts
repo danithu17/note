@@ -28,6 +28,7 @@ interface CanvasState {
   isShortcutsModalOpen: boolean;
   isSoundEnabled: boolean;
   isFullscreen: boolean;
+  autoShapeRecognition: boolean;
   undoStack: CanvasElement[][];
   redoStack: CanvasElement[][];
 
@@ -45,6 +46,7 @@ interface CanvasState {
   cycleGridType: () => void;
   togglePalmRejection: () => void;
   setPalmRejection: (enabled: boolean) => void;
+  toggleAutoShapeRecognition: () => void;
   setZoom: (zoom: number | ((prev: number) => number)) => void;
   setPan: (
     pan: { x: number; y: number } | ((prev: { x: number; y: number }) => { x: number; y: number })
@@ -89,6 +91,7 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
   isShortcutsModalOpen: false,
   isSoundEnabled: true,
   isFullscreen: false,
+  autoShapeRecognition: true,
   undoStack: [],
   redoStack: [],
 
@@ -144,6 +147,11 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
   },
 
   setPalmRejection: (palmRejection) => set({ palmRejection }),
+
+  toggleAutoShapeRecognition: () => {
+    sound.pop();
+    set((state) => ({ autoShapeRecognition: !state.autoShapeRecognition }));
+  },
 
   setZoom: (zoom) =>
     set((state) => {

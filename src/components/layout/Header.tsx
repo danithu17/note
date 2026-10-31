@@ -28,6 +28,9 @@ import {
   RefreshCw,
   ChevronRight,
   Archive,
+  Brain,
+  Flame,
+  Presentation,
 } from 'lucide-react';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useNoteStore } from '../../store/useNoteStore';
@@ -40,9 +43,14 @@ import {
   copyCanvasToClipboard,
   triggerDownload,
 } from '../../utils/export';
+import { exportAnnotatedPdfDocument } from '@/features/pdf/pdfService';
 import { SyncModal } from './SyncModal';
 import { AuthModal } from '../auth/AuthModal';
 import { VersionHistoryModal } from '../history/VersionHistoryModal';
+import { PdfImportModal } from '@/features/pdf/components/PdfImportModal';
+import { AIStudyAssistantModal } from '@/features/ai/components/AIStudyAssistantModal';
+import { FlashcardsModal } from '@/features/flashcards/components/FlashcardsModal';
+import { StudyDashboardModal } from '@/features/focus/components/StudyDashboardModal';
 import { sound } from '../../utils/sound';
 import confetti from 'canvas-confetti';
 
@@ -76,6 +84,10 @@ export const Header: React.FC = () => {
   const [isExportMenuOpen, setIsExportMenuOpen] = useState(false);
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [isPdfModalOpen, setIsPdfModalOpen] = useState(false);
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  const [isFlashcardsModalOpen, setIsFlashcardsModalOpen] = useState(false);
+  const [isStudyDashboardOpen, setIsStudyDashboardOpen] = useState(false);
   const [copiedSuccess, setCopiedSuccess] = useState(false);
   const [installPrompt, setInstallPrompt] = useState<any>(null);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -158,6 +170,19 @@ export const Header: React.FC = () => {
     );
     confetti({ particleCount: 35, spread: 50 });
     sound.pop();
+    setIsExportMenuOpen(false);
+  };
+
+  const handleExportAnnotatedPdf = async () => {
+    if (!activeNote) return;
+    try {
+      await exportAnnotatedPdfDocument(activeNote);
+      confetti({ particleCount: 30, spread: 50 });
+      sound.pop();
+    } catch (err: any) {
+      console.error('Failed to export annotated PDF:', err);
+      alert('Failed to export annotated PDF: ' + (err.message || 'Unknown error'));
+    }
     setIsExportMenuOpen(false);
   };
 
@@ -315,6 +340,42 @@ export const Header: React.FC = () => {
 
       {/* Right: Cloud Sync, Auth, Version History, Shortcuts, Export, Sound, Theme, Fullscreen */}
       <div className="flex items-center gap-1 sm:gap-1.5">
+        {/* Study Hub Action Buttons (AI Assistant, Flashcards, Focus Pomodoro, Slide Deck Import) */}
+        <div className="hidden sm:flex items-center gap-1 pr-1 border-r border-slate-200/80 dark:border-slate-800">
+          <button
+            onClick={() => setIsAiModalOpen(true)}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-500/15 via-indigo-500/15 to-blue-500/15 hover:from-purple-500/25 hover:via-indigo-500/25 hover:to-blue-500/25 border border-indigo-500/30 text-indigo-700 dark:text-indigo-300 text-xs font-semibold shadow-xs transition-all active:scale-95"
+            title="AI Study Assistant: Note Summaries, Quiz Generator & 'Ask My Notes'"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+            <span className="hidden xl:inline">AI Study</span>
+          </button>
+
+          <button
+            onClick={() => setIsFlashcardsModalOpen(true)}
+            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            title="SM-2 Spaced Repetition Flashcards"
+          >
+            <Brain className="w-4 h-4 text-purple-500" />
+          </button>
+
+          <button
+            onClick={() => setIsStudyDashboardOpen(true)}
+            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            title="Study Dashboard & Pomodoro Focus Timer"
+          >
+            <Flame className="w-4 h-4 text-amber-500" />
+          </button>
+
+          <button
+            onClick={() => setIsPdfModalOpen(true)}
+            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            title="Import PDF Lecture Slides & Annotate"
+          >
+            <Presentation className="w-4 h-4 text-blue-500" />
+          </button>
+        </div>
+
         <button
           onClick={() => setIsSyncModalOpen(true)}
           className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
@@ -459,6 +520,14 @@ export const Header: React.FC = () => {
                 <span>Export Full Backup Bundle (.json)</span>
               </button>
 
+              <button
+                onClick={handleExportAnnotatedPdf}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                <Presentation className="w-4 h-4 text-rose-500" />
+                <span>Export Annotated Slides (PDF)</span>
+              </button>
+
               <div className="h-px bg-slate-200 dark:bg-slate-800 my-1" />
 
               <button
@@ -507,6 +576,16 @@ export const Header: React.FC = () => {
       <VersionHistoryModal
         isOpen={isHistoryModalOpen}
         onClose={() => setIsHistoryModalOpen(false)}
+      />
+      <PdfImportModal isOpen={isPdfModalOpen} onClose={() => setIsPdfModalOpen(false)} />
+      <AIStudyAssistantModal isOpen={isAiModalOpen} onClose={() => setIsAiModalOpen(false)} />
+      <FlashcardsModal
+        isOpen={isFlashcardsModalOpen}
+        onClose={() => setIsFlashcardsModalOpen(false)}
+      />
+      <StudyDashboardModal
+        isOpen={isStudyDashboardOpen}
+        onClose={() => setIsStudyDashboardOpen(false)}
       />
     </header>
   );

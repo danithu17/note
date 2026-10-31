@@ -1,4 +1,13 @@
-export type ToolType = 'pen' | 'highlighter' | 'eraser' | 'shape' | 'select' | 'laser';
+export type ToolType =
+  | 'pen'
+  | 'highlighter'
+  | 'eraser'
+  | 'shape'
+  | 'select'
+  | 'laser'
+  | 'text'
+  | 'sticky'
+  | 'ruler';
 
 export type ShapeType = 'rectangle' | 'circle' | 'arrow' | 'line' | 'diamond' | 'flowchart-node';
 
@@ -21,6 +30,7 @@ export interface StrokeElement {
   size: number;
   opacity: number;
   timestamp: number;
+  relativeAudioTime?: number; // Offset in seconds relative to lecture audio recording
 }
 
 export interface ShapeElement {
@@ -35,15 +45,63 @@ export interface ShapeElement {
   fillColor?: string;
   strokeWidth: number;
   timestamp: number;
+  relativeAudioTime?: number;
 }
 
-export type CanvasElement = StrokeElement | ShapeElement;
+export interface TextElement {
+  id: string;
+  type: 'text';
+  x: number;
+  y: number;
+  text: string;
+  fontSize: number;
+  color: string;
+  timestamp: number;
+  relativeAudioTime?: number;
+}
+
+export interface StickyNoteElement {
+  id: string;
+  type: 'sticky';
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  text: string;
+  color: string; // e.g., yellow, blue, green, pink
+  timestamp: number;
+  relativeAudioTime?: number;
+}
+
+export interface ImageElement {
+  id: string;
+  type: 'image';
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  dataUrl: string;
+  timestamp: number;
+  relativeAudioTime?: number;
+}
+
+export type CanvasElement =
+  | StrokeElement
+  | ShapeElement
+  | TextElement
+  | StickyNoteElement
+  | ImageElement;
 
 export interface NotePage {
   id: string;
   pageIndex: number;
   elements: CanvasElement[];
   gridType?: GridType;
+  backgroundImage?: string; // Data URL for imported PDF slide / background
+  backgroundType?: 'grid' | 'pdf' | 'image';
+  pdfPageNumber?: number;
+  originalWidth?: number;
+  originalHeight?: number;
 }
 
 export interface AudioRecording {
@@ -51,8 +109,8 @@ export interface AudioRecording {
   name: string;
   duration: number; // in seconds
   blobUrl?: string;
-  base64Data?: string; // legacy fallback
-  attachmentId?: string; // pointer to binary Dexie AttachmentRecord
+  base64Data?: string;
+  attachmentId?: string;
   createdAt: number;
 }
 
@@ -84,8 +142,8 @@ export interface LectureNote {
   subject: string;
   tags: string[];
   markdown: string;
-  canvasElements: CanvasElement[]; // Active page elements (synced with pages[activePageIndex])
-  pages?: NotePage[]; // Multi-page canvas pages
+  canvasElements: CanvasElement[];
+  pages?: NotePage[];
   activePageIndex?: number;
   gridType: GridType;
   audioRecordings?: AudioRecording[];
@@ -93,7 +151,7 @@ export interface LectureNote {
   updatedAt: number;
   syncedAt?: number;
   isPinned?: boolean;
-  deletedAt?: number | null; // Soft-delete for trash with 30-day restore
+  deletedAt?: number | null;
   version?: number;
 }
 
@@ -137,6 +195,28 @@ export interface SyncQueueRecord {
   retryCount: number;
   status: 'pending' | 'processing' | 'failed';
   lastError?: string;
+}
+
+export interface Flashcard {
+  id: string;
+  noteId: string;
+  question: string;
+  answer: string;
+  easeFactor: number; // Default 2.5
+  interval: number; // in days
+  repetitions: number;
+  nextReviewDate: number; // Unix timestamp
+  lastReviewedDate?: number;
+}
+
+export type FlashcardRating = 1 | 2 | 3 | 4; // 1: Again, 2: Hard, 3: Good, 4: Easy
+
+export interface StudySessionRecord {
+  id: string;
+  date: string; // YYYY-MM-DD
+  minutes: number;
+  noteId?: string;
+  timestamp: number;
 }
 
 export interface UserAccount {

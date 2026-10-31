@@ -8,6 +8,8 @@ import type {
   VersionRecord,
   TrashRecord,
   SyncQueueRecord,
+  Flashcard,
+  StudySessionRecord,
 } from '@/types/note';
 
 export class ScribbleDatabase extends Dexie {
@@ -18,6 +20,8 @@ export class ScribbleDatabase extends Dexie {
   trash!: Table<TrashRecord, string>;
   versionHistory!: Table<VersionRecord, string>;
   syncQueue!: Table<SyncQueueRecord, string>;
+  flashcards!: Table<Flashcard, string>;
+  studySessions!: Table<StudySessionRecord, string>;
 
   constructor() {
     super('ScribbleNoteDB');
@@ -54,8 +58,7 @@ export class ScribbleDatabase extends Dexie {
       .stores({
         workspaces: 'id, name, updatedAt, createdAt',
         notebooks: 'id, workspaceId, title, updatedAt, createdAt',
-        notes:
-          'id, workspaceId, notebookId, title, subject, updatedAt, createdAt, isPinned, deletedAt',
+        notes: 'id, workspaceId, notebookId, title, subject, updatedAt, createdAt, isPinned, deletedAt',
         attachments: 'id, noteId, type, createdAt, size',
         trash: 'id, deletedAt',
         versionHistory: 'id, noteId, createdAt',
@@ -64,7 +67,6 @@ export class ScribbleDatabase extends Dexie {
       .upgrade(async (tx) => {
         const now = Date.now();
 
-        // 1. Ensure default workspace exists
         const defaultWorkspace: WorkspaceRecord = {
           id: 'ws_default',
           name: 'Academic Workspace',
@@ -75,7 +77,6 @@ export class ScribbleDatabase extends Dexie {
         };
         await tx.table('workspaces').put(defaultWorkspace);
 
-        // 2. Ensure default notebooks exist
         const defaultNotebook: NotebookRecord = {
           id: 'nb_default',
           workspaceId: 'ws_default',
@@ -88,20 +89,13 @@ export class ScribbleDatabase extends Dexie {
         };
         await tx.table('notebooks').put(defaultNotebook);
 
-        // 3. Migrate all existing notes to include workspaceId, notebookId, pages, and activePageIndex
         await tx
           .table('notes')
           .toCollection()
           .modify((note: any) => {
-            if (!note.workspaceId) {
-              note.workspaceId = 'ws_default';
-            }
-            if (!note.notebookId) {
-              note.notebookId = 'nb_default';
-            }
-            if (note.deletedAt === undefined) {
-              note.deletedAt = null;
-            }
+            if (!note.workspaceId) note.workspaceId = 'ws_default';
+            if (!note.notebookId) note.notebookId = 'nb_default';
+            if (note.deletedAt === undefined) note.deletedAt = null;
             if (!note.pages || note.pages.length === 0) {
               note.pages = [
                 {
@@ -112,17 +106,27 @@ export class ScribbleDatabase extends Dexie {
                 },
               ];
             }
-            if (note.activePageIndex === undefined) {
-              note.activePageIndex = 0;
-            }
+            if (note.activePageIndex === undefined) note.activePageIndex = 0;
           });
       });
+
+    // Schema Version 4 (Phase 2 Killer Features: Spaced Repetition Flashcards & Study Tracker)
+    this.version(4).stores({
+      workspaces: 'id, name, updatedAt, createdAt',
+      notebooks: 'id, workspaceId, title, updatedAt, createdAt',
+      notes: 'id, workspaceId, notebookId, title, subject, updatedAt, createdAt, isPinned, deletedAt',
+      attachments: 'id, noteId, type, createdAt, size',
+      trash: 'id, deletedAt',
+      versionHistory: 'id, noteId, createdAt',
+      syncQueue: 'id, action, entityType, entityId, timestamp, status, retryCount',
+      flashcards: 'id, noteId, nextReviewDate',
+      studySessions: 'id, date, timestamp',
+    });
   }
 }
 
 export const db = new ScribbleDatabase();
 
-// Pre-load default academic lecture note and workspace structure if completely empty
 export async function initializeDatabase() {
   const wsCount = await db.workspaces.count();
   const now = Date.now();
@@ -178,6 +182,7 @@ export async function initializeDatabase() {
         fillColor: '#dbeafe',
         strokeWidth: 3,
         timestamp: now - 3600000,
+        relativeAudioTime: 5,
       },
       {
         id: 's-2',
@@ -191,6 +196,7 @@ export async function initializeDatabase() {
         fillColor: '#d1fae5',
         strokeWidth: 3,
         timestamp: now - 3500000,
+        relativeAudioTime: 12,
       },
       {
         id: 's-3',
@@ -204,6 +210,7 @@ export async function initializeDatabase() {
         fillColor: '#fef3c7',
         strokeWidth: 3,
         timestamp: now - 3400000,
+        relativeAudioTime: 24,
       },
       {
         id: 's-4',
@@ -217,6 +224,7 @@ export async function initializeDatabase() {
         fillColor: '#ede9fe',
         strokeWidth: 3,
         timestamp: now - 3300000,
+        relativeAudioTime: 35,
       },
       {
         id: 's-5',
@@ -229,6 +237,7 @@ export async function initializeDatabase() {
         color: '#10b981',
         strokeWidth: 4,
         timestamp: now - 3200000,
+        relativeAudioTime: 48,
       },
       {
         id: 's-6',
@@ -241,6 +250,7 @@ export async function initializeDatabase() {
         color: '#64748b',
         strokeWidth: 2,
         timestamp: now - 3100000,
+        relativeAudioTime: 55,
       },
       {
         id: 's-7',
@@ -253,6 +263,7 @@ export async function initializeDatabase() {
         color: '#10b981',
         strokeWidth: 4,
         timestamp: now - 3000000,
+        relativeAudioTime: 62,
       },
     ];
 
@@ -349,21 +360,31 @@ function dijkstra(graph: Map<string, Array<[string, number]>>, start: string) {
 
     await db.notes.add(defaultNote);
 
-    // Initial snapshot in version history
-    await db.versionHistory.add({
-      id: 'ver_init_demo_1',
+    // Initial flashcards for this note
+    await db.flashcards.add({
+      id: 'fc-1',
       noteId: defaultNote.id,
-      title: defaultNote.title,
-      markdown: defaultNote.markdown,
-      canvasElements: defaultNote.canvasElements,
-      pages: defaultNote.pages,
-      createdAt: defaultNote.updatedAt,
-      summary: 'Initial lecture capture',
+      question: "What is the optimal time complexity of Dijkstra's algorithm with a Fibonacci Heap?",
+      answer: "O(E + V log V), where V is vertices and E is edges.",
+      easeFactor: 2.5,
+      interval: 1,
+      repetitions: 0,
+      nextReviewDate: now,
+    });
+
+    await db.flashcards.add({
+      id: 'fc-2',
+      noteId: defaultNote.id,
+      question: "Why can't Dijkstra's algorithm handle negative edge weights?",
+      answer: "Because Dijkstra assumes that once a vertex distance is finalized from the priority queue, no shorter path to it can ever be found.",
+      easeFactor: 2.5,
+      interval: 1,
+      repetitions: 0,
+      nextReviewDate: now,
     });
   }
 }
 
-// Compute total storage consumption across IndexedDB tables (bytes)
 export async function calculateStorageUsage(): Promise<{
   totalBytes: number;
   attachmentsBytes: number;
@@ -399,12 +420,12 @@ export async function calculateStorageUsage(): Promise<{
   };
 }
 
-// Full database export bundle for seamless migration & backup
 export async function exportFullDatabaseBackup() {
   const workspaces = await db.workspaces.toArray();
   const notebooks = await db.notebooks.toArray();
   const notes = await db.notes.toArray();
   const versions = await db.versionHistory.toArray();
+  const flashcards = await db.flashcards.toArray();
 
   return {
     version: 'scribblenote_bundle_v1',
@@ -413,17 +434,17 @@ export async function exportFullDatabaseBackup() {
     notebooks,
     notes,
     versionHistory: versions,
+    flashcards,
   };
 }
 
-// Full database import with validation
 export async function importFullDatabaseBackup(bundle: any): Promise<{ importedCount: number }> {
   if (!bundle || !Array.isArray(bundle.notes)) {
     throw new Error('Invalid ScribbleNote backup bundle: missing notes array.');
   }
 
   let count = 0;
-  await db.transaction('rw', [db.workspaces, db.notebooks, db.notes], async () => {
+  await db.transaction('rw', [db.workspaces, db.notebooks, db.notes, db.flashcards], async () => {
     if (Array.isArray(bundle.workspaces)) {
       for (const ws of bundle.workspaces) {
         await db.workspaces.put(ws);
@@ -437,6 +458,11 @@ export async function importFullDatabaseBackup(bundle: any): Promise<{ importedC
     for (const note of bundle.notes) {
       await db.notes.put(note);
       count++;
+    }
+    if (Array.isArray(bundle.flashcards)) {
+      for (const card of bundle.flashcards) {
+        await db.flashcards.put(card);
+      }
     }
   });
 

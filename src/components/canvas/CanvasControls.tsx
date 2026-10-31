@@ -1,5 +1,5 @@
 import React from 'react';
-import { ZoomIn, ZoomOut, RotateCcw, Shield, ShieldAlert, Trash2 } from 'lucide-react';
+import { ZoomIn, ZoomOut, RotateCcw, Shield, ShieldAlert, Trash2, Wand2 } from 'lucide-react';
 import { useCanvasStore } from '../../store/useCanvasStore';
 
 interface CanvasControlsProps {
@@ -8,7 +8,15 @@ interface CanvasControlsProps {
 }
 
 export const CanvasControls: React.FC<CanvasControlsProps> = ({ onClear, hasElements }) => {
-  const { zoom, setZoom, resetView, palmRejection, togglePalmRejection } = useCanvasStore();
+  const {
+    zoom,
+    setZoom,
+    resetView,
+    palmRejection,
+    togglePalmRejection,
+    autoShapeRecognition,
+    toggleAutoShapeRecognition,
+  } = useCanvasStore();
 
   const zoomPercent = Math.round(zoom * 100);
 
@@ -41,6 +49,24 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({ onClear, hasElem
             <span className="font-semibold text-amber-600 dark:text-amber-400">Touch</span>
           </>
         )}
+      </button>
+
+      {/* Auto-Shape Recognition toggle */}
+      <button
+        onClick={toggleAutoShapeRecognition}
+        title={
+          autoShapeRecognition
+            ? 'Auto-Shape Recognition ON: Hand-drawn loops & lines automatically snap into shapes'
+            : 'Auto-Shape Recognition OFF'
+        }
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium shadow-md backdrop-blur-md transition-all border ${
+          autoShapeRecognition
+            ? 'bg-blue-500/15 border-blue-500/40 text-blue-700 dark:text-blue-300'
+            : 'bg-slate-500/15 border-slate-500/30 text-slate-500 dark:text-slate-400'
+        }`}
+      >
+        <Wand2 className={`w-3.5 h-3.5 ${autoShapeRecognition ? 'text-blue-500' : 'text-slate-400'}`} />
+        <span className="hidden sm:inline">Auto-Shape</span>
       </button>
 
       {/* Zoom controls card */}

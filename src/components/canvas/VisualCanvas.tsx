@@ -9,6 +9,9 @@ import { GridOverlay } from './GridOverlay';
 import { CanvasToolbar } from './CanvasToolbar';
 import { CanvasControls } from './CanvasControls';
 import { CanvasPageBar } from './CanvasPageBar';
+import { useAudioSyncStore } from '@/features/audio/useAudioSyncStore';
+import { recognizeHandDrawnShape } from '@/features/canvas/shapeRecognition';
+import { AudioPlaybackIsland } from '@/features/audio/components/AudioPlaybackIsland';
 import confetti from 'canvas-confetti';
 
 interface LaserPoint {
@@ -52,11 +55,15 @@ export const VisualCanvas: React.FC = () => {
     pushHistory,
     undo,
     redo,
+    autoShapeRecognition,
   } = useCanvasStore();
 
   const { getActiveNote, updateCanvasElements, updateMarkdown } = useNoteStore();
   const activeNote = getActiveNote();
   const elements = activeNote?.canvasElements ?? EMPTY_ELEMENTS;
+
+  const bgImageCacheRef = useRef<Map<string, HTMLImageElement>>(new Map());
+  const [bgImageVersion, setBgImageVersion] = useState(0);
 
   // In-progress drawing state
   const isDrawingRef = useRef(false);
@@ -108,6 +115,25 @@ export const VisualCanvas: React.FC = () => {
     // Apply zoom and pan transformation
     ctx.translate(pan.x, pan.y);
     ctx.scale(zoom, zoom);
+
+    // 0. Draw imported PDF slide or background image if present on active page
+    void bgImageVersion;
+    const activePageIndex = activeNote?.activePageIndex || 0;
+    const activePage = activeNote?.pages?.[activePageIndex];
+    if (activePage?.backgroundImage) {
+      let img = bgImageCacheRef.current.get(activePage.backgroundImage);
+      if (!img) {
+        img = new Image();
+        img.src = activePage.backgroundImage;
+        img.onload = () => setBgImageVersion((v) => v + 1);
+        bgImageCacheRef.current.set(activePage.backgroundImage, img);
+      }
+      if (img.complete && img.naturalWidth > 0) {
+        const w = activePage.originalWidth || img.naturalWidth;
+        const h = activePage.originalHeight || img.naturalHeight;
+        ctx.drawImage(img, 0, 0, w, h);
+      }
+    }
 
     // 1. Draw all saved elements
     for (const el of elements) {
@@ -183,6 +209,9 @@ export const VisualCanvas: React.FC = () => {
     strokeWidth,
     highlighterColor,
     currentShapePreview,
+    activeNote?.activePageIndex,
+    activeNote?.pages,
+    bgImageVersion,
   ]);
 
   // Laser Pointer trail state & battery-efficient animation
@@ -324,7 +353,24 @@ export const VisualCanvas: React.FC = () => {
 
     isDrawingRef.current = true;
 
-    if (tool === 'pen' || tool === 'highlighter') {
+    if (tool === 'select') {
+      const hit = [...elements]
+        .reverse()
+        .find((el) => elementIntersectsPoint(el, world.x, world.y, 12 / zoom));
+      if (
+        hit &&
+        hit.relativeAudioTime !== undefined &&
+        activeNote?.audioRecordings &&
+        activeNote.audioRecordings.length > 0
+      ) {
+        const targetRec = activeNote.audioRecordings[0];
+        useAudioSyncStore
+          .getState()
+          .playRecording(targetRec.id, targetRec.duration, hit.relativeAudioTime);
+        sound.pop();
+        return;
+      }
+    } else if (tool === 'pen' || tool === 'highlighter') {
       activePointsRef.current = [{ x: world.x, y: world.y, pressure }];
       renderCanvas();
     } else if (tool === 'laser') {
@@ -444,7 +490,36 @@ export const VisualCanvas: React.FC = () => {
     if (!isDrawingRef.current) return;
     isDrawingRef.current = false;
 
+    const relAudioTime = useAudioSyncStore.getState().getRelativeAudioTime();
+
     if ((tool === 'pen' || tool === 'highlighter') && activePointsRef.current.length > 0) {
+      // Check auto-shape recognition for closed loops or straight lines drawn with pen
+      if (tool === 'pen' && autoShapeRecognition && activePointsRef.current.length >= 10) {
+        const matched = recognizeHandDrawnShape(activePointsRef.current);
+        if (matched) {
+          const newShape: ShapeElement = {
+            id: 'shape_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
+            type: 'shape',
+            shape: matched.shape,
+            startX: matched.startX,
+            startY: matched.startY,
+            endX: matched.endX,
+            endY: matched.endY,
+            color,
+            strokeWidth,
+            timestamp: Date.now(),
+            relativeAudioTime: relAudioTime,
+          };
+
+          pushHistory(elements);
+          updateCanvasElements([...elements, newShape]);
+          activePointsRef.current = [];
+          sound.pop();
+          renderCanvas();
+          return;
+        }
+      }
+
       const isHighlighter = tool === 'highlighter';
       const newStroke: StrokeElement = {
         id: 'stroke_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
@@ -455,6 +530,7 @@ export const VisualCanvas: React.FC = () => {
         size: strokeWidth,
         opacity: isHighlighter ? 0.35 : 1,
         timestamp: Date.now(),
+        relativeAudioTime: relAudioTime,
       };
 
       pushHistory(elements);
@@ -470,6 +546,7 @@ export const VisualCanvas: React.FC = () => {
         const finalShape: ShapeElement = {
           ...currentShapePreview,
           id: 'shape_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
+          relativeAudioTime: relAudioTime,
         };
         pushHistory(elements);
         updateCanvasElements([...elements, finalShape]);
@@ -694,6 +771,9 @@ export const VisualCanvas: React.FC = () => {
         canUndo={undoStack.length > 0}
         canRedo={redoStack.length > 0}
       />
+
+      {/* Floating Audio Playback Island for Sync Playback */}
+      <AudioPlaybackIsland />
     </div>
   );
 };

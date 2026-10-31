@@ -4,6 +4,7 @@ import { AudioRecorder } from '../../utils/audio';
 import type { AudioRecording } from '../../types/note';
 import { useNoteStore } from '../../store/useNoteStore';
 import { saveAudioAttachment, getAttachmentBlob } from '@/core/db/attachments';
+import { useAudioSyncStore } from '@/features/audio/useAudioSyncStore';
 
 export const LectureRecorder: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
@@ -35,6 +36,7 @@ export const LectureRecorder: React.FC = () => {
 
     if (started) {
       setIsRecording(true);
+      useAudioSyncStore.getState().startRecordingSession();
     } else {
       alert('Microphone access is required to record lecture audio memos.');
     }
@@ -44,6 +46,7 @@ export const LectureRecorder: React.FC = () => {
     if (!recorderRef.current) return;
     const result = await recorderRef.current.stop();
     setIsRecording(false);
+    useAudioSyncStore.getState().stopRecordingSession();
 
     if (result && activeNote) {
       const recording = await saveAudioAttachment(activeNote.id, result.blob, result.duration);
@@ -66,6 +69,7 @@ export const LectureRecorder: React.FC = () => {
     if (playingId === rec.id) {
       audioPlayerRef.current?.pause();
       setPlayingId(null);
+      useAudioSyncStore.getState().pauseRecording();
     } else {
       if (!audioPlayerRef.current) {
         audioPlayerRef.current = new Audio();
@@ -90,9 +94,11 @@ export const LectureRecorder: React.FC = () => {
       audioPlayerRef.current.src = audioUrl;
       audioPlayerRef.current.play();
       setPlayingId(rec.id);
+      useAudioSyncStore.getState().playRecording(rec.id, rec.duration, 0);
 
       audioPlayerRef.current.onended = () => {
         setPlayingId(null);
+        useAudioSyncStore.getState().stopPlayback();
       };
     }
   };
