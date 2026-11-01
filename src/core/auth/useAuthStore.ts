@@ -342,7 +342,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         if (error) {
           const errMsg = error.message || '';
           if (errMsg.toLowerCase().includes('provider is not enabled') || (error as any).code === 'validation_failed') {
-            const friendlyErr = 'Google Sign-In is not enabled yet in your Supabase project. In Supabase Dashboard, go to Authentication -> Providers -> Google, toggle it ON, and enter your Client ID & Secret. (Or you can sign up with email and password below!)';
+            const friendlyErr = 'Google Sign-In is not enabled yet in your Supabase project. In Supabase Dashboard, go to Authentication -> Providers -> Google, toggle it ON, and enter your Client ID & Secret.';
             set({ error: friendlyErr });
             return { success: false, error: friendlyErr };
           }
@@ -355,12 +355,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
       } catch (err: any) {
         console.warn('[Supabase] Google OAuth warning:', err);
-        const errMsg = err?.message || '';
-        if (errMsg.toLowerCase().includes('provider is not enabled')) {
-          const friendlyErr = 'Google Sign-In is not enabled yet in your Supabase project. In Supabase Dashboard, go to Authentication -> Providers -> Google, toggle it ON, and enter your Client ID & Secret. (Or you can sign up with email and password below!)';
-          set({ error: friendlyErr });
-          return { success: false, error: friendlyErr };
-        }
+        const errMsg = err?.message || 'Failed to initiate Google Sign-In with Supabase. Please ensure Client Secret is entered.';
+        set({ error: errMsg });
+        return { success: false, error: errMsg };
       }
     }
 
