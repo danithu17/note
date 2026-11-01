@@ -139,7 +139,7 @@ export async function initializeDatabase() {
       createdAt: now,
       updatedAt: now,
     };
-    await db.workspaces.add(defaultWs);
+    await db.workspaces.put(defaultWs);
 
     const defaultNb: NotebookRecord = {
       id: 'nb_default',
@@ -151,7 +151,7 @@ export async function initializeDatabase() {
       createdAt: now,
       updatedAt: now,
     };
-    await db.notebooks.add(defaultNb);
+    await db.notebooks.put(defaultNb);
   }
 
   const noteCount = await db.notes.count();

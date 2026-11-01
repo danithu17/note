@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Sparkles,
   PenTool,
   FileText,
   Presentation,
@@ -9,19 +8,15 @@ import {
   ShieldCheck,
   Zap,
   Check,
-  ChevronRight,
-  ArrowRight,
   Monitor,
   Smartphone,
   HardDrive,
   Flame,
-  Sun,
-  Moon,
-  CheckCircle2,
-  Wand2,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useCanvasStore } from '@/store/useCanvasStore';
+import { Navbar } from './Navbar';
+import { HeroSection } from './HeroSection';
 
 interface LandingPageProps {
   onLaunchApp: () => void;
@@ -39,238 +34,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLaunchApp, onOpenPri
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] dark:bg-[#000000] text-slate-900 dark:text-white font-sans antialiased overflow-y-auto selection:bg-blue-500 selection:text-white transition-colors duration-200">
-      {/* 1. Apple-grade Frosted Glass Top Navigation */}
-      <header className="sticky top-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-2xl border-b border-slate-200/80 dark:border-white/10 px-4 sm:px-8 h-16 flex items-center justify-between transition-colors">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-blue-500/25">
-            <Sparkles className="w-4 h-4 fill-white" />
-          </div>
-          <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
-            ScribbleNote
-          </span>
-          <span className="hidden sm:inline px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/20">
-            v2.0 Pro
-          </span>
-        </div>
+    <div className="min-h-screen bg-[#fbfbfd] dark:bg-[#000000] text-[#1d1d1f] dark:text-[#f5f5f7] font-sans antialiased overflow-y-auto selection:bg-[#0071e3] selection:text-white transition-colors duration-200">
+      {/* 1. Apple-grade Sticky Navigation */}
+      <Navbar
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={toggleDarkMode}
+        onLaunchApp={handleStartFree}
+      />
 
-        <nav className="hidden md:flex items-center gap-7 text-xs font-semibold text-slate-600 dark:text-slate-300">
-          <a href="#features" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-            Features
-          </a>
-          <a href="#preview" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-            Interactive Tour
-          </a>
-          <a href="#platforms" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-            Desktop & Mobile
-          </a>
-          <a href="#pricing" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-            Pricing
-          </a>
-        </nav>
-
-        <div className="flex items-center gap-2">
-          {/* Light / Dark Mode Toggle */}
-          <button
-            onClick={toggleDarkMode}
-            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-white/10 transition-colors cursor-pointer"
-          >
-            {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
-          </button>
-
-          <button
-            onClick={onOpenPricing}
-            className="text-xs font-semibold px-3 py-1.5 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-white/10 transition-colors cursor-pointer"
-          >
-            Plans
-          </button>
-
-          <button
-            onClick={handleStartFree}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#007aff] hover:bg-[#0062cc] dark:bg-[#0a84ff] dark:hover:bg-[#409cff] text-white text-xs font-bold shadow-md shadow-blue-500/25 transition-all active:scale-95 cursor-pointer"
-          >
-            <span>Launch Notebook</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      </header>
-
-      {/* 2. Hero Section */}
-      <section className="pt-14 pb-12 px-4 sm:px-6 max-w-6xl mx-auto text-center flex flex-col items-center">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 dark:bg-blue-500/20 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-semibold mb-6 animate-in fade-in">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Automatic 14-Day Pro Scholar Trial • No Payment Method Required</span>
-        </div>
-
-        <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-slate-900 dark:text-white leading-[1.06] max-w-4xl">
-          Typed Notes. Natural Handwriting.{' '}
-          <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-500 bg-clip-text text-transparent">
-            Audio & Slides in One Canvas.
-          </span>
-        </h1>
-
-        <p className="mt-5 text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">
-          The all-in-one local-first workspace for university students and researchers. Works 100% offline, syncs across all your devices, and puts an iMessage-style AI assistant right inside your notes.
-        </p>
-
-        <div className="mt-8 flex items-center justify-center gap-3.5 flex-wrap">
-          <button
-            onClick={handleStartFree}
-            className="px-6 py-3.5 rounded-2xl bg-[#007aff] hover:bg-[#0062cc] dark:bg-[#0a84ff] dark:hover:bg-[#409cff] text-white text-sm font-bold shadow-xl shadow-blue-500/30 transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
-          >
-            <span>Get Started Free</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
-          <button
-            onClick={onOpenPricing}
-            className="px-6 py-3.5 rounded-2xl bg-white dark:bg-[#1c1c1e] border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/5 text-slate-800 dark:text-white text-sm font-bold transition-all shadow-xs cursor-pointer"
-          >
-            View Plans & Campus Lab ($3.99/mo)
-          </button>
-        </div>
-
-        <div className="mt-7 flex items-center justify-center gap-6 text-xs text-slate-500 dark:text-slate-400 flex-wrap">
-          <span className="flex items-center gap-1.5 font-medium">
-            <Check className="w-4 h-4 text-emerald-500" /> 100% Offline IndexedDB
-          </span>
-          <span className="flex items-center gap-1.5 font-medium">
-            <Check className="w-4 h-4 text-emerald-500" /> Zero Commercial AI Training
-          </span>
-          <span className="flex items-center gap-1.5 font-medium">
-            <Check className="w-4 h-4 text-emerald-500" /> Multi-Device Cloud Sync
-          </span>
-        </div>
-
-        {/* Realistic Apple Mac App Window Mockup */}
-        <div className="mt-12 w-full max-w-5xl rounded-3xl bg-white dark:bg-[#1c1c1e] border border-slate-200/90 dark:border-white/10 shadow-2xl shadow-blue-500/10 overflow-hidden text-left transition-all">
-          {/* macOS Title Bar */}
-          <div className="px-4 py-3 bg-slate-100/80 dark:bg-[#2c2c2e]/80 border-b border-slate-200/80 dark:border-white/10 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-[#ff5f56] inline-block" />
-              <span className="w-3 h-3 rounded-full bg-[#ffbd2e] inline-block" />
-              <span className="w-3 h-3 rounded-full bg-[#27c93f] inline-block" />
-              <span className="ml-2 text-xs font-semibold text-slate-600 dark:text-slate-300 font-mono">
-                CS301 - Deep Learning & Neural Architectures.note
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[10px] font-bold">
-                Split Hybrid View
-              </span>
-              <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
-                Audio Recording 12:44
-              </span>
-            </div>
-          </div>
-
-          {/* App Split Body Mockup */}
-          <div className="grid grid-cols-1 md:grid-cols-12 min-h-[420px] bg-slate-50 dark:bg-black">
-            {/* Sidebar Snippet */}
-            <div className="hidden lg:block md:col-span-3 p-3.5 border-r border-slate-200 dark:border-white/10 bg-slate-100/50 dark:bg-[#161618]">
-              <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-2">Notebooks</div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-semibold text-xs">
-                  <FileText className="w-3.5 h-3.5" />
-                  <span>Deep Learning (Active)</span>
-                </div>
-                <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-slate-600 dark:text-slate-400 text-xs hover:bg-slate-200/50 dark:hover:bg-white/5">
-                  <FileText className="w-3.5 h-3.5" />
-                  <span>Calculus IV</span>
-                </div>
-                <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-slate-600 dark:text-slate-400 text-xs hover:bg-slate-200/50 dark:hover:bg-white/5">
-                  <Presentation className="w-3.5 h-3.5" />
-                  <span>Biomedical Imaging Slides</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Left: Markdown Editor Mockup */}
-            <div className="md:col-span-6 lg:col-span-5 p-5 border-r border-slate-200 dark:border-white/10 bg-white dark:bg-[#1c1c1e] flex flex-col justify-between">
-              <div>
-                <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2">
-                  Lecture 07: Backpropagation & Loss Optimization
-                </h3>
-                <div className="p-3 rounded-xl bg-slate-900 text-slate-100 font-mono text-xs my-2.5 border border-slate-800">
-                  <span className="text-emerald-400">// Gradient descent formula</span><br />
-                  <span className="text-blue-300">{'$$ w_{t+1} = w_t - \\eta \\nabla L(w_t) $$'}</span>
-                </div>
-                <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300 mt-3">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-500" /> Compute forward pass activation activations
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-500" /> Apply chain rule on cross-entropy loss
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-500" /> Update learning rate scheduler
-                  </li>
-                </ul>
-              </div>
-
-              {/* Audio Sync Timestamp Pill */}
-              <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2">
-                  <Volume2 className="w-4 h-4 text-rose-500" />
-                  <span className="font-semibold text-rose-800 dark:text-rose-300">Tap handwritten stroke to seek audio</span>
-                </div>
-                <span className="font-mono text-[11px] text-rose-600 dark:text-rose-400 font-bold">12:44 / 45:00</span>
-              </div>
-            </div>
-
-            {/* Right: Visual Canvas & Assistant Mockup */}
-            <div className="md:col-span-6 lg:col-span-4 p-5 bg-[#fafafa] dark:bg-black relative flex flex-col justify-between">
-              {/* Vector canvas sketch simulation */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-[11px] text-slate-400">
-                  <span className="flex items-center gap-1">
-                    <Wand2 className="w-3 h-3 text-blue-500" /> Auto-Shape Active
-                  </span>
-                  <span>Dot Matrix Grid</span>
-                </div>
-
-                <div className="p-3 rounded-2xl border-2 border-dashed border-blue-500/40 bg-blue-50/20 dark:bg-blue-950/20 text-center">
-                  <span className="text-xs font-bold text-blue-600 dark:text-blue-400">
-                    Hand-drawn loop snapped into perfect rectangle
-                  </span>
-                  <div className="text-[10px] text-slate-500 mt-1 font-mono">
-                    O(log N) Quadtree Indexing Active
-                  </div>
-                </div>
-
-                {/* AI Chat Bubble */}
-                <div className="p-3 rounded-2xl bg-white dark:bg-[#1c1c1e] border border-slate-200 dark:border-white/10 shadow-sm flex flex-col gap-1.5 text-xs">
-                  <div className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400 font-bold text-[11px]">
-                    <Brain className="w-3.5 h-3.5" />
-                    <span>Study Assistant</span>
-                  </div>
-                  <p className="text-slate-600 dark:text-slate-300 text-[11px] leading-relaxed">
-                    "I noticed your gradient formula above! Would you like me to generate 5 flashcards for backpropagation?"
-                  </p>
-                  <div className="flex gap-1.5 mt-1">
-                    <span className="px-2 py-0.5 rounded-lg bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-300 text-[10px] font-semibold border border-purple-200 dark:border-purple-800">
-                      Generate Flashcards
-                    </span>
-                    <span className="px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-semibold">
-                      Explain Step-by-Step
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Mini Canvas Island Toolbar Mockup */}
-              <div className="mt-4 p-1.5 rounded-xl bg-white dark:bg-[#1c1c1e] border border-slate-200 dark:border-white/10 shadow-md flex items-center justify-around text-slate-700 dark:text-slate-200">
-                <PenTool className="w-3.5 h-3.5 text-blue-500" />
-                <span className="w-2.5 h-2.5 rounded-full bg-blue-600" />
-                <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                <span className="w-1.5 h-1.5 rounded-full bg-slate-900 dark:bg-white" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* 2. Apple-grade Hero Section */}
+      <HeroSection onStartFree={handleStartFree} />
 
       {/* 3. Live Interactive Product Showcase Tabs */}
       <section id="preview" className="py-14 px-4 sm:px-8 max-w-6xl mx-auto">
