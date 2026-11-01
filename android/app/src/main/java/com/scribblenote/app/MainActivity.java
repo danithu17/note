@@ -6,10 +6,16 @@ import android.os.Bundle;
 import android.view.View;
 import androidx.core.view.WindowCompat;
 import com.getcapacitor.BridgeActivity;
+import ee.forgr.capacitor.social.login.ModifiedMainActivityForSocialLoginPlugin;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends BridgeActivity {
+public class MainActivity extends BridgeActivity implements ModifiedMainActivityForSocialLoginPlugin {
+    @Override
+    public void IHaveModifiedTheMainActivityForTheUseWithSocialLoginPlugin() {
+        // Marker method required by @capgo/capacitor-social-login for Google Credential Manager integration
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

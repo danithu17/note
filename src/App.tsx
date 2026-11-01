@@ -23,7 +23,6 @@ import { useNoteStore } from './store/useNoteStore';
 import { useCanvasStore } from './store/useCanvasStore';
 import { useAuthStore } from './core/auth/useAuthStore';
 import { useAndroidIntegration } from './platform/android/useAndroidIntegration';
-import { platform } from './platform';
 import { Sparkles, CheckCircle2, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -116,11 +115,20 @@ export function App() {
         } else {
           useCanvasStore.setState({ viewMode: 'app' });
         }
-      } else if (hash.includes('app') || platform.capabilities.isNativeApp) {
+      } else if (hash.includes('landing')) {
+        useCanvasStore.setState({ viewMode: 'landing' });
+      } else if (hash.includes('app')) {
         useCanvasStore.setState({ viewMode: 'app' });
       } else {
-        // Web root visit or #landing defaults to Landing Page showcase
-        useCanvasStore.setState({ viewMode: 'landing' });
+        // Default on launch:
+        // If user is already signed in, go directly to their workspace;
+        // If not signed in, show welcoming Home Screen showcase
+        const currentUser = useAuthStore.getState().user;
+        if (currentUser) {
+          useCanvasStore.setState({ viewMode: 'app' });
+        } else {
+          useCanvasStore.setState({ viewMode: 'landing' });
+        }
       }
     };
 

@@ -355,9 +355,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           if (res.imageUrl) account.avatarUrl = res.imageUrl;
           set({ user: account, isOnboarding: !account.studyRole, isAuthModalOpen: false, isLoading: false, error: null });
           return { success: true };
+        } else {
+          return { success: false, error: 'Google Sign-In was cancelled or no account was selected.' };
         }
       } catch (err: any) {
         console.warn('Native Google SocialLogin error:', err);
+        const rawMsg = err?.message || '';
+        if (rawMsg.includes('USER_CANCELLED') || rawMsg.includes('cancelled')) {
+          return { success: false, error: 'Sign-in cancelled.' };
+        }
+        const friendlyMsg = rawMsg.includes('10:') || rawMsg.includes('Developer console')
+          ? 'Google Play Services configuration error. Please ensure Google Play Services is updated and your Google account is signed in on your device.'
+          : rawMsg || 'Failed to sign in with Google on Android.';
+        set({ error: friendlyMsg });
+        return { success: false, error: friendlyMsg };
       }
     }
 

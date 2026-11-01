@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuthStore } from '@/core/auth/useAuthStore';
 import {
   Sparkles,
   Sun,
@@ -20,6 +21,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleDarkMode,
   onLaunchApp,
 }) => {
+  const { user } = useAuthStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 

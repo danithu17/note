@@ -97,10 +97,10 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
               <ShieldAlert className="w-8 h-8" />
             </div>
             <h4 className="font-black text-slate-900 dark:text-slate-100 text-xl mb-1.5">
-              Unauthorized Access Denied
+              403 - Forbidden
             </h4>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
-              This administrative engine is strictly restricted to the Sovereign Platform Creator (<strong className="text-rose-600 dark:text-rose-400">nimjayad@gmail.com</strong>). Passcode entry is disabled for all other accounts.
+              Administrative console access is restricted to verified system personnel. Passcode entry is disabled.
             </p>
             <button
               onClick={onClose}

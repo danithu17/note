@@ -328,16 +328,29 @@ export class AndroidAuthPlatform implements IAuthPlatform {
   } | null> {
     try {
       await this.ensureInitialized(webClientId);
-      const res = await SocialLogin.login({
-        provider: 'google',
-        options: {
-          scopes: ['email', 'profile'],
-        },
-      });
+      let res: any = null;
+      try {
+        res = await SocialLogin.login({
+          provider: 'google',
+          options: {
+            style: 'bottom',
+            filterByAuthorizedAccounts: false,
+            autoSelectEnabled: false,
+          },
+        });
+      } catch (bottomErr: any) {
+        console.warn('[SocialLogin] Bottom UI error, falling back to standard UI:', bottomErr);
+        res = await SocialLogin.login({
+          provider: 'google',
+          options: {
+            style: 'standard',
+          },
+        });
+      }
 
       if (res && res.result) {
         const result = res.result as any;
-        const idToken = result.idToken || result.accessToken || '';
+        const idToken = result.idToken || (result.accessToken?.token) || '';
         const profile = result.profile || {};
         return {
           idToken,
@@ -346,8 +359,9 @@ export class AndroidAuthPlatform implements IAuthPlatform {
           imageUrl: profile.imageUrl || profile.picture || result.imageUrl,
         };
       }
-    } catch (err) {
+    } catch (err: any) {
       console.warn('[SocialLogin] Native Google Sign-In error:', err);
+      throw err;
     }
     return null;
   }
