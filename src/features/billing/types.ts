@@ -108,6 +108,20 @@ export interface UsageCounter {
 
 export type PricingVariant = 'variant_a' | 'variant_b';
 
+export interface TransactionRecord {
+  id: string;
+  orderId: string;
+  userId: string;
+  userEmail: string;
+  planId: PlanId;
+  provider: 'stripe' | 'payhere' | 'play_store' | 'manual';
+  billingCycle: 'monthly' | 'annual';
+  amount: number;
+  currency: 'USD' | 'LKR';
+  status: 'verified' | 'refunded' | 'pending';
+  timestamp: number;
+}
+
 export interface AdminAuditRecord {
   id: string;
   adminId: string;
@@ -122,7 +136,8 @@ export interface AdminAuditRecord {
     | 'update_pricing'
     | 'verify_student'
     | 'reject_student'
-    | 'toggle_ab_test';
+    | 'toggle_ab_test'
+    | 'automated_payment';
   targetUserId?: string;
   details: string;
   timestamp: number;
@@ -137,4 +152,13 @@ export interface BusinessMetrics {
   churnRatePercent: number;
   conversionRatePercent: number;
   aiQueriesToday: number;
+  // Automated Payment Engine Telemetry
+  totalAutomatedTransactions?: number;
+  totalRevenueUsd?: number;
+  totalRevenueLkr?: number;
+  stripeVolumeUsd?: number;
+  payhereVolumeLkr?: number;
+  stripeTxCount?: number;
+  payhereTxCount?: number;
+  recentTransactions?: TransactionRecord[];
 }

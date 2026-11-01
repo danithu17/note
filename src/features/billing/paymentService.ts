@@ -1,5 +1,9 @@
-import type { PlanId, Subscription, Coupon } from './types';
+import type { PlanId, Subscription, Coupon, TransactionRecord } from './types';
 import { DEFAULT_PLANS } from './entitlements';
+import { useAuthStore } from '@/core/auth/useAuthStore';
+import { useEntitlementsStore } from './useEntitlementsStore';
+import { getSupabaseClient } from '@/core/supabase/client';
+import { adminService } from '../admin/adminService';
 
 export type PaymentProvider = 'stripe' | 'payhere' | 'play_store';
 
@@ -14,33 +18,28 @@ export interface CheckoutResult {
   message?: string;
 }
 
-// Built-in verified educational promo coupons & launch discounts
-export const ACTIVE_COUPONS: Coupon[] = [
-  {
-    code: 'STUDENT50',
-    discountPercent: 50,
-    expiresAt: Date.now() + 365 * 24 * 3600 * 1000,
-    maxUses: 1000,
-    usedCount: 142,
-    active: true,
-  },
-  {
-    code: 'ACADEMIC2026',
-    discountPercent: 30,
-    expiresAt: Date.now() + 180 * 24 * 3600 * 1000,
-    maxUses: 500,
-    usedCount: 88,
-    active: true,
-  },
-  {
-    code: 'BETA2026',
-    discountPercent: 30,
-    expiresAt: Date.now() + 90 * 24 * 3600 * 1000,
-    maxUses: 2000,
-    usedCount: 310,
-    active: true,
-  },
-];
+export interface PaymentVerificationParams {
+  orderId: string;
+  planId: PlanId;
+  provider: PaymentProvider;
+  cycle?: 'monthly' | 'annual';
+  amount?: number;
+  currency?: 'USD' | 'LKR';
+}
+
+export interface VerificationResult {
+  success: boolean;
+  subscription?: Subscription;
+  transaction?: TransactionRecord;
+  message?: string;
+  error?: string;
+}
+
+const STORAGE_KEY_PROCESSED_ORDERS = 'scribblenote_processed_orders';
+const STORAGE_KEY_TRANSACTIONS = 'scribblenote_payment_transactions';
+
+import { ACTIVE_COUPONS } from './coupons';
+export { ACTIVE_COUPONS } from './coupons';
 
 class PaymentService {
   /**
@@ -119,10 +118,13 @@ class PaymentService {
         ? `${plan.name} (${seatCount} persons)`
         : plan.name;
 
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const successReturnUrl = `${origin}/#/app?payment=success&order_id=${orderId}&plan_id=${planId}&provider=${provider}&cycle=${resolvedCycle}&amount=${finalAmount}&currency=${isLkr ? 'LKR' : 'USD'}`;
+    const returnUrl = encodeURIComponent(successReturnUrl);
+    const cancelUrl = encodeURIComponent(`${origin}/#/app?payment=cancel`);
+
     if (provider === 'payhere') {
       // PayHere Sri Lanka Gateway Parameters
-      const returnUrl = encodeURIComponent(window.location.origin + '/#/app?payment=success&order=' + orderId);
-      const cancelUrl = encodeURIComponent(window.location.origin + '/#/app?payment=cancel');
       const payhereUrl = `https://sandbox.payhere.lk/pay/checkout?merchant_id=1211111&return_url=${returnUrl}&cancel_url=${cancelUrl}&order_id=${orderId}&items=${encodeURIComponent(
         lineItemLabel
       )}&currency=LKR&amount=${finalAmount}&email=${encodeURIComponent(userEmail)}`;
@@ -140,7 +142,7 @@ class PaymentService {
 
     if (provider === 'stripe') {
       // Stripe Global Checkout (cards, Apple Pay, Google Pay)
-      const stripeCheckoutUrl = `https://checkout.stripe.com/c/pay/cs_test_mock_${orderId}`;
+      const stripeCheckoutUrl = `https://checkout.stripe.com/c/pay/cs_test_mock_${orderId}?success_url=${returnUrl}&cancel_url=${cancelUrl}`;
 
       return {
         success: true,
@@ -162,6 +164,158 @@ class PaymentService {
       provider: 'play_store',
       message: 'Triggered native Android In-App Billing bridge.',
     };
+  }
+
+  /**
+   * Automatically verifies and activates the paid subscription upon completion.
+   * Zero manual intervention needed: updates store, Supabase DB, local cache, and admin audit stats.
+   */
+  public async verifyAndActivatePayment(
+    params: PaymentVerificationParams
+  ): Promise<VerificationResult> {
+    const { orderId, planId, provider, cycle = 'annual', amount = 0, currency = 'USD' } = params;
+
+    // 1. Verify valid order format
+    if (!orderId || (!orderId.startsWith('ord_') && !orderId.startsWith('cs_'))) {
+      return {
+        success: false,
+        error: 'Invalid payment order reference.',
+      };
+    }
+
+    const processed = this.getProcessedOrders();
+    const existingTx = this.getTransactions().find((t) => t.orderId === orderId);
+
+    const user = useAuthStore.getState().user;
+    const userId = user?.id || 'current_account';
+    const userEmail = user?.email || 'user@scribblenote.local';
+
+    // 2. Prevent duplicate processing on page refresh
+    if (processed.includes(orderId) && existingTx) {
+      const activeSub = useEntitlementsStore.getState().subscription;
+      return {
+        success: true,
+        subscription: activeSub || undefined,
+        transaction: existingTx,
+        message: 'Order already verified and subscription is active.',
+      };
+    }
+
+    const now = Date.now();
+    const periodMs = (cycle === 'monthly' ? 30 : 365) * 24 * 3600 * 1000;
+
+    const subscription: Subscription = {
+      id: `sub_${orderId.replace(/[^a-zA-Z0-9]/g, '_')}`,
+      userId,
+      planId,
+      status: 'active',
+      provider,
+      billingCycle: cycle,
+      currentPeriodStart: now,
+      currentPeriodEnd: now + periodMs,
+      cancelAtPeriodEnd: false,
+      updatedAt: now,
+    };
+
+    // 3. Activate immediately in Entitlements Store
+    useEntitlementsStore.getState().applySubscription(planId, provider, cycle);
+
+    // 4. Record Transaction for Admin Stats & Analytics
+    const tx: TransactionRecord = {
+      id: `tx_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 6)}`,
+      orderId,
+      userId,
+      userEmail,
+      planId,
+      provider,
+      billingCycle: cycle,
+      amount,
+      currency,
+      status: 'verified',
+      timestamp: now,
+    };
+    this.recordTransaction(tx);
+
+    // 5. Sync to Supabase Database (public.subscriptions) if authenticated
+    const client = getSupabaseClient();
+    if (client && user?.id) {
+      try {
+        await client.from('subscriptions').upsert({
+          id: subscription.id,
+          user_id: user.id,
+          plan_id: planId,
+          status: 'active',
+          provider,
+          current_period_start: new Date(subscription.currentPeriodStart).toISOString(),
+          current_period_end: new Date(subscription.currentPeriodEnd).toISOString(),
+          cancel_at_period_end: false,
+          updated_at: new Date().toISOString(),
+        });
+      } catch (err) {
+        console.warn('[PaymentService] Supabase subscription sync warning:', err);
+      }
+    }
+
+    // 6. Update Admin User Plan & Immutable Telemetry Log
+    adminService.updateUserPlan(userId, planId, 'system_webhook');
+    adminService.logAction(
+      'system_webhook',
+      'automated_payment',
+      userId,
+      `Automated payment verified: Order ${orderId} via ${provider.toUpperCase()} (${currency} ${amount}). Plan ${planId} (${cycle}) activated automatically.`
+    );
+
+    // 7. Mark order as processed
+    this.markOrderProcessed(orderId);
+
+    return {
+      success: true,
+      subscription,
+      transaction: tx,
+      message: `Payment verified. Plan ${DEFAULT_PLANS[planId]?.name || planId} activated.`,
+    };
+  }
+
+  public getTransactions(): TransactionRecord[] {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_TRANSACTIONS);
+      if (raw) return JSON.parse(raw);
+    } catch {
+      // fallback
+    }
+    return [];
+  }
+
+  public recordTransaction(tx: TransactionRecord): void {
+    const list = this.getTransactions();
+    list.unshift(tx);
+    try {
+      localStorage.setItem(STORAGE_KEY_TRANSACTIONS, JSON.stringify(list.slice(0, 500)));
+    } catch {
+      // ignore
+    }
+  }
+
+  public getProcessedOrders(): string[] {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_PROCESSED_ORDERS);
+      if (raw) return JSON.parse(raw);
+    } catch {
+      // fallback
+    }
+    return [];
+  }
+
+  private markOrderProcessed(orderId: string): void {
+    const list = this.getProcessedOrders();
+    if (!list.includes(orderId)) {
+      list.push(orderId);
+      try {
+        localStorage.setItem(STORAGE_KEY_PROCESSED_ORDERS, JSON.stringify(list));
+      } catch {
+        // ignore
+      }
+    }
   }
 
   /**

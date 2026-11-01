@@ -12,10 +12,13 @@
     "lint": "oxlint",
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
     "preview": "vite preview",
+    "build:web": "tsc -b && vite build",
     "electron:start": "electron electron/main.cjs",
     "electron:dev": "vite build && electron electron/main.cjs",
     "cap:sync": "cap sync",
-    "android:dev": "cap run android"
+    "android:dev": "cap run android",
+    "android:debug": "powershell -ExecutionPolicy Bypass -File ./scripts/build-debug.ps1",
+    "android:release": "powershell -ExecutionPolicy Bypass -File ./scripts/build-release.ps1"
   },
   "dependencies": {
     "@capacitor/android": "^8.6.0",
@@ -35,6 +38,7 @@
     "canvas-confetti": "^1.9.4",
     "dexie": "^4.4.7",
     "dexie-react-hooks": "^4.4.0",
+    "firebase": "^13.1.0",
     "lucide-react": "^1.65.0",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^6.4.299",

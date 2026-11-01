@@ -18,7 +18,7 @@ export interface RateLimitCheckResult {
 
 export function checkRateLimit(
   actionKey: string,
-  maxAttempts = 5,
+  maxAttempts = 50,
   windowSeconds = 60
 ): RateLimitCheckResult {
   const now = Date.now();

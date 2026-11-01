@@ -3,8 +3,9 @@ import type {
   BusinessMetrics,
   Coupon,
   PlanId,
+  TransactionRecord,
 } from '../billing/types';
-import { ACTIVE_COUPONS } from '../billing/paymentService';
+import { ACTIVE_COUPONS } from '../billing/coupons';
 import { useAuthStore } from '@/core/auth/useAuthStore';
 import { useEntitlementsStore } from '../billing/useEntitlementsStore';
 import { DEFAULT_PLANS } from '../billing/entitlements';
@@ -228,6 +229,37 @@ class AdminService {
     const conversionRatePercent = totalUsers > 0 ? Number(((paidCount / totalUsers) * 100).toFixed(1)) : 0;
     const aiUsage = useEntitlementsStore.getState().monthlyAiUsage || 0;
 
+    let transactions: TransactionRecord[] = [];
+    try {
+      const rawTx = localStorage.getItem('scribblenote_payment_transactions');
+      if (rawTx) transactions = JSON.parse(rawTx);
+    } catch {
+      // fallback
+    }
+
+    let totalRevenueUsd = 0;
+    let totalRevenueLkr = 0;
+    let stripeVolumeUsd = 0;
+    let payhereVolumeLkr = 0;
+    let stripeTxCount = 0;
+    let payhereTxCount = 0;
+
+    for (const tx of transactions) {
+      if (tx.currency === 'USD') {
+        totalRevenueUsd += tx.amount;
+        if (tx.provider === 'stripe') {
+          stripeVolumeUsd += tx.amount;
+          stripeTxCount++;
+        }
+      } else if (tx.currency === 'LKR') {
+        totalRevenueLkr += tx.amount;
+        if (tx.provider === 'payhere') {
+          payhereVolumeLkr += tx.amount;
+          payhereTxCount++;
+        }
+      }
+    }
+
     return {
       totalUsers,
       activeTrials: trialsCount,
@@ -237,6 +269,14 @@ class AdminService {
       churnRatePercent: 0,
       conversionRatePercent,
       aiQueriesToday: aiUsage,
+      totalAutomatedTransactions: transactions.length,
+      totalRevenueUsd: Number(totalRevenueUsd.toFixed(2)),
+      totalRevenueLkr: Math.round(totalRevenueLkr),
+      stripeVolumeUsd: Number(stripeVolumeUsd.toFixed(2)),
+      payhereVolumeLkr: Math.round(payhereVolumeLkr),
+      stripeTxCount,
+      payhereTxCount,
+      recentTransactions: transactions.slice(0, 15),
     };
   }
 

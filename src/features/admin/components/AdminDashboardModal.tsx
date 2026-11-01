@@ -16,6 +16,8 @@ import {
   CheckCircle,
   XCircle,
   FlaskConical,
+  CreditCard,
+  CheckCircle2,
 } from 'lucide-react';
 import { adminService, type ManagedUser } from '../adminService';
 import { useEntitlementsStore } from '../../billing/useEntitlementsStore';
@@ -397,6 +399,14 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
                       </div>
 
                       <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 flex flex-col gap-1">
+                        <span className="text-[11px] text-slate-500">Paid Subscribers</span>
+                        <span className="text-xl font-black text-emerald-600 dark:text-emerald-400">
+                          {metrics.paidSubscribers}
+                        </span>
+                        <span className="text-[10px] text-slate-400">Auto-activated plans</span>
+                      </div>
+
+                      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 flex flex-col gap-1">
                         <span className="text-[11px] text-slate-500">Active Pro Trials</span>
                         <span className="text-xl font-black text-blue-600 dark:text-blue-400">
                           {metrics.activeTrials}
@@ -405,19 +415,120 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
                       </div>
 
                       <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 flex flex-col gap-1">
-                        <span className="text-[11px] text-slate-500">Trial → Paid Conversion</span>
+                        <span className="text-[11px] text-slate-500">Conversion Rate</span>
                         <span className="text-xl font-black text-purple-600 dark:text-purple-400">
                           {metrics.conversionRatePercent}%
                         </span>
-                        <span className="text-[10px] text-emerald-500 font-semibold">Active accounts</span>
+                        <span className="text-[10px] text-emerald-500 font-semibold">Trial → Paid</span>
+                      </div>
+                    </div>
+
+                    {/* Automated Payment Engine Stats */}
+                    <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-50 via-slate-50 to-purple-50/30 dark:from-slate-800/50 dark:via-slate-800/40 dark:to-purple-950/20 border border-slate-200 dark:border-slate-700/70 flex flex-col gap-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <CreditCard className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                          <h4 className="font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-slate-100">
+                            Automated Payment Engine (Stripe & PayHere)
+                          </h4>
+                        </div>
+                        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-full">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Auto-Verified & Synced
+                        </span>
                       </div>
 
-                      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 flex flex-col gap-1">
-                        <span className="text-[11px] text-slate-500">Churn Rate</span>
-                        <span className="text-xl font-black text-slate-900 dark:text-slate-100">
-                          {metrics.churnRatePercent}%
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="p-3.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/50 flex flex-col gap-1">
+                          <span className="text-[11px] text-slate-500">Total Processed Transactions</span>
+                          <span className="text-lg font-bold text-slate-900 dark:text-white">
+                            {metrics.totalAutomatedTransactions || 0}
+                          </span>
+                          <span className="text-[10px] text-slate-400">Webhook & return verified</span>
+                        </div>
+
+                        <div className="p-3.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/50 flex flex-col gap-1">
+                          <span className="text-[11px] text-slate-500">Stripe Global Volume</span>
+                          <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                            ${metrics.stripeVolumeUsd?.toLocaleString() || '0.00'}
+                          </span>
+                          <span className="text-[10px] text-slate-400">
+                            {metrics.stripeTxCount || 0} USD checkouts
+                          </span>
+                        </div>
+
+                        <div className="p-3.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/70 dark:border-slate-700/50 flex flex-col gap-1">
+                          <span className="text-[11px] text-slate-500">PayHere Sri Lanka Volume</span>
+                          <span className="text-lg font-bold text-amber-600 dark:text-amber-400">
+                            Rs. {(metrics.payhereVolumeLkr || 0).toLocaleString()}
+                          </span>
+                          <span className="text-[10px] text-slate-400">
+                            {metrics.payhereTxCount || 0} LKR checkouts
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Recent Automated Transactions Table */}
+                      <div className="flex flex-col gap-2 pt-1">
+                        <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                          Recent Automated Transactions ({metrics.recentTransactions?.length || 0})
                         </span>
-                        <span className="text-[10px] text-emerald-500 font-semibold">Zero data lock-in</span>
+                        {metrics.recentTransactions && metrics.recentTransactions.length > 0 ? (
+                          <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700/60">
+                            <table className="w-full text-left text-xs">
+                              <thead className="bg-slate-100/70 dark:bg-slate-800/80 text-[11px] text-slate-500 font-semibold border-b border-slate-200 dark:border-slate-700">
+                                <tr>
+                                  <th className="p-2.5">Date</th>
+                                  <th className="p-2.5">Customer</th>
+                                  <th className="p-2.5">Plan</th>
+                                  <th className="p-2.5">Gateway</th>
+                                  <th className="p-2.5">Amount</th>
+                                  <th className="p-2.5">Status</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-slate-200/60 dark:divide-slate-700/40">
+                                {metrics.recentTransactions.map((tx) => (
+                                  <tr key={tx.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
+                                    <td className="p-2.5 text-slate-500 font-mono text-[10px]">
+                                      {new Date(tx.timestamp).toLocaleDateString()}{' '}
+                                      {new Date(tx.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </td>
+                                    <td className="p-2.5 font-medium text-slate-800 dark:text-slate-200">
+                                      {tx.userEmail}
+                                    </td>
+                                    <td className="p-2.5">
+                                      <span className="px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-semibold text-[10px]">
+                                        {plans[tx.planId]?.name || tx.planId} ({tx.billingCycle})
+                                      </span>
+                                    </td>
+                                    <td className="p-2.5">
+                                      <span
+                                        className={`px-2 py-0.5 rounded-md font-bold text-[10px] uppercase ${
+                                          tx.provider === 'payhere'
+                                            ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300'
+                                            : 'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300'
+                                        }`}
+                                      >
+                                        {tx.provider}
+                                      </span>
+                                    </td>
+                                    <td className="p-2.5 font-mono font-semibold text-slate-900 dark:text-white">
+                                      {tx.currency === 'LKR' ? `Rs. ${tx.amount}` : `$${tx.amount}`}
+                                    </td>
+                                    <td className="p-2.5">
+                                      <span className="flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">
+                                        <CheckCircle2 className="w-3 h-3" /> Auto-Verified
+                                      </span>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        ) : (
+                          <div className="p-4 rounded-xl border border-dashed border-slate-200 dark:border-slate-700/70 text-center text-[11px] text-slate-400">
+                            Zero manual work needed. When users complete payment via Stripe or PayHere, transactions are automatically verified, entitlements are unlocked, and stats appear here.
+                          </div>
+                        )}
                       </div>
                     </div>
 

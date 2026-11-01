@@ -23,6 +23,9 @@ import {
   saveStoredTrial,
 } from './trialService';
 import { useAuthStore } from '@/core/auth/useAuthStore';
+import { getSupabaseClient } from '@/core/supabase/client';
+
+const STORAGE_KEY_SUBSCRIPTION = 'scribblenote_subscription';
 
 interface EntitlementsState {
   plans: Record<PlanId, Plan>;
@@ -147,7 +150,97 @@ export const useEntitlementsStore = create<EntitlementsState>((set, get) => ({
       localStorage.setItem(`${STORAGE_KEY_STUDENT}_${userId}`, JSON.stringify(studentStatus));
     }
 
-    set({ trial: currentTrial, studentVerification: studentStatus });
+    // 3. Load active subscription from localStorage cache
+    let activeSub: Subscription | null = null;
+    try {
+      const storedSub = localStorage.getItem(STORAGE_KEY_SUBSCRIPTION);
+      if (storedSub) {
+        const parsed = JSON.parse(storedSub) as Subscription;
+        if (parsed && parsed.status === 'active' && parsed.currentPeriodEnd > Date.now()) {
+          activeSub = parsed;
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    set({ trial: currentTrial, studentVerification: studentStatus, subscription: activeSub });
+
+    // 4. If Supabase is connected, query and sync live subscription
+    const client = getSupabaseClient();
+    if (client && user?.id) {
+      client
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .order('current_period_end', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+        .then(({ data, error }) => {
+          if (!error && data) {
+            const remoteSub: Subscription = {
+              id: data.id,
+              userId: data.user_id,
+              planId: data.plan_id as PlanId,
+              status: data.status,
+              provider: data.provider,
+              billingCycle: data.billing_cycle || 'annual',
+              currentPeriodStart: new Date(data.current_period_start).getTime(),
+              currentPeriodEnd: new Date(data.current_period_end).getTime(),
+              cancelAtPeriodEnd: data.cancel_at_period_end || false,
+              updatedAt: new Date(data.updated_at).getTime(),
+            };
+            try {
+              localStorage.setItem(STORAGE_KEY_SUBSCRIPTION, JSON.stringify(remoteSub));
+            } catch {
+              // ignore
+            }
+            set({ subscription: remoteSub });
+          }
+        });
+
+      // 5. Setup Realtime subscription updates (instant automatic activation on webhooks)
+      try {
+        client
+          .channel(`user_sub_${user.id}`)
+          .on(
+            'postgres_changes',
+            {
+              event: '*',
+              schema: 'public',
+              table: 'subscriptions',
+              filter: `user_id=eq.${user.id}`,
+            },
+            (payload) => {
+              if (payload.new && (payload.new as any).status === 'active') {
+                const d = payload.new as any;
+                const liveSub: Subscription = {
+                  id: d.id,
+                  userId: d.user_id,
+                  planId: d.plan_id as PlanId,
+                  status: d.status,
+                  provider: d.provider,
+                  billingCycle: d.billing_cycle || 'annual',
+                  currentPeriodStart: new Date(d.current_period_start).getTime(),
+                  currentPeriodEnd: new Date(d.current_period_end).getTime(),
+                  cancelAtPeriodEnd: d.cancel_at_period_end || false,
+                  updatedAt: new Date(d.updated_at).getTime(),
+                };
+                try {
+                  localStorage.setItem(STORAGE_KEY_SUBSCRIPTION, JSON.stringify(liveSub));
+                } catch {
+                  // ignore
+                }
+                set({ subscription: liveSub });
+              }
+            }
+          )
+          .subscribe();
+      } catch (err) {
+        console.warn('[Entitlements] Realtime subscription listener error:', err);
+      }
+    }
   },
 
   can: (feature: FeatureKey) => {
@@ -201,6 +294,12 @@ export const useEntitlementsStore = create<EntitlementsState>((set, get) => ({
       updatedAt: now,
     };
 
+    try {
+      localStorage.setItem(STORAGE_KEY_SUBSCRIPTION, JSON.stringify(sub));
+    } catch {
+      // ignore
+    }
+
     set({ subscription: sub });
   },
 
@@ -208,13 +307,19 @@ export const useEntitlementsStore = create<EntitlementsState>((set, get) => ({
     const { subscription } = get();
     if (!subscription) return;
 
-    set({
-      subscription: {
-        ...subscription,
-        cancelAtPeriodEnd: true,
-        updatedAt: Date.now(),
-      },
-    });
+    const updated = {
+      ...subscription,
+      cancelAtPeriodEnd: true,
+      updatedAt: Date.now(),
+    };
+
+    try {
+      localStorage.setItem(STORAGE_KEY_SUBSCRIPTION, JSON.stringify(updated));
+    } catch {
+      // ignore
+    }
+
+    set({ subscription: updated });
   },
 
   incrementAiUsage: () => {

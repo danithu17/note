@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "568859248241",
+    "project_id": "fir-1-3feab",
+    "storage_bucket": "fir-1-3feab.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:568859248241:android:69d3aee83fa76b6c577dd0",
+        "android_client_info": {
+          "package_name": "com.scribblenote.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuioQG3uscCX158891VV4OysRyBhwSWFg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
