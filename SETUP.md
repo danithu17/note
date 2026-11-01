@@ -131,6 +131,10 @@ This comprehensive guide details every step required to configure **Google OAuth
    - `https://note-eta-ten.vercel.app/*`
 4. Click **Save**.
 
+### 2.2 Account Merging & Bot Protection
+1. In **Authentication** > **Providers**, ensure **"Confirm email"** and account linking are configured so that if a user signs in with Google using the same email address as an email/password account, Supabase automatically links both identities into one unified account without duplicate data.
+2. In **Authentication** > **Bot Protection**, optionally enable **Cloudflare Turnstile** or **hCaptcha** to protect sign-up and sign-in endpoints from automated credential stuffing.
+
 ---
 
 ## 🗄️ Step 3: Database Profiles & RLS Automation
