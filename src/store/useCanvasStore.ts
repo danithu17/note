@@ -18,6 +18,7 @@ export type ActiveModalType =
   | 'sync'
   | 'history'
   | 'auth'
+  | 'account'
   | 'trash'
   | 'admin'
   | null;

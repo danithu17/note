@@ -73,7 +73,7 @@ export const Header: React.FC = () => {
     exportBackupBundle,
   } = useNoteStore();
 
-  const { user, openAuthModal } = useAuthStore();
+  const { user, openAuthModal, openAccountModal } = useAuthStore();
   const { locale, setLocale, t } = useI18nStore();
   const activeNote = getActiveNote();
 
@@ -469,21 +469,15 @@ export const Header: React.FC = () => {
           )}
         </div>
 
-        {/* User Account / Sign In */}
+        {/* User Account / Manage Profile */}
         <button
-          onClick={openAuthModal}
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
-            user?.isGuest
-              ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-blue-400'
-              : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs'
-          }`}
-          title={
-            user?.isGuest ? 'Guest Mode: Click to sign in and upgrade' : `Account: ${user?.email}`
-          }
+          onClick={() => (user ? openAccountModal() : openAuthModal())}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs hover:brightness-105 active:scale-95"
+          title={`Account: ${user?.email || 'Scholar'}`}
         >
           <User className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">
-            {user?.isGuest ? 'Guest' : user?.name?.split(' ')[0] || 'Account'}
+            {user?.name?.split(' ')[0] || 'Account'}
           </span>
         </button>
 

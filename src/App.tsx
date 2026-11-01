@@ -13,14 +13,18 @@ import { ChatAssistantPanel } from './features/assistant/components/ChatAssistan
 import { LandingPage } from './features/landing/components/LandingPage';
 import { GlobalModals } from './components/layout/GlobalModals';
 import { TrialBanner } from './features/billing/components/TrialBanner';
+import { WelcomeAuthScreen } from './components/auth/WelcomeAuthScreen';
+import { OnboardingScreen } from './components/auth/OnboardingScreen';
 import { useEntitlementsStore } from './features/billing/useEntitlementsStore';
 import { useNoteStore } from './store/useNoteStore';
 import { useCanvasStore } from './store/useCanvasStore';
 import { useAuthStore } from './core/auth/useAuthStore';
+import { Sparkles } from 'lucide-react';
 
 export function App() {
-  const { initialize, isLoading } = useNoteStore();
+  const { initialize, isLoading: isNotesLoading } = useNoteStore();
   const { isDarkMode, layoutMode, viewMode, setViewMode, openModal } = useCanvasStore();
+  const { user, isLoading: isAuthLoading, isOnboarding } = useAuthStore();
 
   useEffect(() => {
     initialize();
@@ -31,9 +35,10 @@ export function App() {
       const hash = window.location.hash.toLowerCase();
       if (hash.includes('admin')) {
         useCanvasStore.setState({ activeModal: 'admin', viewMode: 'app' });
+      } else if (hash.includes('landing')) {
+        useCanvasStore.setState({ viewMode: 'landing' });
       } else {
-        const isApp = hash.includes('app');
-        useCanvasStore.setState({ viewMode: isApp ? 'app' : 'landing' });
+        useCanvasStore.setState({ viewMode: 'app' });
       }
     };
 
@@ -55,11 +60,37 @@ export function App() {
     };
   }, [initialize, openModal]);
 
-  if (isLoading) {
+  // Apple-Grade Splash / Initialization Spinner
+  if (isAuthLoading || isNotesLoading) {
     return (
-      <div className="w-screen h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-black text-slate-700 dark:text-slate-300 gap-3">
-        <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-        <span className="text-sm font-medium tracking-wide">Loading ScribbleNote workspace...</span>
+      <div className={`w-screen h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-black text-slate-700 dark:text-slate-300 gap-4 font-sans ${isDarkMode ? 'dark' : ''}`}>
+        <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-xl shadow-blue-500/25 animate-pulse">
+          <Sparkles className="w-7 h-7" />
+        </div>
+        <div className="flex items-center gap-2.5">
+          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs font-semibold tracking-wide text-slate-500 dark:text-slate-400">
+            Initializing ScribbleNote...
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // MANDATORY AUTH GUARD: No anonymous/guest use. The app is accessible only after signing in.
+  if (!user) {
+    return (
+      <div className={isDarkMode ? 'dark' : ''}>
+        <WelcomeAuthScreen />
+      </div>
+    );
+  }
+
+  // ONBOARDING STEP: Name, Academic Role, and Subject immediately after first signup
+  if (isOnboarding) {
+    return (
+      <div className={isDarkMode ? 'dark' : ''}>
+        <OnboardingScreen />
       </div>
     );
   }
@@ -106,7 +137,7 @@ export function App() {
         </>
       )}
 
-      {/* Global Modals (Auth, Sync, History, PDF, AI, Flashcards, Pomodoro, Pricing, Trash) */}
+      {/* Global Modals (Auth, Sync, History, PDF, AI, Flashcards, Pomodoro, Pricing, Trash, Account) */}
       <GlobalModals />
 
       {/* Global Command Palette (Ctrl+K) */}

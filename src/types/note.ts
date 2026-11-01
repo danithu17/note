@@ -231,11 +231,19 @@ export interface UserAccount {
   id: string;
   email?: string;
   name?: string;
-  isGuest: boolean;
+  isGuest?: boolean;
   avatarUrl?: string;
   plan: 'free' | 'pro' | 'team';
   storageUsedBytes: number;
   storageLimitBytes: number;
+  studyRole?: string;
+  subject?: string;
+  locale?: string;
+  trialStart?: number;
+  trialEnd?: number;
+  consentVersion?: string;
+  consentTimestamp?: number;
+  createdAt?: number;
 }
 
 export type ViewLayoutMode = 'split' | 'canvas-only' | 'notes-only' | 'timeline';

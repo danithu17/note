@@ -36,11 +36,22 @@
 - **Canvas CRDT Reconciliation**: Per-stroke append-only unique IDs with timestamps (`stroke_${timestamp}_${random}`). Chronologically merges incoming strokes across devices with Last-Write-Wins (LWW) conflict resolution.
 - **Sync Status Pill**: Real-time status in top header: `Synced` (emerald), `Syncing` (pulsing blue), `Offline` (amber), or `Conflict` (rose).
 
-### 3. Authentication & Zero-Data-Loss Guest Upgrade
-- **Guest Mode by Default**: Open ScribbleNote and start taking notes instantly without barriers.
-- **Account Options**: Email + password, Magic link, and Google sign-in.
-- **Guest Account Upgrade Pipeline**: When upgrading from a guest to an authenticated user, all local workspaces, notebooks, notes, canvas pages, and attachments are automatically preserved and migrated to the new cloud account.
-- **In-App Cloud Connector**: Connect to custom/self-hosted Supabase instances directly from the Sync modal.
+### 3. Phase 1 Auth (Replacement): Mandatory Account & Google Sign-In
+- **Rule: No Anonymous/Guest Use**: All features (notes, canvas, AI assistant, storage) require signing in. The Welcome/Auth screen gates access upon first launch.
+- **Authentication Providers**:
+  - **Continue with Google** (Primary button meeting official Google branding guidelines).
+  - **Continue with Apple** (Placeholder-ready option for iOS App Store release).
+  - **Email + Password**: Includes real-time password complexity meter (8+ chars, upper/lowercase, numbers, symbols) and email confirmation.
+  - **Passwordless Magic Link**: 1-click OTP sign-in delivered to email.
+- **Terms & Privacy Consent**: Checkbox on signup recording consent timestamp and version (`v1.0`).
+- **Post-Signup Onboarding**: Prompts user for name, academic role, and subject, then auto-activates the **14-Day Free Pro Scholar Trial** (no credit card required).
+- **Persistent Sessions & Offline Architecture**:
+  - Auto sign-in on return visits via secure refresh tokens.
+  - **Offline Behavior**: Previously authenticated users continue taking notes and sketches completely offline via cached sessions + Dexie IndexedDB.
+  - First-time login and cloud sync require internet connectivity with automatic status indicators.
+- **Account & Security Settings**: Change password, change email, sign out of all devices, and permanent account deletion (wiping Dexie and cloud data).
+- **Automated Database Trigger**: `public.profiles` records created automatically via trigger on `auth.users` with Row-Level Security (RLS).
+- **Setup Guide**: Detailed Google Cloud Console and Supabase setup steps documented in [SETUP.md](SETUP.md).
 
 ### 4. Version History & Snapshots
 - Auto-saves snapshots on major edits or via manual checkpoint creation (*Save Snapshot*).

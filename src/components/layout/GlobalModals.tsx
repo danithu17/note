@@ -45,6 +45,11 @@ const AdminDashboardModal = React.lazy(() =>
     default: m.AdminDashboardModal,
   }))
 );
+const AccountSecurityModal = React.lazy(() =>
+  import('../auth/AccountSecurityModal').then((m) => ({
+    default: m.AccountSecurityModal,
+  }))
+);
 
 export const GlobalModals: React.FC = () => {
   const { activeModal, closeModal } = useCanvasStore();
@@ -109,6 +114,7 @@ export const GlobalModals: React.FC = () => {
         isOpen={activeModal === 'admin'}
         onClose={closeModal}
       />
+      <AccountSecurityModal />
     </React.Suspense>
   );
 };

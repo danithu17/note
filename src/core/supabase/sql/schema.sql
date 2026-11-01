@@ -6,6 +6,77 @@
 -- Enable UUID extension
 create extension if not exists "uuid-ossp";
 
+-- 0. Profiles Table (Automatic creation via Trigger on auth.users)
+create table if not exists public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  email text,
+  name text,
+  avatar_url text,
+  locale text default 'en',
+  plan text default 'pro',
+  trial_start timestamp with time zone default now(),
+  trial_end timestamp with time zone default (now() + interval '14 days'),
+  study_role text,
+  subject text,
+  consent_version text default 'v1.0',
+  consent_timestamp timestamp with time zone,
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
+);
+
+alter table public.profiles enable row level security;
+
+create policy "Users can view own profile"
+  on public.profiles for select
+  using (auth.uid() = id);
+
+create policy "Users can update own profile"
+  on public.profiles for update
+  using (auth.uid() = id);
+
+create policy "Users can insert own profile"
+  on public.profiles for insert
+  with check (auth.uid() = id);
+
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (
+    id,
+    email,
+    name,
+    avatar_url,
+    plan,
+    trial_start,
+    trial_end,
+    created_at,
+    updated_at
+  )
+  values (
+    new.id,
+    new.email,
+    coalesce(new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'name', split_part(new.email, '@', 1)),
+    new.raw_user_meta_data->>'avatar_url',
+    'pro',
+    now(),
+    now() + interval '14 days',
+    now(),
+    now()
+  )
+  on conflict (id) do update set
+    email = excluded.email,
+    name = coalesce(excluded.name, public.profiles.name),
+    avatar_url = coalesce(excluded.avatar_url, public.profiles.avatar_url),
+    updated_at = now();
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
+
 -- 1. Workspaces Table
 create table if not exists public.workspaces (
   id text primary key,
