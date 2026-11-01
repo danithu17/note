@@ -1,0 +1,72 @@
+name: Android Release Build & Play Store Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-release:
+    name: Build Signed Android App Bundle (AAB) & APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Setup Java 21 (JDK)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Node Dependencies
+        run: npm ci
+
+      - name: Run Test Suite
+        run: npm test
+
+      - name: Build Web Production Bundle
+        run: npm run build:web
+
+      - name: Sync Capacitor Android
+        run: npx cap sync android
+
+      - name: Decode Release Keystore
+        if: env.KEYSTORE_BASE64 != ''
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > android/app/scribblenote-upload.jks
+
+      - name: Build Android Release AAB & APK
+        working-directory: android
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD || 'ScribblePass2026!' }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS || 'scribblenote' }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD || 'ScribblePass2026!' }}
+        run: |
+          chmod +x gradlew
+          ./gradlew bundleRelease assembleRelease
+
+      - name: Upload Release AAB Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ScribbleNote-release-aab
+          path: android/app/build/outputs/bundle/release/*.aab
+
+      - name: Upload Release APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ScribbleNote-release-apk
+          path: android/app/build/outputs/apk/release/*.apk

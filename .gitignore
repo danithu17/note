@@ -21,6 +21,11 @@ dist-ssr
 temp_*
 temp_accounts.json
 
+# Keystores & Android signing secrets
+*.jks
+*.keystore
+google-services.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

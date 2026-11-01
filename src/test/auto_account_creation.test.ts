@@ -35,4 +35,13 @@ describe('Auto Account Creation & Email Rate Limit Immunity', () => {
     expect(currentUser?.plan).toBe('pro');
     expect(currentUser?.isGuest).toBe(false);
   });
+
+  it('seamlessly logs in and auto-creates an account via Apple sign in', async () => {
+    const res = await useAuthStore.getState().signInWithApple();
+    expect(res.success).toBe(true);
+    const currentUser = useAuthStore.getState().user;
+    expect(currentUser).not.toBeNull();
+    expect(currentUser?.plan).toBe('pro');
+    expect(currentUser?.isGuest).toBe(false);
+  });
 });

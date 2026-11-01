@@ -155,6 +155,38 @@ export class PlatformService {
   public get app(): IAppPlatform {
     return appPlatform;
   }
+
+  public get billing(): IBillingPlatform {
+    return billingPlatform;
+  }
+
+  public get storage(): IStoragePlatform {
+    return storagePlatform;
+  }
+
+  public get share(): ISharePlatform {
+    return sharePlatform;
+  }
+
+  public get haptics(): IHapticsPlatform {
+    return hapticsPlatform;
+  }
+
+  public get network(): INetworkPlatform {
+    return networkPlatform;
+  }
+
+  public get notifications(): INotificationsPlatform {
+    return notificationsPlatform;
+  }
+
+  public get audio(): IAudioRecorderPlatform {
+    return audioPlatform;
+  }
+
+  public get auth(): IAuthPlatform {
+    return authPlatform;
+  }
 }
 
 export const platform = PlatformService.getInstance();

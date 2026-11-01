@@ -20,6 +20,7 @@ import {
 import confetti from 'canvas-confetti';
 import { useAuthStore } from '@/core/auth/useAuthStore';
 import { ModalPortal } from '@/components/ui/ModalPortal';
+import { platform } from '@/platform';
 import { paymentService, type PaymentProvider } from '../../billing/paymentService';
 import { useEntitlementsStore } from '../../billing/useEntitlementsStore';
 import {
@@ -102,6 +103,36 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
           : 'pro_monthly'
         : planKey;
 
+    // 1. Android Native: Route purchases exclusively through Google Play Billing
+    if (platform.capabilities.isNativeApp) {
+      const productId =
+        planKey === 'pro_student'
+          ? billingCycle === 'annual'
+            ? 'scribble_student_yearly'
+            : 'scribble_student_monthly'
+          : billingCycle === 'annual'
+            ? 'scribble_pro_yearly'
+            : 'scribble_pro_monthly';
+
+      setIsProcessing(planKey);
+      try {
+        const res = await platform.billing.purchase(productId);
+        if (res.success) {
+          applySubscription(planId, 'play_store', billingCycle);
+          confetti({ particleCount: 50, spread: 70 });
+          alert('🎉 Google Play subscription activated! Welcome to ScribbleNote PRO.');
+          onClose();
+        } else if (res.error) {
+          alert(`Google Play billing error: ${res.error}`);
+        }
+      } catch (err: any) {
+        alert('Failed to connect to Google Play: ' + err.message);
+      } finally {
+        setIsProcessing(null);
+      }
+      return;
+    }
+
     setIsProcessing(planKey);
 
     try {
@@ -137,6 +168,25 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
     confetti({ particleCount: 40, spread: 60 });
     alert('🎉 14-day Pro Scholar trial started! No credit card or payment method required.');
     onClose();
+  };
+
+  const handleRestorePurchases = async () => {
+    setIsProcessing('restore');
+    try {
+      const res = await platform.billing.restorePurchases();
+      if (res.success && res.activeProductIds.length > 0) {
+        applySubscription('pro_monthly', 'play_store', 'monthly');
+        confetti({ particleCount: 40, spread: 60 });
+        alert('✅ Purchases successfully restored from Google Play!');
+        onClose();
+      } else {
+        alert('No active subscriptions found for this Google Play account.');
+      }
+    } catch (err: any) {
+      alert('Failed to restore purchases: ' + err.message);
+    } finally {
+      setIsProcessing(null);
+    }
   };
 
   const handleStudentIdUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -243,37 +293,44 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
                 </button>
               </div>
 
-              {/* Currency & Regional Gateway Switcher */}
-              <div className="inline-flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl text-xs font-semibold shadow-inner">
-                <button
-                  onClick={() => {
-                    setCurrency('USD');
-                    setProvider('stripe');
-                  }}
-                  className={`px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-all ${
-                    currency === 'USD'
-                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-bold'
-                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
-                  }`}
-                >
-                  <CreditCard className="w-3.5 h-3.5 text-blue-500" />
-                  <span>Global (USD $)</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setCurrency('LKR');
-                    setProvider('payhere');
-                  }}
-                  className={`px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-all ${
-                    currency === 'LKR'
-                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-bold'
-                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
-                  }`}
-                >
-                  <Building className="w-3.5 h-3.5 text-amber-500" />
-                  <span>Sri Lanka (LKR Rs.)</span>
-                </button>
-              </div>
+              {/* Currency & Regional Gateway Switcher / Google Play Indicator on Android */}
+              {platform.capabilities.isNativeApp ? (
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-500/30 text-xs font-semibold shadow-2xs">
+                  <Shield className="w-3.5 h-3.5 text-blue-500" />
+                  <span>Google Play Billing</span>
+                </div>
+              ) : (
+                <div className="inline-flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl text-xs font-semibold shadow-inner">
+                  <button
+                    onClick={() => {
+                      setCurrency('USD');
+                      setProvider('stripe');
+                    }}
+                    className={`px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-all ${
+                      currency === 'USD'
+                        ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-bold'
+                        : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
+                    }`}
+                  >
+                    <CreditCard className="w-3.5 h-3.5 text-blue-500" />
+                    <span>Global (USD $)</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setCurrency('LKR');
+                      setProvider('payhere');
+                    }}
+                    className={`px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-all ${
+                      currency === 'LKR'
+                        ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs font-bold'
+                        : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
+                    }`}
+                  >
+                    <Building className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Sri Lanka (LKR Rs.)</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* 14-Day Free Trial Notice */}
@@ -841,13 +898,40 @@ export const PricingModal: React.FC<PricingModalProps> = ({ isOpen, onClose }) =
             </div>
           </div>
 
-          {/* Footer Guarantee */}
-          <div className="px-6 sm:px-8 py-4 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 dark:text-slate-400 gap-2 shrink-0">
-            <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-emerald-500" />
-              <span>14-day money-back guarantee. Local data is never deleted or locked.</span>
-            </div>
-            <span className="font-mono text-[11px]">Pay via Stripe (Global) or PayHere (Sri Lanka)</span>
+          {/* Footer Guarantee / Native Google Play Controls */}
+          <div className="px-6 sm:px-8 py-4 bg-slate-50 dark:bg-slate-800/60 border-t border-slate-200/80 dark:border-slate-800 flex flex-col items-center justify-between text-xs text-slate-500 dark:text-slate-400 gap-3 shrink-0">
+            {platform.capabilities.isNativeApp ? (
+              <div className="w-full flex flex-col gap-2">
+                <div className="flex items-center justify-between w-full">
+                  <button
+                    type="button"
+                    onClick={handleRestorePurchases}
+                    disabled={isProcessing === 'restore'}
+                    className="font-semibold text-blue-600 dark:text-blue-400 underline hover:opacity-80 transition-opacity cursor-pointer text-xs"
+                  >
+                    {isProcessing === 'restore' ? 'Restoring...' : 'Restore Purchases'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => platform.billing.openSubscriptionManagement()}
+                    className="font-semibold text-slate-600 dark:text-slate-300 underline hover:opacity-80 transition-opacity cursor-pointer text-xs"
+                  >
+                    Manage in Google Play
+                  </button>
+                </div>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center leading-normal">
+                  Subscriptions automatically renew unless cancelled in Google Play Subscriptions at least 24 hours before the end of the current billing cycle. Local notes and drawings are never deleted or locked.
+                </p>
+              </div>
+            ) : (
+              <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-emerald-500" />
+                  <span>14-day money-back guarantee. Local data is never deleted or locked.</span>
+                </div>
+                <span className="font-mono text-[11px]">Pay via Stripe (Global) or PayHere (Sri Lanka)</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
