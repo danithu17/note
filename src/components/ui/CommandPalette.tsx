@@ -21,9 +21,11 @@ import {
   Brain,
   Flame,
   Presentation,
+  Crown,
 } from 'lucide-react';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useNoteStore } from '../../store/useNoteStore';
+import { useAuthStore } from '@/core/auth/useAuthStore';
 import { useAssistantStore } from '@/features/assistant/useAssistantStore';
 import { ModalPortal } from '@/components/ui/ModalPortal';
 import confetti from 'canvas-confetti';
@@ -48,6 +50,8 @@ export const CommandPalette: React.FC = () => {
   } = useCanvasStore();
 
   const { notes, selectNote, createNote } = useNoteStore();
+  const user = useAuthStore((s) => s.user);
+  const isOwnerAdmin = user?.email?.toLowerCase() === 'nimjayad@gmail.com';
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -278,14 +282,21 @@ export const CommandPalette: React.FC = () => {
       icon: <Sparkles className="w-4 h-4 text-blue-500" />,
       action: () => openModal('pricing'),
     },
-    {
-      id: 'act-admin',
-      title: 'Admin Dashboard & Entitlements Control',
-      category: 'Admin',
-      shortcut: 'admin',
-      icon: <HelpCircle className="w-4 h-4 text-purple-500" />,
-      action: () => openModal('admin'),
-    },
+    ...(isOwnerAdmin
+      ? [
+          {
+            id: 'act-admin',
+            title: '👑 GOD MODE: Supreme System Overlord & Telemetry Control',
+            category: 'God Mode',
+            shortcut: 'admin',
+            icon: <Crown className="w-4 h-4 text-amber-500 fill-amber-400" />,
+            action: () => {
+              confetti({ particleCount: 30, spread: 60 });
+              openModal('admin');
+            },
+          },
+        ]
+      : []),
     {
       id: 'act-reset-demo',
       title: 'Reset Demo Data to Clean Workspace',

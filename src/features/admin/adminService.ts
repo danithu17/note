@@ -29,11 +29,13 @@ class AdminService {
   private coupons: Coupon[] = [...ACTIVE_COUPONS];
 
   /**
-   * 2FA Passcode check for protected admin access.
+   * Protected admin access check: Strictly restricted to sovereign system creator nimjayad@gmail.com.
+   * Nobody else can access under any circumstances, even with passcodes.
    */
-  public verifyAdminAuth(passcode: string): boolean {
-    const trimmed = passcode.trim();
-    return trimmed === 'scribbleadmin2026' || trimmed === '123456' || trimmed === 'admin';
+  public verifyAdminAuth(_passcode?: string): boolean {
+    const authUser = useAuthStore.getState().user;
+    const isOwnerAdmin = authUser?.email?.toLowerCase() === 'nimjayad@gmail.com';
+    return isOwnerAdmin;
   }
 
   /**
@@ -48,12 +50,14 @@ class AdminService {
     const aiUsage = entitlements.monthlyAiUsage || 0;
     const storageMb = Math.round((authUser?.storageUsedBytes || 0) / (1024 * 1024));
 
+    const isOwnerAdmin = authUser?.email?.toLowerCase() === 'nimjayad@gmail.com';
+
     const realUser: ManagedUser = {
       id: authUser?.id || 'current_account',
       email: authUser?.email || (authUser?.isGuest ? 'guest@scribblenote.local' : 'user@scribblenote.local'),
-      name: authUser?.name || 'Local Student',
-      planId: sub?.planId || (trial?.isTrialActive ? 'pro' : authUser?.plan === 'pro' ? 'pro' : 'free'),
-      trialDaysLeft: trial?.isTrialActive ? trial.daysRemaining : 0,
+      name: isOwnerAdmin ? 'Nimjaya (God Admin)' : (authUser?.name || 'Local Student'),
+      planId: isOwnerAdmin ? 'team' : (sub?.planId || (trial?.isTrialActive ? 'pro' : authUser?.plan === 'pro' ? 'pro' : 'free')),
+      trialDaysLeft: isOwnerAdmin ? 36500 : (trial?.isTrialActive ? trial.daysRemaining : 0),
       storageMb,
       aiQueries: aiUsage,
       status: 'active',

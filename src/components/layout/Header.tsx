@@ -29,6 +29,9 @@ import {
   Flame,
   Presentation,
   MoreHorizontal,
+  Crown,
+  Zap,
+  ShieldAlert,
 } from 'lucide-react';
 import { useCanvasStore } from '../../store/useCanvasStore';
 import { useNoteStore } from '../../store/useNoteStore';
@@ -74,6 +77,7 @@ export const Header: React.FC = () => {
   } = useNoteStore();
 
   const { user, openAuthModal, openAccountModal } = useAuthStore();
+  const isOwnerAdmin = user?.email?.toLowerCase() === 'nimjayad@gmail.com';
   const { locale, setLocale, t } = useI18nStore();
   const activeNote = getActiveNote();
 
@@ -469,15 +473,39 @@ export const Header: React.FC = () => {
           )}
         </div>
 
+        {/* God Mode Trigger Pill for Sovereign Admin (nimjayad@gmail.com only) */}
+        {isOwnerAdmin && (
+          <button
+            onClick={() => {
+              confetti({ particleCount: 40, spread: 60 });
+              openModal('admin');
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black tracking-wide border border-amber-400/80 bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 text-white shadow-md shadow-amber-500/25 hover:shadow-lg hover:shadow-amber-500/40 hover:scale-105 active:scale-95 transition-all cursor-pointer ring-2 ring-amber-400/30 animate-pulse"
+            title="⚡ GOD MODE ACTIVATED: Supreme System Creator Access"
+          >
+            <Crown className="w-3.5 h-3.5 text-yellow-200 fill-yellow-300" />
+            <span className="hidden sm:inline">GOD MODE</span>
+            <Zap className="w-3 h-3 text-yellow-300 fill-yellow-300" />
+          </button>
+        )}
+
         {/* User Account / Manage Profile */}
         <button
           onClick={() => (user ? openAccountModal() : openAuthModal())}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs hover:brightness-105 active:scale-95"
-          title={`Account: ${user?.email || 'Scholar'}`}
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer text-white shadow-xs hover:brightness-105 active:scale-95 ${
+            isOwnerAdmin
+              ? 'bg-gradient-to-r from-purple-700 via-indigo-700 to-blue-700 border-amber-400/60 ring-1 ring-amber-400/30'
+              : 'bg-gradient-to-r from-blue-600 to-indigo-600 border-transparent'
+          }`}
+          title={isOwnerAdmin ? '👑 Supreme Architect Account (nimjayad@gmail.com)' : `Account: ${user?.email || 'Scholar'}`}
         >
-          <User className="w-3.5 h-3.5" />
+          {isOwnerAdmin ? (
+            <Crown className="w-3.5 h-3.5 text-yellow-300 fill-yellow-300" />
+          ) : (
+            <User className="w-3.5 h-3.5" />
+          )}
           <span className="hidden sm:inline">
-            {user?.name?.split(' ')[0] || 'Account'}
+            {isOwnerAdmin ? 'Nimjaya (God)' : (user?.name?.split(' ')[0] || 'Account')}
           </span>
         </button>
 
@@ -507,6 +535,27 @@ export const Header: React.FC = () => {
 
           {isMoreMenuOpen && (
             <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-2 flex flex-col gap-1 z-50 animate-in fade-in zoom-in-95">
+              {isOwnerAdmin && (
+                <>
+                  <div className="text-[10px] uppercase font-bold text-amber-500 px-3 py-1 flex items-center gap-1">
+                    <Crown className="w-3 h-3 text-amber-500 fill-amber-400" />
+                    <span>God Overlord</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      confetti({ particleCount: 35, spread: 50 });
+                      openModal('admin');
+                      setIsMoreMenuOpen(false);
+                    }}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-colors cursor-pointer"
+                  >
+                    <ShieldAlert className="w-4 h-4 text-amber-500" />
+                    <span>God Mode Panel</span>
+                  </button>
+                  <div className="h-px bg-slate-200 dark:bg-slate-800 my-1" />
+                </>
+              )}
+
               <div className="text-[10px] uppercase font-bold text-slate-400 px-3 py-1">
                 Study Tools
               </div>

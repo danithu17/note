@@ -65,4 +65,30 @@ describe('Admin Permanent Lifetime VIP Access (nimjayad@gmail.com)', () => {
     expect(user?.plan).toBe('team');
     expect(user?.storageLimitBytes).toBe(100 * 1024 * 1024 * 1024);
   });
+
+  it('strictly restricts Admin & God Mode verification to nimjayad@gmail.com and denies anyone else', async () => {
+    const { adminService } = await import('../features/admin/adminService');
+    const { useCanvasStore } = await import('../store/useCanvasStore');
+
+    // 1. Unauthorized student user
+    await useAuthStore.getState().signInWithEmail('other.student@university.edu', 'Pass12345!');
+
+    // Passcodes should fail for other users
+    expect(adminService.verifyAdminAuth('123456')).toBe(false);
+    expect(adminService.verifyAdminAuth('scribbleadmin2026')).toBe(false);
+    expect(adminService.verifyAdminAuth('admin')).toBe(false);
+
+    // Canvas store blocks opening admin modal
+    useCanvasStore.setState({ activeModal: null });
+    useCanvasStore.getState().openModal('admin');
+    expect(useCanvasStore.getState().activeModal).toBeNull();
+
+    // 2. Sovereign Admin nimjayad@gmail.com
+    await useAuthStore.getState().signInWithEmail('nimjayad@gmail.com', 'AdminPass2026!');
+    expect(adminService.verifyAdminAuth()).toBe(true);
+
+    // Canvas store allows opening admin modal for nimjayad@gmail.com
+    useCanvasStore.getState().openModal('admin');
+    expect(useCanvasStore.getState().activeModal).toBe('admin');
+  });
 });

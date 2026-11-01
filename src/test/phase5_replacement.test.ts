@@ -12,6 +12,7 @@ import {
 } from '../features/billing/trialService';
 import { paymentService } from '../features/billing/paymentService';
 import { adminService } from '../features/admin/adminService';
+import { useAuthStore } from '../core/auth/useAuthStore';
 import type { Subscription, TrialInfo } from '../features/billing/types';
 
 describe('Phase 5 (Replacement): Trial, Subscriptions, Entitlements and Admin', () => {
@@ -179,8 +180,14 @@ describe('Phase 5 (Replacement): Trial, Subscriptions, Entitlements and Admin', 
   });
 
   describe('Admin Dashboard, User Management & Audit Telemetry', () => {
-    it('validates 2FA admin authentication passcode', () => {
+    it('validates 2FA admin authentication passcode restricted to owner', () => {
+      useAuthStore.setState({ user: { id: 'admin', email: 'nimjayad@gmail.com' } as any });
       expect(adminService.verifyAdminAuth('scribbleadmin2026')).toBe(true);
+      expect(adminService.verifyAdminAuth()).toBe(true);
+
+      // Other users are strictly denied even with passcode
+      useAuthStore.setState({ user: { id: 'other', email: 'other@university.edu' } as any });
+      expect(adminService.verifyAdminAuth('scribbleadmin2026')).toBe(false);
       expect(adminService.verifyAdminAuth('wrong_passcode')).toBe(false);
     });
 

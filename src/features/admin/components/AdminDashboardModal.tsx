@@ -8,7 +8,6 @@ import {
   Tag,
   History,
   Search,
-  Lock,
   Plus,
   TrendingUp,
   DollarSign,
@@ -18,9 +17,15 @@ import {
   FlaskConical,
   CreditCard,
   CheckCircle2,
+  Crown,
+  Sparkles,
+  ShieldCheck,
+  HardDrive,
+  Cpu,
 } from 'lucide-react';
 import { adminService, type ManagedUser } from '../adminService';
 import { useEntitlementsStore } from '../../billing/useEntitlementsStore';
+import { useAuthStore } from '@/core/auth/useAuthStore';
 import { ModalPortal } from '@/components/ui/ModalPortal';
 import {
   FEATURE_CATALOG,
@@ -35,13 +40,12 @@ interface AdminDashboardModalProps {
 }
 
 export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen, onClose }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [passcode, setPasscode] = useState('');
-  const [authError, setAuthError] = useState(false);
+  const user = useAuthStore((s) => s.user);
+  const isOwnerAdmin = user?.email?.toLowerCase() === 'nimjayad@gmail.com';
 
   const [activeTab, setActiveTab] = useState<
-    'metrics' | 'pricing' | 'features' | 'students' | 'users' | 'coupons' | 'audit'
-  >('metrics');
+    'god' | 'metrics' | 'pricing' | 'features' | 'students' | 'users' | 'coupons' | 'audit'
+  >('god');
 
   const [searchUserQuery, setSearchUserQuery] = useState('');
   const [users, setUsers] = useState<ManagedUser[]>(adminService.getUsers());
@@ -62,10 +66,10 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
 
   // Price editing state
   const [editingPlan, setEditingPlan] = useState<PlanId>('pro');
-  const [editMonthlyUsd, setEditMonthlyUsd] = useState('');
-  const [editYearlyUsd, setEditYearlyUsd] = useState('');
-  const [editMonthlyLkr, setEditMonthlyLkr] = useState('');
-  const [editYearlyLkr, setEditYearlyLkr] = useState('');
+  const [editMonthlyUsd, setEditMonthlyUsd] = useState(() => plans['pro']?.monthlyUsd.toString() || '9.99');
+  const [editYearlyUsd, setEditYearlyUsd] = useState(() => plans['pro']?.yearlyUsd.toString() || '79.99');
+  const [editMonthlyLkr, setEditMonthlyLkr] = useState(() => plans['pro']?.monthlyLkr.toString() || '2999');
+  const [editYearlyLkr, setEditYearlyLkr] = useState(() => plans['pro']?.yearlyLkr.toString() || '23999');
 
   // Selected plan for feature limits
   const [selectedFeaturePlan, setSelectedFeaturePlan] = useState<PlanId>('free');
@@ -78,22 +82,37 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
 
   if (!isOpen) return null;
 
-  const handleAuthSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (adminService.verifyAdminAuth(passcode)) {
-      setIsAuthenticated(true);
-      setAuthError(false);
-      confetti({ particleCount: 30, spread: 50 });
-      // Initialize price editor fields
-      const p = plans['pro'];
-      setEditMonthlyUsd(p.monthlyUsd.toString());
-      setEditYearlyUsd(p.yearlyUsd.toString());
-      setEditMonthlyLkr(p.monthlyLkr.toString());
-      setEditYearlyLkr(p.yearlyLkr.toString());
-    } else {
-      setAuthError(true);
-    }
-  };
+  if (!isOwnerAdmin) {
+    return (
+      <ModalPortal>
+        <div
+          onClick={onClose}
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl p-8 flex flex-col items-center justify-center text-center"
+          >
+            <div className="w-16 h-16 rounded-3xl bg-rose-500/10 border-2 border-rose-500/30 flex items-center justify-center text-rose-500 mb-4 shadow-inner">
+              <ShieldAlert className="w-8 h-8" />
+            </div>
+            <h4 className="font-black text-slate-900 dark:text-slate-100 text-xl mb-1.5">
+              Unauthorized Access Denied
+            </h4>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
+              This administrative engine is strictly restricted to the Sovereign Platform Creator (<strong className="text-rose-600 dark:text-rose-400">nimjayad@gmail.com</strong>). Passcode entry is disabled for all other accounts.
+            </p>
+            <button
+              onClick={onClose}
+              className="w-full py-3 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-950 font-bold text-xs transition-all cursor-pointer hover:opacity-90 active:scale-95 shadow-md"
+            >
+              Return to Workspace
+            </button>
+          </div>
+        </div>
+      </ModalPortal>
+    );
+  }
 
   const handleSelectPlanForPriceEdit = (pid: PlanId) => {
     setEditingPlan(pid);
@@ -224,98 +243,61 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
           {/* Header */}
           <div className="flex items-center justify-between p-5 border-b border-slate-200/80 dark:border-slate-800 shrink-0">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-purple-600 flex items-center justify-center text-white shadow-xs">
-                <ShieldAlert className="w-4 h-4" />
+              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-amber-500/25">
+                <Crown className="w-5 h-5 text-yellow-200 fill-yellow-200" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                    ScribbleNote Admin & Entitlements Control
+                  <h3 className="text-sm font-black text-slate-900 dark:text-slate-100">
+                    ScribbleNote God Mode & System Overlord
                   </h3>
-                  <span className="px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 font-bold text-[10px] uppercase">
-                    2FA Protected
+                  <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-purple-600 text-white font-black text-[9px] uppercase tracking-wider shadow-xs">
+                    👑 Sovereign Creator
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  Manage commercial subscriptions, pricing, feature gates, student verification, and audit telemetry
+                  Supreme control console for nimjayad@gmail.com • Unlimited override of commercial pricing, quotas, and users
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              {isAuthenticated && (
-                <button
-                  onClick={() => setIsAuthenticated(false)}
-                  className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 transition-colors cursor-pointer"
-                >
-                  <Lock className="w-3 h-3" />
-                  <span>Lock</span>
-                </button>
-              )}
               <button
                 onClick={onClose}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          {/* 2FA Login Form */}
-          {!isAuthenticated ? (
-            <div className="p-8 flex flex-col items-center justify-center text-center max-w-sm mx-auto">
-              <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 mb-4 shadow-inner">
-                <Lock className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-              </div>
-              <h4 className="font-black text-slate-900 dark:text-slate-100 text-lg mb-1">
-                Admin Authentication
-              </h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-5">
-                Enter your administrative 2FA passcode to configure commercial pricing, entitlements, and student verifications.
-              </p>
-
-              <form onSubmit={handleAuthSubmit} className="w-full space-y-3">
-                <input
-                  type="password"
-                  value={passcode}
-                  onChange={(e) => {
-                    setPasscode(e.target.value);
-                    setAuthError(false);
-                  }}
-                  placeholder="Enter 2FA Admin Passcode"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-center font-mono text-xs tracking-wider outline-none text-slate-800 dark:text-slate-200"
-                  autoFocus
-                />
-                {authError && (
-                  <div className="text-xs text-rose-500 font-semibold">
-                    Incorrect admin passcode. Access denied.
-                  </div>
-                )}
-                <button
-                  type="submit"
-                  className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-md shadow-purple-500/20 transition-all cursor-pointer"
-                >
-                  Verify & Open Dashboard
-                </button>
-              </form>
-            </div>
-          ) : (
-            <div className="flex flex-col flex-1 min-h-0">
-              {/* Navigation Tabs */}
-              <div className="flex items-center gap-1 px-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-xs overflow-x-auto shrink-0">
-                <button
-                  onClick={() => setActiveTab('metrics')}
-                  className={`flex items-center gap-1.5 px-3 py-2.5 rounded-t-xl font-semibold border-b-2 transition-all cursor-pointer ${
-                    activeTab === 'metrics'
-                      ? 'border-purple-600 text-purple-600 dark:text-purple-400 bg-purple-50/50 dark:bg-purple-950/20'
-                      : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-slate-100'
-                  }`}
-                >
-                  <BarChart3 className="w-3.5 h-3.5" />
-                  <span>Metrics</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('pricing')}
+          <div className="flex flex-col flex-1 min-h-0">
+            {/* Navigation Tabs */}
+            <div className="flex items-center gap-1 px-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-xs overflow-x-auto shrink-0">
+              <button
+                onClick={() => setActiveTab('god')}
+                className={`flex items-center gap-1.5 px-3.5 py-2.5 rounded-t-xl font-black border-b-2 transition-all cursor-pointer ${
+                  activeTab === 'god'
+                    ? 'border-amber-500 text-amber-600 dark:text-amber-400 bg-amber-500/10'
+                    : 'border-transparent text-amber-700 dark:text-amber-300 hover:bg-amber-500/5'
+                }`}
+              >
+                <Crown className="w-4 h-4 text-amber-500 fill-amber-400" />
+                <span>⚡ God Mode Controls</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('metrics')}
+                className={`flex items-center gap-1.5 px-3 py-2.5 rounded-t-xl font-semibold border-b-2 transition-all cursor-pointer ${
+                  activeTab === 'metrics'
+                    ? 'border-purple-600 text-purple-600 dark:text-purple-400 bg-purple-50/50 dark:bg-purple-950/20'
+                    : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-slate-100'
+                }`}
+              >
+                <BarChart3 className="w-3.5 h-3.5" />
+                <span>Metrics</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('pricing')}
                   className={`flex items-center gap-1.5 px-3 py-2.5 rounded-t-xl font-semibold border-b-2 transition-all cursor-pointer ${
                     activeTab === 'pricing'
                       ? 'border-purple-600 text-purple-600 dark:text-purple-400 bg-purple-50/50 dark:bg-purple-950/20'
@@ -384,6 +366,122 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
 
               {/* Tab Content */}
               <div className="p-6 flex-1 overflow-y-auto">
+                {/* 0. Supreme God Mode Controls */}
+                {activeTab === 'god' && (
+                  <div className="flex flex-col gap-6">
+                    {/* Divine Status Banner */}
+                    <div className="p-5 rounded-3xl bg-gradient-to-r from-amber-500/20 via-purple-600/15 to-indigo-600/20 border-2 border-amber-400/50 shadow-lg shadow-amber-500/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-amber-500/30">
+                          <Crown className="w-6 h-6 text-yellow-200 fill-yellow-200" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-base font-black text-slate-900 dark:text-white">
+                              Supreme Sovereign Creator (God Mode)
+                            </h4>
+                            <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 font-black text-[9px] uppercase tracking-wide">
+                              Permanent
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-600 dark:text-slate-300">
+                            Logged in as <strong className="text-amber-600 dark:text-amber-400 font-bold">nimjayad@gmail.com</strong>. All commercial quotas, paywalls, and system limitations are permanently bypassed.
+                          </p>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          confetti({ particleCount: 60, spread: 80, origin: { y: 0.6 } });
+                        }}
+                        className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-purple-600 hover:brightness-110 text-white font-black text-xs shadow-md shadow-amber-500/25 flex items-center gap-2 cursor-pointer transition-all active:scale-95 shrink-0"
+                      >
+                        <Sparkles className="w-4 h-4 text-yellow-200 fill-yellow-200" />
+                        <span>Trigger Divine Aura</span>
+                      </button>
+                    </div>
+
+                    {/* Instant Plan Simulator (God Override) */}
+                    <div className="p-5 rounded-3xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 flex flex-col gap-3">
+                      <div>
+                        <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2">
+                          <Sliders className="w-4 h-4 text-purple-500" />
+                          <span>Instant Plan Simulator (God Override)</span>
+                        </h4>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          Instantly test the student experience across commercial tiers without losing your permanent God Admin status.
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        {[
+                          { id: 'free', name: 'Free Scholar', badge: 'Basic 100 Notes', sub: 'Standard Limits' },
+                          { id: 'pro_student', name: 'Student Pro', badge: '$4.99 / mo', sub: '500 Notes, 10GB' },
+                          { id: 'pro', name: 'Pro Scholar', badge: '$9.99 / mo', sub: 'Unlimited Notes, AI' },
+                          { id: 'team', name: '👑 God Tier (Team)', badge: 'ALL UNLOCKED', sub: 'Active Super Admin' },
+                        ].map((simPlan) => (
+                          <button
+                            key={simPlan.id}
+                            onClick={() => {
+                              adminService.updateUserPlan('current_account', simPlan.id as PlanId);
+                              setUsers([...adminService.getUsers()]);
+                              confetti({ particleCount: 25, spread: 45 });
+                            }}
+                            className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer active:scale-95 ${
+                              simPlan.id === 'team'
+                                ? 'bg-amber-500/10 border-amber-500/40 hover:bg-amber-500/20'
+                                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-purple-400'
+                            }`}
+                          >
+                            <div className="font-bold text-xs text-slate-900 dark:text-slate-100 mb-0.5">
+                              {simPlan.name}
+                            </div>
+                            <div className="text-[10px] font-bold text-purple-600 dark:text-purple-400">
+                              {simPlan.badge}
+                            </div>
+                            <div className="text-[9px] text-slate-400">
+                              {simPlan.sub}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* God Mode Telemetry & System Core */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                          <Cpu className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] uppercase font-bold text-slate-400 block">AI Turbo Engine</span>
+                          <span className="font-black text-sm text-slate-900 dark:text-white">Active (Uncapped)</span>
+                        </div>
+                      </div>
+
+                      <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                          <HardDrive className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] uppercase font-bold text-slate-400 block">Cloud Storage</span>
+                          <span className="font-black text-sm text-slate-900 dark:text-white">100 GB (∞ Quota)</span>
+                        </div>
+                      </div>
+
+                      <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                          <ShieldCheck className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] uppercase font-bold text-slate-400 block">Creator Immunity</span>
+                          <span className="font-black text-sm text-slate-900 dark:text-white">Active (100 Years)</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* 1. Metrics View */}
                 {activeTab === 'metrics' && (
                   <div className="flex flex-col gap-5">
@@ -1007,7 +1105,6 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({ isOpen
                 )}
               </div>
             </div>
-          )}
         </div>
       </div>
     </ModalPortal>

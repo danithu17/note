@@ -265,6 +265,18 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
   },
 
   openModal: (modal) => {
+    if (modal === 'admin') {
+      try {
+        const cached = localStorage.getItem('scribblenote_cached_user');
+        const user = cached ? JSON.parse(cached) : null;
+        if (user?.email?.toLowerCase() !== 'nimjayad@gmail.com') {
+          console.warn('[Security] Unauthorized attempt to open admin modal blocked.');
+          return;
+        }
+      } catch {
+        return;
+      }
+    }
     sound.click();
     set({ activeModal: modal });
   },

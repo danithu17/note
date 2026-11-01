@@ -110,7 +110,12 @@ export function App() {
     const handleHashChange = () => {
       const hash = window.location.hash.toLowerCase();
       if (hash.includes('admin')) {
-        useCanvasStore.setState({ activeModal: 'admin', viewMode: 'app' });
+        const currentUser = useAuthStore.getState().user;
+        if (currentUser?.email?.toLowerCase() === 'nimjayad@gmail.com') {
+          useCanvasStore.setState({ activeModal: 'admin', viewMode: 'app' });
+        } else {
+          useCanvasStore.setState({ viewMode: 'app' });
+        }
       } else if (hash.includes('app') || platform.capabilities.isNativeApp) {
         useCanvasStore.setState({ viewMode: 'app' });
       } else {
@@ -122,11 +127,14 @@ export function App() {
     handleHashChange();
     window.addEventListener('hashchange', handleHashChange);
 
-    // Secret Admin keyboard shortcut: Ctrl+Shift+A / Cmd+Shift+A
+    // Sovereign God Mode keyboard shortcut: Ctrl+Shift+A / Cmd+Shift+A (Strictly restricted to nimjayad@gmail.com)
     const handleAdminKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'a' || e.key === 'A')) {
-        e.preventDefault();
-        openModal('admin');
+        const currentUser = useAuthStore.getState().user;
+        if (currentUser?.email?.toLowerCase() === 'nimjayad@gmail.com') {
+          e.preventDefault();
+          openModal('admin');
+        }
       }
     };
     window.addEventListener('keydown', handleAdminKey);
