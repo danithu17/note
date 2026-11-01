@@ -21,6 +21,7 @@ import {
   refreshTrialStatus,
   getStoredTrial,
   saveStoredTrial,
+  acknowledgeReminder,
 } from './trialService';
 import { useAuthStore } from '@/core/auth/useAuthStore';
 import { getSupabaseClient } from '@/core/supabase/client';
@@ -42,6 +43,7 @@ interface EntitlementsState {
   limit: (feature: FeatureKey) => number | null;
   startTrial: () => void;
   extendTrial: (additionalDays: number) => void;
+  acknowledgeTrialReminder: (reminder: 'day_7' | 'day_12' | 'last_day') => void;
   applySubscription: (
     planId: PlanId,
     provider: 'stripe' | 'payhere' | 'play_store' | 'manual',
@@ -118,6 +120,34 @@ export const useEntitlementsStore = create<EntitlementsState>((set, get) => ({
 
   initialize: () => {
     const user = useAuthStore.getState().user;
+    const isOwnerAdmin = user?.email?.toLowerCase() === 'nimjayad@gmail.com';
+
+    // 0. Super Admin VIP Lifetime Access: Always active, never expires
+    if (isOwnerAdmin) {
+      const adminSub: Subscription = {
+        id: 'admin_lifetime_vip_license',
+        userId: user?.id || 'admin_user',
+        planId: 'team',
+        status: 'active',
+        provider: 'manual',
+        billingCycle: 'annual',
+        currentPeriodStart: Date.now() - 365 * 24 * 3600 * 1000,
+        currentPeriodEnd: Date.now() + 100 * 365 * 24 * 3600 * 1000,
+        cancelAtPeriodEnd: false,
+        updatedAt: Date.now(),
+      };
+      const adminTrial: TrialInfo = {
+        userId: user?.id || 'admin_user',
+        trialStart: Date.now(),
+        trialEnd: Date.now() + 100 * 365 * 24 * 3600 * 1000,
+        daysRemaining: 36500,
+        isTrialActive: true,
+        remindersSent: [],
+      };
+      set({ subscription: adminSub, trial: adminTrial });
+      return;
+    }
+
     const userId = user?.id || 'guest_user';
 
     // 1. Initialize trial: Automatically start 14-day Pro trial with NO payment method required
@@ -244,11 +274,19 @@ export const useEntitlementsStore = create<EntitlementsState>((set, get) => ({
   },
 
   can: (feature: FeatureKey) => {
+    const user = useAuthStore.getState().user;
+    if (user?.email?.toLowerCase() === 'nimjayad@gmail.com') {
+      return true;
+    }
     const { subscription, trial, dynamicEntitlements } = get();
     return checkCanAccessFeature(feature, subscription, trial, dynamicEntitlements);
   },
 
   limit: (feature: FeatureKey) => {
+    const user = useAuthStore.getState().user;
+    if (user?.email?.toLowerCase() === 'nimjayad@gmail.com') {
+      return null; // Unlimited for admin
+    }
     const { subscription, trial, dynamicEntitlements } = get();
     return getFeatureLimit(feature, subscription, trial, dynamicEntitlements);
   },
@@ -272,6 +310,13 @@ export const useEntitlementsStore = create<EntitlementsState>((set, get) => ({
       isTrialActive: true,
     };
     saveStoredTrial(updated);
+    set({ trial: updated });
+  },
+
+  acknowledgeTrialReminder: (reminder: 'day_7' | 'day_12' | 'last_day') => {
+    const { trial } = get();
+    if (!trial) return;
+    const updated = acknowledgeReminder(trial, reminder);
     set({ trial: updated });
   },
 

@@ -72,14 +72,19 @@ export function saveStoredTrial(trial: TrialInfo): void {
 export function checkMilestoneReminder(trial: TrialInfo): 'day_7' | 'day_12' | 'last_day' | null {
   if (!trial.isTrialActive) return null;
 
-  if (trial.daysRemaining <= 1 && !trial.remindersSent.includes('last_day')) {
-    return 'last_day';
+  // Last day reminder (1 day remaining)
+  if (trial.daysRemaining <= 1) {
+    return !trial.remindersSent.includes('last_day') ? 'last_day' : null;
   }
-  if (trial.daysRemaining <= 2 && !trial.remindersSent.includes('day_12')) {
-    return 'day_12';
+
+  // Day 12 reminder (2 days remaining)
+  if (trial.daysRemaining <= 2) {
+    return !trial.remindersSent.includes('day_12') ? 'day_12' : null;
   }
-  if (trial.daysRemaining <= 7 && !trial.remindersSent.includes('day_7')) {
-    return 'day_7';
+
+  // Day 7 reminder (7 days remaining)
+  if (trial.daysRemaining <= 7) {
+    return !trial.remindersSent.includes('day_7') ? 'day_7' : null;
   }
 
   return null;

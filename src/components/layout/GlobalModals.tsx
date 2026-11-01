@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useCanvasStore } from '@/store/useCanvasStore';
 import { useAuthStore } from '@/core/auth/useAuthStore';
+import { TrialMilestoneModal } from '@/features/billing/components/TrialMilestoneModal';
 
 // Lazily load heavy modals to keep the initial bundle light
 const SyncModal = React.lazy(() =>
@@ -115,6 +116,7 @@ export const GlobalModals: React.FC = () => {
         onClose={closeModal}
       />
       <AccountSecurityModal />
+      <TrialMilestoneModal />
     </React.Suspense>
   );
 };
