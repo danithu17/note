@@ -65,14 +65,33 @@
     outline-offset: 2px;
   }
 
-  /* Prevent rubber-banding on iOS touch / stylus */
+  /* Prevent rubber-banding, overscroll glow, pull-to-refresh conflicts & accidental WebView text selection */
+  html,
   body {
-    overscroll-behavior-y: none;
-    touch-action: none;
+    overscroll-behavior: none;
+    -webkit-overscroll-behavior: none;
+    touch-action: pan-x pan-y;
+    -webkit-user-select: none;
+    user-select: none;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
     padding-left: env(safe-area-inset-left, 0px);
     padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  /* Canvas strictly locks touch action to none for stylus/touch drawing without page scroll */
+  canvas {
+    touch-action: none !important;
+    overscroll-behavior: none !important;
+  }
+
+  /* Allow text selection inside editors, inputs, notes and study messages */
+  input,
+  textarea,
+  [contenteditable='true'],
+  .selectable-text {
+    -webkit-user-select: text;
+    user-select: text;
   }
 }
 

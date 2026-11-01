@@ -151,6 +151,10 @@ export class PlatformService {
   public get isOnline(): boolean {
     return networkPlatform.isOnline();
   }
+
+  public get app(): IAppPlatform {
+    return appPlatform;
+  }
 }
 
 export const platform = PlatformService.getInstance();

@@ -35,7 +35,7 @@ export const MobileTabBar: React.FC = () => {
       {/* 1. Notes Tab */}
       <button
         onClick={() => handleSelectTab('notes')}
-        className={`flex-1 min-h-[44px] flex flex-col items-center justify-center gap-0.5 rounded-xl transition-all ${
+        className={`flex-1 min-h-[48px] flex flex-col items-center justify-center gap-0.5 rounded-xl transition-all ${
           isNotesActive
             ? 'text-[#007aff] dark:text-[#0a84ff] font-bold'
             : 'text-slate-500 dark:text-slate-400'
@@ -49,7 +49,7 @@ export const MobileTabBar: React.FC = () => {
       {/* 2. Canvas Tab */}
       <button
         onClick={() => handleSelectTab('canvas')}
-        className={`flex-1 min-h-[44px] flex flex-col items-center justify-center gap-0.5 rounded-xl transition-all ${
+        className={`flex-1 min-h-[48px] flex flex-col items-center justify-center gap-0.5 rounded-xl transition-all ${
           isCanvasActive
             ? 'text-[#007aff] dark:text-[#0a84ff] font-bold'
             : 'text-slate-500 dark:text-slate-400'
@@ -63,7 +63,7 @@ export const MobileTabBar: React.FC = () => {
       {/* 3. AI Assistant Tab */}
       <button
         onClick={() => handleSelectTab('assistant')}
-        className={`flex-1 min-h-[44px] flex flex-col items-center justify-center gap-0.5 rounded-xl transition-all relative ${
+        className={`flex-1 min-h-[48px] flex flex-col items-center justify-center gap-0.5 rounded-xl transition-all relative ${
           isAssistantActive
             ? 'text-[#007aff] dark:text-[#0a84ff] font-bold'
             : 'text-slate-500 dark:text-slate-400'
@@ -80,7 +80,7 @@ export const MobileTabBar: React.FC = () => {
       {/* 4. Study Focus Tab */}
       <button
         onClick={() => handleSelectTab('study')}
-        className="flex-1 min-h-[44px] flex flex-col items-center justify-center gap-0.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-amber-500 transition-all"
+        className="flex-1 min-h-[48px] flex flex-col items-center justify-center gap-0.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-amber-500 transition-all"
         aria-label="Study & Focus Tab"
       >
         <Flame className="w-5 h-5 text-amber-500" />

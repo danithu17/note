@@ -115,7 +115,7 @@ export const VisualCanvas: React.FC = () => {
   const renderCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { desynchronized: true, alpha: true });
     if (!ctx) return;
 
     const dpr = window.devicePixelRatio || 1;
@@ -286,7 +286,7 @@ export const VisualCanvas: React.FC = () => {
       canvas.style.width = `${rect.width}px`;
       canvas.style.height = `${rect.height}px`;
 
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext('2d', { desynchronized: true, alpha: true });
       if (ctx) {
         ctx.scale(dpr, dpr);
       }

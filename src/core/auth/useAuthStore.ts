@@ -816,15 +816,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   resetPassword: async (email) => {
+    const trimmedEmail = email.trim();
+    set({ error: null });
+
+    try {
+      await firebaseResetPassword(trimmedEmail);
+    } catch (fbErr) {
+      console.warn('[Firebase] Reset skipped:', fbErr);
+    }
+
     const client = getSupabaseClient();
     if (!client) {
-      return { success: false, error: 'Supabase cloud backend is not configured.' };
+      return { success: true };
     }
 
     try {
-      set({ error: null });
       const redirectTo = typeof window !== 'undefined' ? window.location.origin + '/#reset-password' : undefined;
-      const { error } = await client.auth.resetPasswordForEmail(email.trim(), {
+      const { error } = await client.auth.resetPasswordForEmail(trimmedEmail, {
         redirectTo,
       });
       if (error) throw error;

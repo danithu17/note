@@ -74,8 +74,10 @@ export interface CanvasState {
   toggleSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;
   setCommandPaletteOpen: (open: boolean) => void;
+  closeCommandPalette: () => void;
   toggleCommandPalette: () => void;
   setShortcutsModalOpen: (open: boolean) => void;
+  closeShortcutsModal: () => void;
   toggleShortcutsModal: () => void;
   openModal: (modal: ActiveModalType) => void;
   closeModal: () => void;
@@ -246,12 +248,16 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
 
   setCommandPaletteOpen: (isCommandPaletteOpen) => set({ isCommandPaletteOpen }),
 
+  closeCommandPalette: () => set({ isCommandPaletteOpen: false }),
+
   toggleCommandPalette: () => {
     sound.pop();
     set((state) => ({ isCommandPaletteOpen: !state.isCommandPaletteOpen }));
   },
 
   setShortcutsModalOpen: (isShortcutsModalOpen) => set({ isShortcutsModalOpen }),
+
+  closeShortcutsModal: () => set({ isShortcutsModalOpen: false }),
 
   toggleShortcutsModal: () => {
     sound.pop();

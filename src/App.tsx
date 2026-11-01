@@ -22,6 +22,8 @@ import type { PlanId } from './features/billing/types';
 import { useNoteStore } from './store/useNoteStore';
 import { useCanvasStore } from './store/useCanvasStore';
 import { useAuthStore } from './core/auth/useAuthStore';
+import { useAndroidIntegration } from './platform/android/useAndroidIntegration';
+import { platform } from './platform';
 import { Sparkles, CheckCircle2, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -33,6 +35,9 @@ interface PaymentSuccessToast {
 }
 
 export function App() {
+  // Native Android deep integration: back gestures, theme status bar sync, exit confirmation
+  useAndroidIntegration();
+
   const { initialize, isLoading: isNotesLoading } = useNoteStore();
   const { isDarkMode, layoutMode, viewMode, setViewMode, openModal } = useCanvasStore();
   const { user, isLoading: isAuthLoading, isOnboarding } = useAuthStore();
@@ -106,10 +111,10 @@ export function App() {
       const hash = window.location.hash.toLowerCase();
       if (hash.includes('admin')) {
         useCanvasStore.setState({ activeModal: 'admin', viewMode: 'app' });
-      } else if (hash.includes('app')) {
+      } else if (hash.includes('app') || platform.capabilities.isNativeApp) {
         useCanvasStore.setState({ viewMode: 'app' });
       } else {
-        // Root visit or #landing defaults to Landing Page showcase
+        // Web root visit or #landing defaults to Landing Page showcase
         useCanvasStore.setState({ viewMode: 'landing' });
       }
     };
