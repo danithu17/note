@@ -26,14 +26,17 @@ create table if not exists public.profiles (
 
 alter table public.profiles enable row level security;
 
+drop policy if exists "Users can view own profile" on public.profiles;
 create policy "Users can view own profile"
   on public.profiles for select
   using (auth.uid() = id);
 
+drop policy if exists "Users can update own profile" on public.profiles;
 create policy "Users can update own profile"
   on public.profiles for update
   using (auth.uid() = id);
 
+drop policy if exists "Users can insert own profile" on public.profiles;
 create policy "Users can insert own profile"
   on public.profiles for insert
   with check (auth.uid() = id);
@@ -90,18 +93,22 @@ create table if not exists public.workspaces (
 
 alter table public.workspaces enable row level security;
 
+drop policy if exists "Users can read own workspaces" on public.workspaces;
 create policy "Users can read own workspaces"
   on public.workspaces for select
   using (auth.uid() = user_id);
 
+drop policy if exists "Users can insert own workspaces" on public.workspaces;
 create policy "Users can insert own workspaces"
   on public.workspaces for insert
   with check (auth.uid() = user_id);
 
+drop policy if exists "Users can update own workspaces" on public.workspaces;
 create policy "Users can update own workspaces"
   on public.workspaces for update
   using (auth.uid() = user_id);
 
+drop policy if exists "Users can delete own workspaces" on public.workspaces;
 create policy "Users can delete own workspaces"
   on public.workspaces for delete
   using (auth.uid() = user_id);
@@ -121,6 +128,7 @@ create table if not exists public.notebooks (
 
 alter table public.notebooks enable row level security;
 
+drop policy if exists "Users can manage own notebooks" on public.notebooks;
 create policy "Users can manage own notebooks"
   on public.notebooks for all
   using (auth.uid() = user_id);
@@ -148,6 +156,7 @@ create table if not exists public.notes (
 
 alter table public.notes enable row level security;
 
+drop policy if exists "Users can manage own notes" on public.notes;
 create policy "Users can manage own notes"
   on public.notes for all
   using (auth.uid() = user_id);
@@ -164,6 +173,7 @@ create table if not exists public.canvas_strokes (
 
 alter table public.canvas_strokes enable row level security;
 
+drop policy if exists "Users can manage own canvas strokes" on public.canvas_strokes;
 create policy "Users can manage own canvas strokes"
   on public.canvas_strokes for all
   using (auth.uid() = user_id);
@@ -184,6 +194,7 @@ create table if not exists public.attachments (
 
 alter table public.attachments enable row level security;
 
+drop policy if exists "Users can manage own attachments" on public.attachments;
 create policy "Users can manage own attachments"
   on public.attachments for all
   using (auth.uid() = user_id);
@@ -203,6 +214,7 @@ create table if not exists public.version_history (
 
 alter table public.version_history enable row level security;
 
+drop policy if exists "Users can manage own version history" on public.version_history;
 create policy "Users can manage own version history"
   on public.version_history for all
   using (auth.uid() = user_id);
@@ -212,18 +224,35 @@ insert into storage.buckets (id, name, public)
 values ('scribblenote-media', 'scribblenote-media', true)
 on conflict (id) do nothing;
 
+drop policy if exists "Users can upload own media objects" on storage.objects;
 create policy "Users can upload own media objects"
   on storage.objects for insert
   with check (bucket_id = 'scribblenote-media' and auth.uid()::text = (storage.foldername(name))[1]);
 
+drop policy if exists "Users can view own media objects" on storage.objects;
 create policy "Users can view own media objects"
   on storage.objects for select
   using (bucket_id = 'scribblenote-media' and auth.uid()::text = (storage.foldername(name))[1]);
 
+drop policy if exists "Users can delete own media objects" on storage.objects;
 create policy "Users can delete own media objects"
   on storage.objects for delete
   using (bucket_id = 'scribblenote-media' and auth.uid()::text = (storage.foldername(name))[1]);
 
--- Enable Realtime for Notes and Strokes
-alter publication supabase_realtime add table public.notes;
-alter publication supabase_realtime add table public.canvas_strokes;
+-- Enable Realtime for Notes and Strokes safely (idempotent)
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'notes'
+  ) then
+    alter publication supabase_realtime add table public.notes;
+  end if;
+
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'canvas_strokes'
+  ) then
+    alter publication supabase_realtime add table public.canvas_strokes;
+  end if;
+end $$;

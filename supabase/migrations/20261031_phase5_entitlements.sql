@@ -172,12 +172,24 @@ ALTER TABLE public.coupons ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
 
 -- Public can read plans, features, and active plan_features
+DROP POLICY IF EXISTS "Public can view plans" ON public.plans;
 CREATE POLICY "Public can view plans" ON public.plans FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public can view features" ON public.features;
 CREATE POLICY "Public can view features" ON public.features FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public can view plan_features" ON public.plan_features;
 CREATE POLICY "Public can view plan_features" ON public.plan_features FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public can view active coupons" ON public.coupons;
 CREATE POLICY "Public can view active coupons" ON public.coupons FOR SELECT USING (active = true);
 
 -- Users can read their own trial, subscriptions, and usage
+DROP POLICY IF EXISTS "Users can view own trial" ON public.trials;
 CREATE POLICY "Users can view own trial" ON public.trials FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can view own subscriptions" ON public.subscriptions;
 CREATE POLICY "Users can view own subscriptions" ON public.subscriptions FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can view own usage counters" ON public.usage_counters;
 CREATE POLICY "Users can view own usage counters" ON public.usage_counters FOR SELECT USING (auth.uid() = user_id);
