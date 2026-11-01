@@ -4,6 +4,14 @@ import { getSupabaseClient } from '../supabase/client';
 import { db, calculateStorageUsage } from '../db';
 import { validatePassword } from './passwordRules';
 import { initializeUserTrial } from '@/features/billing/trialService';
+import {
+  firebaseSignInWithEmail,
+  firebaseSignUpWithEmail,
+  firebaseSignInWithGoogle,
+  firebaseResetPassword,
+  firebaseLogout,
+  subscribeToFirebaseAuthState,
+} from '../firebase/authService';
 
 const CACHED_USER_KEY = 'scribblenote_cached_user';
 const PRO_STORAGE_LIMIT = 10 * 1024 * 1024 * 1024; // 10 GB Pro scholar storage limit
@@ -128,7 +136,37 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return;
     }
 
-    // 2. Online: verify with Supabase
+    // 2. Online: Subscribe to Firebase Cloud Auth & verify session
+    try {
+      subscribeToFirebaseAuthState(async (fbUser) => {
+        if (fbUser) {
+          const usage = await calculateStorageUsage();
+          initializeUserTrial(fbUser.uid);
+          const cached = localStorage.getItem(CACHED_USER_KEY);
+          let prevData: Partial<UserAccount> = {};
+          if (cached) {
+            try { prevData = JSON.parse(cached); } catch { /* ignore */ }
+          }
+          const account: UserAccount = {
+            id: fbUser.uid,
+            email: fbUser.email || undefined,
+            name: fbUser.displayName || prevData.name || fbUser.email?.split('@')[0] || 'Scholar',
+            avatarUrl: fbUser.photoURL || prevData.avatarUrl,
+            isGuest: false,
+            plan: prevData.plan || 'pro',
+            studyRole: prevData.studyRole,
+            subject: prevData.subject,
+            storageUsedBytes: usage.totalBytes,
+            storageLimitBytes: PRO_STORAGE_LIMIT,
+          };
+          localStorage.setItem(CACHED_USER_KEY, JSON.stringify(account));
+          set({ user: account, isLoading: false, isAuthModalOpen: false });
+        }
+      });
+    } catch (fbInitErr) {
+      console.warn('[Firebase] Auth state observer warning:', fbInitErr);
+    }
+
     const client = getSupabaseClient();
     if (!client) {
       // Check cached user fallback
@@ -280,6 +318,35 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   signInWithGoogle: async () => {
     set({ error: null });
+
+    // 1. Try Firebase Google Cloud Auth
+    try {
+      const fbRes = await firebaseSignInWithGoogle();
+      if (fbRes.success && fbRes.user) {
+        const usage = await calculateStorageUsage();
+        initializeUserTrial(fbRes.user.uid);
+        const account: UserAccount = {
+          id: fbRes.user.uid,
+          email: fbRes.user.email || undefined,
+          name: fbRes.user.displayName || 'Google Scholar',
+          avatarUrl: fbRes.user.photoURL || undefined,
+          isGuest: false,
+          plan: 'pro',
+          trialStart: Date.now(),
+          trialEnd: Date.now() + 14 * 24 * 60 * 60 * 1000,
+          consentVersion: 'v1.0',
+          consentTimestamp: Date.now(),
+          storageUsedBytes: usage.totalBytes,
+          storageLimitBytes: PRO_STORAGE_LIMIT,
+        };
+        localStorage.setItem(CACHED_USER_KEY, JSON.stringify(account));
+        set({ user: account, isOnboarding: false, isAuthModalOpen: false, isLoading: false, error: null });
+        return { success: true };
+      }
+    } catch (fbErr) {
+      console.warn('[Firebase] Google sign-in fallback:', fbErr);
+    }
+
     const isNative =
       typeof window !== 'undefined' &&
       ((window as any).Capacitor?.isNativePlatform?.() || (window as any).Capacitor?.getPlatform?.() === 'android');
@@ -398,6 +465,34 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
     set({ error: null });
 
+    // 1. Try Firebase Cloud Authentication first (Real Cloud User)
+    try {
+      const fbRes = await firebaseSignInWithEmail(trimmedEmail, password);
+      if (fbRes.success && fbRes.user) {
+        const usage = await calculateStorageUsage();
+        initializeUserTrial(fbRes.user.uid);
+        const account: UserAccount = {
+          id: fbRes.user.uid,
+          email: fbRes.user.email || trimmedEmail,
+          name: fbRes.user.displayName || trimmedEmail.split('@')[0] || 'Scholar',
+          avatarUrl: fbRes.user.photoURL || undefined,
+          isGuest: false,
+          plan: 'pro',
+          trialStart: Date.now(),
+          trialEnd: Date.now() + 14 * 24 * 60 * 60 * 1000,
+          consentVersion: 'v1.0',
+          consentTimestamp: Date.now(),
+          storageUsedBytes: usage.totalBytes,
+          storageLimitBytes: PRO_STORAGE_LIMIT,
+        };
+        localStorage.setItem(CACHED_USER_KEY, JSON.stringify(account));
+        set({ user: account, isOnboarding: false, isAuthModalOpen: false, isLoading: false, error: null });
+        return { success: true };
+      }
+    } catch (fbErr) {
+      console.warn('[Firebase] Email sign-in skipped:', fbErr);
+    }
+
     const client = getSupabaseClient();
     if (!client) {
       const account = await createOrActivateLocalAccount(trimmedEmail, trimmedEmail.split('@')[0]);
@@ -510,6 +605,34 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return { success: false, error: 'Please enter a valid email address.' };
     }
     set({ error: null });
+
+    // 1. Try Firebase Cloud signup first (Real Cloud User, No Rate Limits)
+    try {
+      const fbRes = await firebaseSignUpWithEmail(trimmedEmail, password, name);
+      if (fbRes.success && fbRes.user) {
+        const usage = await calculateStorageUsage();
+        initializeUserTrial(fbRes.user.uid);
+        const account: UserAccount = {
+          id: fbRes.user.uid,
+          email: fbRes.user.email || trimmedEmail,
+          name: name || fbRes.user.displayName || trimmedEmail.split('@')[0] || 'Scholar',
+          avatarUrl: fbRes.user.photoURL || undefined,
+          isGuest: false,
+          plan: 'pro',
+          trialStart: Date.now(),
+          trialEnd: Date.now() + 14 * 24 * 60 * 60 * 1000,
+          consentVersion: consent?.version || 'v1.0',
+          consentTimestamp: consent?.timestamp || Date.now(),
+          storageUsedBytes: usage.totalBytes,
+          storageLimitBytes: PRO_STORAGE_LIMIT,
+        };
+        localStorage.setItem(CACHED_USER_KEY, JSON.stringify(account));
+        set({ user: account, isOnboarding: true, isAuthModalOpen: false, isLoading: false, error: null });
+        return { success: true };
+      }
+    } catch (fbErr) {
+      console.warn('[Firebase] Sign-up skipped:', fbErr);
+    }
 
     const client = getSupabaseClient();
     if (!client) {
@@ -802,6 +925,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signOutAllDevices: async () => {
+    try {
+      await firebaseLogout();
+    } catch (e) {
+      console.warn('[Firebase] Sign-out warning:', e);
+    }
     const client = getSupabaseClient();
     if (client) {
       try {
@@ -820,6 +948,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signOut: async () => {
+    try {
+      await firebaseLogout();
+    } catch (e) {
+      console.warn('[Firebase] Sign-out warning:', e);
+    }
     const client = getSupabaseClient();
     if (client) {
       try {

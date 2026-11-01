@@ -1,26 +1,36 @@
 {
   "project_info": {
-    "project_number": "568859248241",
-    "project_id": "fir-1-3feab",
-    "storage_bucket": "fir-1-3feab.firebasestorage.app"
+    "project_number": "542945871024",
+    "project_id": "chat-3af33",
+    "storage_bucket": "chat-3af33.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:568859248241:android:69d3aee83fa76b6c577dd0",
+        "mobilesdk_app_id": "1:542945871024:android:8113c26331bec4cf082775",
         "android_client_info": {
           "package_name": "com.scribblenote.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "542945871024-bh5l0f1r0nuc0n5cr2qd4gbh9i9f6hmb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyAuioQG3uscCX158891VV4OysRyBhwSWFg"
+          "current_key": "AIzaSyCCrx46_a4Wuyc7BlPBYPigPhJPF1AxrMU"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "542945871024-bh5l0f1r0nuc0n5cr2qd4gbh9i9f6hmb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

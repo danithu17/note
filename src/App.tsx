@@ -106,10 +106,11 @@ export function App() {
       const hash = window.location.hash.toLowerCase();
       if (hash.includes('admin')) {
         useCanvasStore.setState({ activeModal: 'admin', viewMode: 'app' });
-      } else if (hash.includes('landing')) {
-        useCanvasStore.setState({ viewMode: 'landing' });
-      } else {
+      } else if (hash.includes('app')) {
         useCanvasStore.setState({ viewMode: 'app' });
+      } else {
+        // Root visit or #landing defaults to Landing Page showcase
+        useCanvasStore.setState({ viewMode: 'landing' });
       }
     };
 
@@ -148,16 +149,35 @@ export function App() {
     );
   }
 
-  // MANDATORY AUTH GUARD: No anonymous/guest use. The app is accessible only after signing in.
-  if (!user) {
+  // 1. Landing Page Showcase: First screen shown to visitors
+  if (viewMode === 'landing') {
     return (
-      <div className={isDarkMode ? 'dark' : ''}>
-        <WelcomeAuthScreen />
+      <div
+        className={`w-screen h-screen flex flex-col overflow-hidden bg-[#f8f9fa] dark:bg-black ${
+          isDarkMode ? 'dark' : ''
+        }`}
+      >
+        <div className="w-full h-full overflow-y-auto">
+          <LandingPage
+            onLaunchApp={() => setViewMode('app')}
+            onOpenPricing={() => openModal('pricing')}
+          />
+        </div>
+        <GlobalModals />
       </div>
     );
   }
 
-  // ONBOARDING STEP: Name, Academic Role, and Subject immediately after first signup
+  // 2. MANDATORY AUTH GUARD: When entering app, if unauthenticated, show Apple-grade Welcome/Auth screen!
+  if (!user) {
+    return (
+      <div className={isDarkMode ? 'dark' : ''}>
+        <WelcomeAuthScreen onBackToLanding={() => setViewMode('landing')} />
+      </div>
+    );
+  }
+
+  // 3. ONBOARDING STEP: Name, Academic Role, and Subject immediately after first signup
   if (isOnboarding) {
     return (
       <div className={isDarkMode ? 'dark' : ''}>
@@ -172,41 +192,30 @@ export function App() {
         isDarkMode ? 'dark' : ''
       }`}
     >
-      {viewMode === 'landing' ? (
-        <div className="w-full h-full overflow-y-auto">
-          <LandingPage
-            onLaunchApp={() => setViewMode('app')}
-            onOpenPricing={() => openModal('pricing')}
-          />
-        </div>
-      ) : (
-        <>
-          {/* Top Apple Navigation Bar */}
-          <Header />
+      {/* Top Apple Navigation Bar */}
+      <Header />
 
-          {/* 14-Day Free Student Trial Status Banner */}
-          <TrialBanner />
+      {/* 14-Day Free Student Trial Status Banner */}
+      <TrialBanner />
 
-          {/* Main Content Workspace */}
-          <div className="flex-1 flex overflow-hidden relative pb-14 md:pb-0">
-            {/* Apple Notes Style 3-Column Sidebar Drawer */}
-            <Sidebar />
+      {/* Main Content Workspace */}
+      <div className="flex-1 flex overflow-hidden relative pb-14 md:pb-0">
+        {/* Apple Notes Style 3-Column Sidebar Drawer */}
+        <Sidebar />
 
-            {/* Dynamic Workspace Layout: Chat Timeline Feed OR Resizable Hybrid Split Workspace */}
-            {layoutMode === 'timeline' ? (
-              <ChatTimelineView />
-            ) : (
-              <SplitPane left={<LectureEditor />} right={<VisualCanvas />} />
-            )}
+        {/* Dynamic Workspace Layout: Chat Timeline Feed OR Resizable Hybrid Split Workspace */}
+        {layoutMode === 'timeline' ? (
+          <ChatTimelineView />
+        ) : (
+          <SplitPane left={<LectureEditor />} right={<VisualCanvas />} />
+        )}
 
-            {/* Apple iMessage-Style AI Study Assistant (Cmd/Ctrl+J) */}
-            <ChatAssistantPanel />
-          </div>
+        {/* Apple iMessage-Style AI Study Assistant (Cmd/Ctrl+J) */}
+        <ChatAssistantPanel />
+      </div>
 
-          {/* Mobile Bottom Navigation Tab Bar (Notes, Canvas, Assistant, Study) */}
-          <MobileTabBar />
-        </>
-      )}
+      {/* Mobile Bottom Navigation Tab Bar (Notes, Canvas, Assistant, Study) */}
+      <MobileTabBar />
 
       {/* Global Modals (Auth, Sync, History, PDF, AI, Flashcards, Pomodoro, Pricing, Trash, Account) */}
       <GlobalModals />

@@ -12,13 +12,18 @@ import {
   WifiOff,
   ShieldCheck,
   ArrowRight,
+  ArrowLeft,
   RefreshCw,
 } from 'lucide-react';
 import { useAuthStore } from '@/core/auth/useAuthStore';
 import { validatePassword } from '@/core/auth/passwordRules';
 import confetti from 'canvas-confetti';
 
-export const WelcomeAuthScreen: React.FC = () => {
+interface WelcomeAuthScreenProps {
+  onBackToLanding?: () => void;
+}
+
+export const WelcomeAuthScreen: React.FC<WelcomeAuthScreenProps> = ({ onBackToLanding }) => {
   const {
     signInWithGoogle,
     signInWithApple,
@@ -171,6 +176,18 @@ export const WelcomeAuthScreen: React.FC = () => {
 
       {/* Main Apple-Grade Centered Card */}
       <div className="relative z-10 w-full max-w-md bg-white/85 dark:bg-[#1c1c1e]/85 backdrop-blur-2xl border border-slate-200/80 dark:border-white/10 shadow-2xl rounded-3xl p-6 sm:p-8 flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-200">
+        {/* Back to Landing Page Link */}
+        {onBackToLanding && (
+          <button
+            type="button"
+            onClick={onBackToLanding}
+            className="self-start -mt-2 -mb-2 text-xs font-semibold text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 flex items-center gap-1.5 transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back to Home</span>
+          </button>
+        )}
+
         {/* App Logo & Short Tagline */}
         <div className="flex flex-col items-center text-center gap-2">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/25">

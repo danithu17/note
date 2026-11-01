@@ -4,13 +4,13 @@ import { getAuth, type Auth } from 'firebase/auth';
 const env = typeof import.meta !== 'undefined' && (import.meta as any).env ? (import.meta as any).env : {};
 
 const firebaseConfig = {
-  projectId: env.VITE_FIREBASE_PROJECT_ID || 'fir-1-3feab',
-  appId: env.VITE_FIREBASE_APP_ID || '1:568859248241:web:84358fa3e8326503577dd0',
-  storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || 'fir-1-3feab.firebasestorage.app',
-  apiKey: env.VITE_FIREBASE_API_KEY || 'AIzaSyDbmlPB7UiwiW3gIVJ_pfuLvAVtzhi0lZE',
-  authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || 'fir-1-3feab.firebaseapp.com',
-  messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || '568859248241',
-  measurementId: 'G-7RKW7NGLYG',
+  projectId: env.VITE_FIREBASE_PROJECT_ID || 'chat-3af33',
+  appId: env.VITE_FIREBASE_APP_ID || '1:542945871024:web:894c2e23d4492a2c082775',
+  storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || 'chat-3af33.firebasestorage.app',
+  apiKey: env.VITE_FIREBASE_API_KEY || 'AIzaSyBE-3MdwFrylHsX1gSc4q1MZnlvdbISBQo',
+  authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || 'chat-3af33.firebaseapp.com',
+  messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || '542945871024',
+  measurementId: 'G-11GTGYHK7F',
 };
 
 export function getFirebaseApp(): FirebaseApp {
