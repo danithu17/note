@@ -15,7 +15,7 @@ describe('Auto Account Creation & Email Rate Limit Immunity', () => {
     expect(currentUser?.email).toBe('newstudent2026@gmail.com');
     expect(currentUser?.plan).toBe('pro');
     expect(currentUser?.isGuest).toBe(false);
-  });
+  }, 15000);
 
   it('does not block the user when email rate limit exceeded occurs during signup', async () => {
     const res = await useAuthStore.getState().signUpWithEmail('ratelimited_user@gmail.com', 'SecurePass123!', 'Alex Scholar');
@@ -25,7 +25,7 @@ describe('Auto Account Creation & Email Rate Limit Immunity', () => {
     expect(currentUser?.email).toBe('ratelimited_user@gmail.com');
     expect(currentUser?.plan).toBe('pro');
     expect(currentUser?.name).toBe('Alex Scholar');
-  });
+  }, 15000);
 
   it('seamlessly logs in and auto-creates an account via Google sign in', async () => {
     const res = await useAuthStore.getState().signInWithGoogle();

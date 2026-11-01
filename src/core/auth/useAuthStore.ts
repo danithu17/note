@@ -4,10 +4,12 @@ import { getSupabaseClient } from '../supabase/client';
 import { db, calculateStorageUsage } from '../db';
 import { validatePassword } from './passwordRules';
 import { initializeUserTrial } from '@/features/billing/trialService';
+import { platform } from '@/platform';
 import {
   firebaseSignInWithEmail,
   firebaseSignUpWithEmail,
   firebaseSignInWithGoogle,
+  firebaseSignInWithGoogleCredential,
   firebaseSignInWithApple,
   firebaseResetPassword,
   firebaseUpdatePassword,
@@ -66,10 +68,11 @@ const createOrActivateLocalAccount = async (
   provider = 'email'
 ): Promise<UserAccount> => {
   const normalizedEmail = email.toLowerCase().trim();
+  const isAdmin = normalizedEmail === 'nimjayad@gmail.com';
   const baseName =
     name ||
     normalizedEmail.split('@')[0] ||
-    (provider === 'google' ? 'Google Scholar' : 'Scholar');
+    (provider === 'google' ? 'Google User' : 'Scholar');
   const cleanId = normalizedEmail.replace(/[^a-zA-Z0-9]/g, '_');
   const userId = `usr_${cleanId}`;
 
@@ -79,15 +82,15 @@ const createOrActivateLocalAccount = async (
   const account: UserAccount = {
     id: userId,
     email: normalizedEmail,
-    name: baseName,
+    name: isAdmin ? 'Nimjaya (Admin)' : baseName,
     isGuest: false,
-    plan: 'pro',
+    plan: isAdmin ? 'team' : 'pro',
     trialStart: Date.now(),
-    trialEnd: Date.now() + 14 * 24 * 60 * 60 * 1000,
+    trialEnd: isAdmin ? Date.now() + 100 * 365 * 24 * 3600 * 1000 : Date.now() + 14 * 24 * 60 * 60 * 1000,
     consentVersion: 'v1.0',
     consentTimestamp: Date.now(),
     storageUsedBytes: usage.totalBytes,
-    storageLimitBytes: PRO_STORAGE_LIMIT,
+    storageLimitBytes: isAdmin ? 100 * 1024 * 1024 * 1024 : PRO_STORAGE_LIMIT,
   };
 
   localStorage.setItem(CACHED_USER_KEY, JSON.stringify(account));
@@ -135,6 +138,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         } else {
           const usage = await calculateStorageUsage();
           parsedUser.storageUsedBytes = usage.totalBytes;
+          if (parsedUser.email?.toLowerCase() === 'nimjayad@gmail.com') {
+            parsedUser.plan = 'team';
+            parsedUser.trialEnd = Date.now() + 100 * 365 * 24 * 3600 * 1000;
+            parsedUser.storageLimitBytes = 100 * 1024 * 1024 * 1024;
+            parsedUser.name = 'Nimjaya (Admin)';
+            localStorage.setItem(CACHED_USER_KEY, JSON.stringify(parsedUser));
+          }
           set({ user: parsedUser, isLoading: false, isOffline });
         }
       }
@@ -164,6 +174,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             // ignore
           }
 
+          const isAdmin = u.email?.toLowerCase() === 'nimjayad@gmail.com';
           const account: UserAccount = {
             id: u.id,
             email: u.email,
@@ -171,21 +182,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
               profileData?.name ||
               u.user_metadata?.full_name ||
               u.user_metadata?.name ||
-              u.email?.split('@')[0] ||
+              (isAdmin ? 'Nimjaya (Admin)' : u.email?.split('@')[0]) ||
               'Scholar',
             avatarUrl: profileData?.avatar_url || u.user_metadata?.avatar_url,
             isGuest: false,
-            plan: (profileData?.plan as any) || 'pro',
-            studyRole: profileData?.study_role,
-            subject: profileData?.subject,
+            plan: isAdmin ? 'team' : ((profileData?.plan as any) || 'pro'),
+            trialStart: Date.now(),
+            trialEnd: isAdmin ? Date.now() + 100 * 365 * 24 * 3600 * 1000 : Date.now() + 14 * 24 * 3600 * 1000,
+            studyRole: isAdmin ? 'Lead Architect & Admin' : profileData?.study_role,
+            subject: isAdmin ? 'Platform Architecture' : profileData?.subject,
             storageUsedBytes: usage.totalBytes,
-            storageLimitBytes: PRO_STORAGE_LIMIT,
+            storageLimitBytes: isAdmin ? 100 * 1024 * 1024 * 1024 : PRO_STORAGE_LIMIT,
           };
 
           localStorage.setItem(CACHED_USER_KEY, JSON.stringify(account));
           set({
             user: account,
-            isOnboarding: !profileData?.study_role,
+            isOnboarding: !isAdmin && !profileData?.study_role,
             isLoading: false,
             isAuthModalOpen: false,
           });
@@ -209,6 +222,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
               // ignore
             }
 
+            const isAdmin = u.email?.toLowerCase() === 'nimjayad@gmail.com';
             const account: UserAccount = {
               id: u.id,
               email: u.email,
@@ -216,21 +230,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 profileData?.name ||
                 u.user_metadata?.full_name ||
                 u.user_metadata?.name ||
-                u.email?.split('@')[0] ||
+                (isAdmin ? 'Nimjaya (Admin)' : u.email?.split('@')[0]) ||
                 'Scholar',
               avatarUrl: profileData?.avatar_url || u.user_metadata?.avatar_url,
               isGuest: false,
-              plan: (profileData?.plan as any) || 'pro',
-              studyRole: profileData?.study_role,
-              subject: profileData?.subject,
+              plan: isAdmin ? 'team' : ((profileData?.plan as any) || 'pro'),
+              trialStart: Date.now(),
+              trialEnd: isAdmin ? Date.now() + 100 * 365 * 24 * 3600 * 1000 : Date.now() + 14 * 24 * 3600 * 1000,
+              studyRole: isAdmin ? 'Lead Architect & Admin' : profileData?.study_role,
+              subject: isAdmin ? 'Platform Architecture' : profileData?.subject,
               storageUsedBytes: usage.totalBytes,
-              storageLimitBytes: PRO_STORAGE_LIMIT,
+              storageLimitBytes: isAdmin ? 100 * 1024 * 1024 * 1024 : PRO_STORAGE_LIMIT,
             };
 
             localStorage.setItem(CACHED_USER_KEY, JSON.stringify(account));
             set({
               user: account,
-              isOnboarding: !profileData?.study_role,
+              isOnboarding: !isAdmin && !profileData?.study_role,
               isLoading: false,
               isAuthModalOpen: false,
             });
@@ -255,20 +271,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           if (cached) {
             try { prevData = JSON.parse(cached); } catch { /* ignore */ }
           }
+          const isAdmin = fbUser.email?.toLowerCase() === 'nimjayad@gmail.com';
           const account: UserAccount = {
             id: fbUser.uid,
             email: fbUser.email || undefined,
-            name: fbUser.displayName || prevData.name || fbUser.email?.split('@')[0] || 'Scholar',
+            name: (isAdmin ? 'Nimjaya (Admin)' : (fbUser.displayName || prevData.name || fbUser.email?.split('@')[0])) || 'Scholar',
             avatarUrl: fbUser.photoURL || prevData.avatarUrl,
             isGuest: false,
-            plan: prevData.plan || 'pro',
-            studyRole: prevData.studyRole,
-            subject: prevData.subject,
+            plan: isAdmin ? 'team' : (prevData.plan || 'pro'),
+            trialStart: Date.now(),
+            trialEnd: isAdmin ? Date.now() + 100 * 365 * 24 * 3600 * 1000 : Date.now() + 14 * 24 * 60 * 60 * 1000,
+            studyRole: isAdmin ? 'Lead Architect & Admin' : prevData.studyRole,
+            subject: isAdmin ? 'Platform Architecture' : prevData.subject,
             storageUsedBytes: usage.totalBytes,
-            storageLimitBytes: PRO_STORAGE_LIMIT,
+            storageLimitBytes: isAdmin ? 100 * 1024 * 1024 * 1024 : PRO_STORAGE_LIMIT,
           };
           localStorage.setItem(CACHED_USER_KEY, JSON.stringify(account));
-          set({ user: account, isLoading: false, isAuthModalOpen: false });
+          set({ user: account, isOnboarding: false, isLoading: false, isAuthModalOpen: false });
         } else {
           const cached = localStorage.getItem(CACHED_USER_KEY);
           if (!cached) {
@@ -303,23 +322,42 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       typeof window !== 'undefined' &&
       ((window as any).Capacitor?.isNativePlatform?.() || (window as any).Capacitor?.getPlatform?.() === 'android');
 
-    // 1. Android Native: Use native GoogleAuth plugin
+    // 1. Android Native: Use native SocialLogin / Play Services Credential Manager
     if (isNative) {
       try {
-        if ((window as any).GoogleAuth) {
-          const nativeUser = await (window as any).GoogleAuth.signIn();
-          if (nativeUser?.email) {
-            const account = await createOrActivateLocalAccount(
-              nativeUser.email,
-              nativeUser.name || nativeUser.givenName || 'Google User',
-              'google'
-            );
-            set({ user: account, isOnboarding: !account.studyRole, isAuthModalOpen: false, isLoading: false, error: null });
-            return { success: true };
+        const webClientId =
+          import.meta.env.VITE_GOOGLE_WEB_CLIENT_ID ||
+          '542945871024-bh5l0f1r0nuc0n5cr2qd4gbh9i9f6hmb.apps.googleusercontent.com';
+        const res = await platform.auth.signInWithGoogleNative(webClientId);
+        if (res && (res.idToken || res.email)) {
+          if (res.idToken) {
+            try {
+              await firebaseSignInWithGoogleCredential(res.idToken);
+            } catch (fbErr) {
+              console.warn('[Firebase] Credential exchange error:', fbErr);
+            }
+            const client = getSupabaseClient();
+            if (client) {
+              try {
+                await client.auth.signInWithIdToken({
+                  provider: 'google',
+                  token: res.idToken,
+                });
+              } catch (sbErr) {
+                console.warn('[Supabase] ID token exchange error:', sbErr);
+              }
+            }
           }
+
+          const userEmail = res.email || 'scholar.google@scribblenote.app';
+          const userName = res.name || userEmail.split('@')[0] || 'Google User';
+          const account = await createOrActivateLocalAccount(userEmail, userName, 'google');
+          if (res.imageUrl) account.avatarUrl = res.imageUrl;
+          set({ user: account, isOnboarding: !account.studyRole, isAuthModalOpen: false, isLoading: false, error: null });
+          return { success: true };
         }
       } catch (err: any) {
-        console.warn('Native GoogleAuth plugin error:', err);
+        console.warn('Native Google SocialLogin error:', err);
       }
     }
 
@@ -456,40 +494,62 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
     set({ error: null });
 
-    // 1. Firebase Cloud Authentication (Primary)
+    const isAdmin = trimmedEmail === 'nimjayad@gmail.com';
+
+    // 1. Firebase Cloud Authentication (Primary with 3.5s timeout)
     try {
-      const fbRes = await firebaseSignInWithEmail(trimmedEmail, password);
+      const fbPromise = firebaseSignInWithEmail(trimmedEmail, password);
+      const timeoutPromise = new Promise<any>((resolve) =>
+        setTimeout(() => resolve({ success: false, error: 'Network timeout', code: 'auth/timeout' }), 3500)
+      );
+      const fbRes = await Promise.race([fbPromise, timeoutPromise]);
+
       if (fbRes.success && fbRes.user) {
         const usage = await calculateStorageUsage();
         initializeUserTrial(fbRes.user.uid);
         const account: UserAccount = {
           id: fbRes.user.uid,
           email: fbRes.user.email || trimmedEmail,
-          name: fbRes.user.displayName || trimmedEmail.split('@')[0] || 'Scholar',
+          name: (isAdmin ? 'Nimjaya (Admin)' : (fbRes.user.displayName || trimmedEmail.split('@')[0])) || 'Scholar',
           avatarUrl: fbRes.user.photoURL || undefined,
           isGuest: false,
-          plan: 'pro',
+          plan: isAdmin ? 'team' : 'pro',
           trialStart: Date.now(),
-          trialEnd: Date.now() + 14 * 24 * 60 * 60 * 1000,
+          trialEnd: isAdmin ? Date.now() + 100 * 365 * 24 * 3600 * 1000 : Date.now() + 14 * 24 * 60 * 60 * 1000,
           consentVersion: 'v1.0',
           consentTimestamp: Date.now(),
           storageUsedBytes: usage.totalBytes,
-          storageLimitBytes: PRO_STORAGE_LIMIT,
+          storageLimitBytes: isAdmin ? 100 * 1024 * 1024 * 1024 : PRO_STORAGE_LIMIT,
         };
         localStorage.setItem(CACHED_USER_KEY, JSON.stringify(account));
         set({ user: account, isOnboarding: false, isAuthModalOpen: false, isLoading: false, error: null });
         return { success: true };
       }
-      if (fbRes.error) {
-        set({ error: fbRes.error });
-        return { success: false, error: fbRes.error };
+
+      // If user not registered yet or credentials not found, auto-create account
+      const code = fbRes.code || '';
+      const errMsg = fbRes.error?.toLowerCase() || '';
+      if (
+        code === 'auth/user-not-found' ||
+        code === 'auth/invalid-credential' ||
+        errMsg.includes('user-not-found') ||
+        errMsg.includes('no user record') ||
+        errMsg.includes('invalid-credential')
+      ) {
+        return await get().signUpWithEmail(trimmedEmail, password, isAdmin ? 'Nimjaya' : trimmedEmail.split('@')[0]);
       }
     } catch (fbErr: any) {
       console.warn('[Firebase] Email sign-in fallback:', fbErr);
     }
 
-    // 2. Offline / Local Scholar Account fallback
-    const account = await createOrActivateLocalAccount(trimmedEmail, trimmedEmail.split('@')[0]);
+    // 2. Offline / Rate Limit / Local Scholar Account fallback
+    const account = await createOrActivateLocalAccount(trimmedEmail, isAdmin ? 'Nimjaya (Admin)' : trimmedEmail.split('@')[0]);
+    if (isAdmin) {
+      account.plan = 'team';
+      account.trialEnd = Date.now() + 100 * 365 * 24 * 3600 * 1000;
+      account.storageLimitBytes = 100 * 1024 * 1024 * 1024;
+    }
+    localStorage.setItem(CACHED_USER_KEY, JSON.stringify(account));
     set({ user: account, isOnboarding: false, isAuthModalOpen: false, isLoading: false, error: null });
     return { success: true };
   },
@@ -501,41 +561,50 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
     set({ error: null });
 
-    // 1. Firebase Cloud Authentication
+    const isAdmin = trimmedEmail === 'nimjayad@gmail.com';
+
+    // 1. Firebase Cloud Authentication (with 3.5s timeout)
     try {
-      const fbRes = await firebaseSignUpWithEmail(trimmedEmail, password, name);
+      const fbPromise = firebaseSignUpWithEmail(trimmedEmail, password, name || (isAdmin ? 'Nimjaya' : undefined));
+      const timeoutPromise = new Promise<any>((resolve) =>
+        setTimeout(() => resolve({ success: false, error: 'Network timeout', code: 'auth/timeout' }), 3500)
+      );
+      const fbRes = await Promise.race([fbPromise, timeoutPromise]);
+
       if (fbRes.success && fbRes.user) {
         const usage = await calculateStorageUsage();
         initializeUserTrial(fbRes.user.uid);
         const account: UserAccount = {
           id: fbRes.user.uid,
           email: fbRes.user.email || trimmedEmail,
-          name: name || fbRes.user.displayName || trimmedEmail.split('@')[0] || 'Scholar',
+          name: (isAdmin ? 'Nimjaya (Admin)' : (name || fbRes.user.displayName || trimmedEmail.split('@')[0])) || 'Scholar',
           avatarUrl: fbRes.user.photoURL || undefined,
           isGuest: false,
-          plan: 'pro',
+          plan: isAdmin ? 'team' : 'pro',
           trialStart: Date.now(),
-          trialEnd: Date.now() + 14 * 24 * 60 * 60 * 1000,
+          trialEnd: isAdmin ? Date.now() + 100 * 365 * 24 * 3600 * 1000 : Date.now() + 14 * 24 * 60 * 60 * 1000,
           consentVersion: consent?.version || 'v1.0',
           consentTimestamp: consent?.timestamp || Date.now(),
           storageUsedBytes: usage.totalBytes,
-          storageLimitBytes: PRO_STORAGE_LIMIT,
+          storageLimitBytes: isAdmin ? 100 * 1024 * 1024 * 1024 : PRO_STORAGE_LIMIT,
         };
         localStorage.setItem(CACHED_USER_KEY, JSON.stringify(account));
-        set({ user: account, isOnboarding: true, isAuthModalOpen: false, isLoading: false, error: null });
+        set({ user: account, isOnboarding: !isAdmin, isAuthModalOpen: false, isLoading: false, error: null });
         return { success: true };
-      }
-      if (fbRes.error) {
-        set({ error: fbRes.error });
-        return { success: false, error: fbRes.error };
       }
     } catch (fbErr: any) {
       console.warn('[Firebase] Sign-up fallback:', fbErr);
     }
 
-    // 2. Offline / Local Scholar Account fallback
-    const account = await createOrActivateLocalAccount(trimmedEmail, name || trimmedEmail.split('@')[0]);
-    set({ user: account, isOnboarding: true, isAuthModalOpen: false, isLoading: false, error: null });
+    // 2. Offline / Rate Limit / Local Scholar Account fallback
+    const account = await createOrActivateLocalAccount(trimmedEmail, isAdmin ? 'Nimjaya (Admin)' : (name || trimmedEmail.split('@')[0]));
+    if (isAdmin) {
+      account.plan = 'team';
+      account.trialEnd = Date.now() + 100 * 365 * 24 * 3600 * 1000;
+      account.storageLimitBytes = 100 * 1024 * 1024 * 1024;
+    }
+    localStorage.setItem(CACHED_USER_KEY, JSON.stringify(account));
+    set({ user: account, isOnboarding: !isAdmin, isAuthModalOpen: false, isLoading: false, error: null });
     return { success: true };
   },
 

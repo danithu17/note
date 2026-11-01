@@ -67,7 +67,12 @@ export interface IAudioRecorderPlatform {
 
 export interface IAuthPlatform {
   isNativeGoogleAvailable(): boolean;
-  signInWithGoogleNative(webClientId: string): Promise<{ idToken: string } | null>;
+  signInWithGoogleNative(webClientId: string): Promise<{
+    idToken: string;
+    email?: string;
+    name?: string;
+    imageUrl?: string;
+  } | null>;
 }
 
 export interface IBillingProduct {

@@ -2,13 +2,17 @@ import React, { useState } from 'react';
 import { Sparkles, X, ArrowRight } from 'lucide-react';
 import { useEntitlementsStore } from '../useEntitlementsStore';
 import { useCanvasStore } from '@/store/useCanvasStore';
+import { useAuthStore } from '@/core/auth/useAuthStore';
 
 export const TrialBanner: React.FC = () => {
   const { trial } = useEntitlementsStore();
   const { openModal } = useCanvasStore();
+  const user = useAuthStore((s) => s.user);
   const [isDismissed, setIsDismissed] = useState(false);
 
-  if (!trial || !trial.isTrialActive || isDismissed) {
+  const isOwnerAdmin = user?.email?.toLowerCase() === 'nimjayad@gmail.com';
+
+  if (!trial || !trial.isTrialActive || isDismissed || isOwnerAdmin || trial.daysRemaining > 365) {
     return null;
   }
 

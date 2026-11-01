@@ -241,7 +241,12 @@ export class WebAuthPlatform implements IAuthPlatform {
     return false;
   }
 
-  async signInWithGoogleNative(): Promise<{ idToken: string } | null> {
+  async signInWithGoogleNative(): Promise<{
+    idToken: string;
+    email?: string;
+    name?: string;
+    imageUrl?: string;
+  } | null> {
     return null;
   }
 }

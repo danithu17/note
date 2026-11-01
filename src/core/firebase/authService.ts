@@ -2,6 +2,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
+  signInWithCredential,
   GoogleAuthProvider,
   OAuthProvider,
   signOut as firebaseSignOut,
@@ -78,6 +79,17 @@ export async function firebaseSignInWithGoogle(): Promise<FirebaseAuthResult> {
     return { success: true, user: cred.user };
   } catch (err: any) {
     return { success: false, error: err.message || 'Firebase Google Sign-In failed.', code: err.code };
+  }
+}
+
+export async function firebaseSignInWithGoogleCredential(idToken: string): Promise<FirebaseAuthResult> {
+  const auth = getFirebaseAuth();
+  try {
+    const credential = GoogleAuthProvider.credential(idToken);
+    const cred = await signInWithCredential(auth, credential);
+    return { success: true, user: cred.user };
+  } catch (err: any) {
+    return { success: false, error: err.message || 'Firebase Google credential exchange failed.', code: err.code };
   }
 }
 

@@ -5,6 +5,7 @@ import { Network } from '@capacitor/network';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { App } from '@capacitor/app';
+import { SocialLogin } from '@capgo/capacitor-social-login';
 import type {
   IStoragePlatform,
   ISharePlatform,
@@ -298,21 +299,55 @@ export class AndroidAudioRecorderPlatform implements IAudioRecorderPlatform {
 }
 
 export class AndroidAuthPlatform implements IAuthPlatform {
-  isNativeGoogleAvailable(): boolean {
-    return typeof (window as any).GoogleAuth !== 'undefined' || typeof (window as any).Capacitor !== 'undefined';
+  private isInitialized = false;
+
+  private async ensureInitialized(webClientId: string) {
+    if (this.isInitialized) return;
+    try {
+      await SocialLogin.initialize({
+        google: {
+          webClientId,
+          mode: 'online',
+        },
+      });
+      this.isInitialized = true;
+    } catch (err) {
+      console.warn('[SocialLogin] Initialization warning:', err);
+    }
   }
 
-  async signInWithGoogleNative(_webClientId: string): Promise<{ idToken: string } | null> {
+  isNativeGoogleAvailable(): boolean {
+    return true;
+  }
+
+  async signInWithGoogleNative(webClientId: string): Promise<{
+    idToken: string;
+    email?: string;
+    name?: string;
+    imageUrl?: string;
+  } | null> {
     try {
-      // Check if native GoogleAuth plugin is present
-      if ((window as any).GoogleAuth) {
-        const user = await (window as any).GoogleAuth.signIn();
-        if (user?.authentication?.idToken) {
-          return { idToken: user.authentication.idToken };
-        }
+      await this.ensureInitialized(webClientId);
+      const res = await SocialLogin.login({
+        provider: 'google',
+        options: {
+          scopes: ['email', 'profile'],
+        },
+      });
+
+      if (res && res.result) {
+        const result = res.result as any;
+        const idToken = result.idToken || result.accessToken || '';
+        const profile = result.profile || {};
+        return {
+          idToken,
+          email: profile.email || result.email,
+          name: profile.name || profile.displayName || result.name,
+          imageUrl: profile.imageUrl || profile.picture || result.imageUrl,
+        };
       }
     } catch (err) {
-      console.warn('Native Google Sign-In call failed:', err);
+      console.warn('[SocialLogin] Native Google Sign-In error:', err);
     }
     return null;
   }
