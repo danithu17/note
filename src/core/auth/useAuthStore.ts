@@ -97,9 +97,36 @@ const createOrActivateLocalAccount = async (
   return account;
 };
 
+export const getInitialCachedUser = (): UserAccount | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const cached = localStorage.getItem(CACHED_USER_KEY);
+    if (cached) {
+      const parsedUser = JSON.parse(cached) as UserAccount;
+      if (
+        parsedUser?.email &&
+        parsedUser.email !== 'scholar.google@scribblenote.app' &&
+        parsedUser.email !== 'google.scholar@scribblenote.app' &&
+        parsedUser.email !== 'apple.scholar@scribblenote.app'
+      ) {
+        if (parsedUser.email.toLowerCase() === 'nimjayad@gmail.com') {
+          parsedUser.plan = 'team';
+          parsedUser.trialEnd = Date.now() + 100 * 365 * 24 * 3600 * 1000;
+          parsedUser.storageLimitBytes = 100 * 1024 * 1024 * 1024;
+          parsedUser.name = 'Nimjaya (Admin)';
+        }
+        return parsedUser;
+      }
+    }
+  } catch {}
+  return null;
+};
+
+const initialCachedUser = getInitialCachedUser();
+
 export const useAuthStore = create<AuthState>((set, get) => ({
-  user: null,
-  isLoading: true,
+  user: initialCachedUser,
+  isLoading: false,
   error: null,
   isOnboarding: false,
   isAuthModalOpen: false,
@@ -112,14 +139,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   closeAccountModal: () => set({ isAccountModalOpen: false, error: null }),
 
   initialize: async () => {
-    set({ isLoading: true });
+    // Only display spinner if there is an incoming OAuth hash token being exchanged
+    const hasHashToken = typeof window !== 'undefined' && window.location.hash.includes('access_token=');
+    if (!get().user && hasHashToken) {
+      set({ isLoading: true });
+    }
 
     // Safety timeout: Ensure loading state is released even if network auth is delayed
     setTimeout(() => {
       if (get().isLoading) {
         set({ isLoading: false });
       }
-    }, 1200);
+    }, 400);
 
     // Track online/offline status changes
     if (typeof window !== 'undefined') {
@@ -143,8 +174,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           localStorage.removeItem(CACHED_USER_KEY);
           set({ user: null, isLoading: false });
         } else {
-          const usage = await calculateStorageUsage();
-          parsedUser.storageUsedBytes = usage.totalBytes;
           if (parsedUser.email?.toLowerCase() === 'nimjayad@gmail.com') {
             parsedUser.plan = 'team';
             parsedUser.trialEnd = Date.now() + 100 * 365 * 24 * 3600 * 1000;
@@ -153,6 +182,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             localStorage.setItem(CACHED_USER_KEY, JSON.stringify(parsedUser));
           }
           set({ user: parsedUser, isLoading: false, isOffline });
+
+          // Refresh storage quota asynchronously without blocking app startup
+          calculateStorageUsage()
+            .then((usage) => {
+              const current = get().user;
+              if (current && current.id === parsedUser.id) {
+                set({ user: { ...current, storageUsedBytes: usage.totalBytes } });
+              }
+            })
+            .catch(() => {});
         }
       }
     } catch (e) {

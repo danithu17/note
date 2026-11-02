@@ -90,7 +90,7 @@ export const useNoteStore = create<NoteState>((set, get) => ({
       if (get().isLoading) {
         set({ isLoading: false });
       }
-    }, 1200);
+    }, 300);
 
     try {
       await initializeDatabase();

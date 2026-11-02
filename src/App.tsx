@@ -23,6 +23,8 @@ import { useNoteStore } from './store/useNoteStore';
 import { useCanvasStore } from './store/useCanvasStore';
 import { useAuthStore } from './core/auth/useAuthStore';
 import { useAndroidIntegration } from './platform/android/useAndroidIntegration';
+import { platform } from './platform';
+import { Capacitor } from '@capacitor/core';
 import { Sparkles, CheckCircle2, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -126,10 +128,10 @@ export function App() {
         useCanvasStore.setState({ viewMode: 'app' });
       } else {
         // Default on launch:
-        // If user is already signed in, go directly to their workspace;
-        // If not signed in, show welcoming Home Screen showcase
+        // If user is already signed in or on native Android platform, go directly to their workspace;
+        // If not signed in on web, show welcoming Home Screen showcase
         const currentUser = useAuthStore.getState().user;
-        if (currentUser) {
+        if (currentUser || Capacitor.isNativePlatform()) {
           useCanvasStore.setState({ viewMode: 'app' });
         } else {
           useCanvasStore.setState({ viewMode: 'landing' });
@@ -167,6 +169,13 @@ export function App() {
       }
     }
   }, [user, viewMode, setViewMode]);
+
+  // Hide native Android splash screen instantly as soon as initialization is complete
+  useEffect(() => {
+    if (!isAuthLoading && !isNotesLoading) {
+      platform.app.hideSplashScreen?.();
+    }
+  }, [isAuthLoading, isNotesLoading]);
 
   // Apple-Grade Splash / Initialization Spinner
   if (isAuthLoading || isNotesLoading) {

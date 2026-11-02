@@ -111,6 +111,23 @@ function getInitialDarkMode(): boolean {
   }
 }
 
+function getInitialViewMode(): 'app' | 'landing' {
+  if (typeof window === 'undefined') return 'app';
+  try {
+    const hash = window.location.hash.toLowerCase();
+    if (hash.includes('landing')) return 'landing';
+    if (hash.includes('app')) return 'app';
+    const isNative = typeof window !== 'undefined' && Boolean((window as any).Capacitor?.isNativePlatform?.());
+    if (isNative) return 'app';
+    const cached = localStorage.getItem('scribblenote_cached_user');
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (parsed?.email) return 'app';
+    }
+  } catch {}
+  return 'app';
+}
+
 export const useCanvasStore = create<CanvasState>((set, get) => ({
   tool: 'pen',
   shape: 'rectangle',
@@ -133,8 +150,7 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
   isCommandPaletteOpen: false,
   isShortcutsModalOpen: false,
   activeModal: null,
-  viewMode:
-    typeof window !== 'undefined' && window.location.hash.includes('app') ? 'app' : 'landing',
+  viewMode: getInitialViewMode(),
   isSoundEnabled: true,
   isFullscreen: false,
   autoShapeRecognition: true,

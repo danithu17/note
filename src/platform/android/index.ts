@@ -459,4 +459,12 @@ export class AndroidAppPlatform implements IAppPlatform {
   async keepScreenOn(_enabled: boolean): Promise<void> {
     // Capacitor KeepAwake plugin hook
   }
+
+  async hideSplashScreen(): Promise<void> {
+    try {
+      await SplashScreen.hide({ fadeOutDuration: 100 });
+    } catch {
+      // Ignored
+    }
+  }
 }
