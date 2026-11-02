@@ -1,4 +1,4 @@
-const CACHE_NAME = 'scribblenote-v1';
+const CACHE_NAME = 'scribblenote-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -28,6 +28,10 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+
+  const url = new URL(event.request.url);
+  // Never intercept localhost/dev requests
+  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') return;
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {

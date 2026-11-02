@@ -108,6 +108,11 @@ export function App() {
 
     const handleHashChange = () => {
       const hash = window.location.hash.toLowerCase();
+      if (hash.includes('access_token')) {
+        // Authenticating via OAuth callback - route straight into app workspace
+        useCanvasStore.setState({ viewMode: 'app' });
+        return;
+      }
       if (hash.includes('admin')) {
         const currentUser = useAuthStore.getState().user;
         if (currentUser?.email?.toLowerCase() === 'nimjayad@gmail.com') {
@@ -152,6 +157,16 @@ export function App() {
       window.removeEventListener('keydown', handleAdminKey);
     };
   }, [initialize, openModal]);
+
+  // When user successfully authenticates, smoothly transition from landing into the app
+  useEffect(() => {
+    if (user && viewMode === 'landing') {
+      const hash = window.location.hash.toLowerCase();
+      if (!hash.includes('landing')) {
+        setViewMode('app');
+      }
+    }
+  }, [user, viewMode, setViewMode]);
 
   // Apple-Grade Splash / Initialization Spinner
   if (isAuthLoading || isNotesLoading) {

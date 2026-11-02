@@ -123,15 +123,15 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={onLaunchApp}
               className="hidden md:inline-flex items-center justify-center h-12 px-4 rounded-full text-[15px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] hover:text-[#0071e3] dark:hover:text-[#2997ff] hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors cursor-pointer"
             >
-              Log in
+              {user ? 'My Notes' : 'Log in'}
             </button>
 
             {/* Start Free CTA (hidden on extra small screens, prominently accessible via hamburger menu) */}
             <button
               onClick={onLaunchApp}
-              className="hidden sm:inline-flex h-12 px-6 rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white text-[15px] font-semibold shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all items-center gap-2 cursor-pointer"
+              className="inline-flex h-10 sm:h-12 px-3.5 sm:px-6 rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs sm:text-[15px] font-semibold shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all items-center gap-1.5 sm:gap-2 cursor-pointer"
             >
-              <span>Start free</span>
+              <span>{user ? 'Open Notes' : 'Start free'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
 
@@ -180,7 +180,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }}
                 className="w-full h-12 rounded-full border border-black/15 dark:border-white/20 text-[#1d1d1f] dark:text-[#f5f5f7] text-[16px] font-semibold flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
               >
-                Log in to Account
+                {user ? 'My Notes' : 'Log in'} to Account
               </button>
 
               <button

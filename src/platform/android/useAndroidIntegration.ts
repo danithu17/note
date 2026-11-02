@@ -73,6 +73,14 @@ export function useAndroidIntegration() {
         return true;
       }
 
+      // Step G2: If user is on WelcomeAuthScreen or unauthenticated, return to Home Screen
+      const currentUser = useAuthStore.getState().user;
+      const currentViewMode = useCanvasStore.getState().viewMode;
+      if (currentViewMode === 'app' && !currentUser) {
+        useCanvasStore.setState({ viewMode: 'landing' });
+        return true;
+      }
+
       // Step H: Confirm Exit with double back tap within 2.5s
       const now = Date.now();
       if (now - lastBackPressTimeRef.current < 2500) {
