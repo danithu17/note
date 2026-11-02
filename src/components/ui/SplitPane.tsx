@@ -11,6 +11,7 @@ export const SplitPane: React.FC<SplitPaneProps> = ({ left, right }) => {
   const [splitPercent, setSplitPercent] = useState<number>(45); // Left width %
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [isMobile, setIsMobile] = useState<boolean>(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  const [mobileActivePane, setMobileActivePane] = useState<'notes' | 'canvas'>('canvas');
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -69,7 +70,43 @@ export const SplitPane: React.FC<SplitPaneProps> = ({ left, right }) => {
     return <div className="flex-1 w-full h-full overflow-hidden">{right}</div>;
   }
 
-  // Split Hybrid Mode
+  // If on mobile and in Split mode: adaptive full screen with segment switcher
+  if (isMobile) {
+    return (
+      <div className="flex-1 w-full h-full overflow-hidden flex flex-col relative">
+        <div className="flex justify-center p-1.5 bg-slate-100/90 dark:bg-slate-900/90 border-b border-slate-200/80 dark:border-slate-800 shrink-0 z-20">
+          <div className="inline-flex items-center bg-slate-200/80 dark:bg-slate-800 p-0.5 rounded-xl text-xs font-semibold">
+            <button
+              onClick={() => setMobileActivePane('notes')}
+              className={`px-3 py-1 rounded-lg transition-all ${
+                mobileActivePane === 'notes'
+                  ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400'
+              }`}
+            >
+              📝 Notes
+            </button>
+            <button
+              onClick={() => setMobileActivePane('canvas')}
+              className={`px-3 py-1 rounded-lg transition-all ${
+                mobileActivePane === 'canvas'
+                  ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400'
+              }`}
+            >
+              🎨 Canvas
+            </button>
+          </div>
+        </div>
+
+        <div className="flex-1 w-full h-full overflow-hidden relative">
+          {mobileActivePane === 'notes' ? left : right}
+        </div>
+      </div>
+    );
+  }
+
+  // Split Hybrid Mode (Desktop >= 768px)
   return (
     <div
       ref={containerRef}

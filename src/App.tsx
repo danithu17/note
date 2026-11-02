@@ -235,7 +235,7 @@ export function App() {
       <TrialBanner />
 
       {/* Main Content Workspace */}
-      <div className="flex-1 flex overflow-hidden relative pb-14 md:pb-0">
+      <div className="flex-1 flex overflow-hidden relative pb-16 md:pb-0">
         {/* Apple Notes Style 3-Column Sidebar Drawer */}
         <Sidebar />
 

@@ -84,35 +84,54 @@ export const useNoteStore = create<NoteState>((set, get) => ({
 
   initialize: async () => {
     set({ isLoading: true });
-    await initializeDatabase();
 
-    const [workspaces, notebooks, rawNotes] = await Promise.all([
-      db.workspaces.toArray(),
-      db.notebooks.toArray(),
-      db.notes.toArray(),
-    ]);
+    // Safety timeout: Ensure loading state is released even if IndexedDB is locked
+    const timeout = setTimeout(() => {
+      if (get().isLoading) {
+        set({ isLoading: false });
+      }
+    }, 1200);
 
-    // Active (non-trashed) notes sorted by recency
-    const activeNotes = rawNotes
-      .filter((n) => !n.deletedAt)
-      .sort((a, b) => b.updatedAt - a.updatedAt);
+    try {
+      await initializeDatabase();
 
-    const initialWorkspaceId = workspaces.length > 0 ? workspaces[0].id : 'ws_default';
-    const initialId = activeNotes.length > 0 ? activeNotes[0].id : null;
+      const [workspaces, notebooks, rawNotes] = await Promise.all([
+        db.workspaces.toArray(),
+        db.notebooks.toArray(),
+        db.notes.toArray(),
+      ]);
 
-    set({
-      workspaces,
-      notebooks,
-      notes: activeNotes,
-      activeWorkspaceId: initialWorkspaceId,
-      activeNoteId: initialId,
-      isLoading: false,
-    });
+      // Active (non-trashed) notes sorted by recency
+      const activeNotes = rawNotes
+        .filter((n) => !n.deletedAt)
+        .sort((a, b) => b.updatedAt - a.updatedAt);
+
+      const initialWorkspaceId = workspaces.length > 0 ? workspaces[0].id : 'ws_default';
+      const initialId = activeNotes.length > 0 ? activeNotes[0].id : null;
+
+      clearTimeout(timeout);
+      set({
+        workspaces,
+        notebooks,
+        notes: activeNotes,
+        activeWorkspaceId: initialWorkspaceId,
+        activeNoteId: initialId,
+        isLoading: false,
+      });
+    } catch (err) {
+      console.warn('[NoteStore] Failed to initialize notes database:', err);
+      clearTimeout(timeout);
+      set({ isLoading: false });
+    }
 
     // Subscribe to background sync engine updates
-    syncEngine.subscribe((status) => {
-      set({ syncStatus: status });
-    });
+    try {
+      syncEngine.subscribe((status) => {
+        set({ syncStatus: status });
+      });
+    } catch {
+      // ignore
+    }
   },
 
   selectWorkspace: (id: string) => {
@@ -262,7 +281,11 @@ export const useNoteStore = create<NoteState>((set, get) => ({
   },
 
   updateCanvasElements: async (elements: CanvasElement[]) => {
-    const active = get().getActiveNote();
+    let active = get().getActiveNote();
+    if (!active) {
+      await get().createNote('Lecture Note');
+      active = get().getActiveNote();
+    }
     if (!active) return;
 
     const activePageIndex = active.activePageIndex || 0;

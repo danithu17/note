@@ -337,6 +337,8 @@ export const VisualCanvas: React.FC = () => {
 
   // POINTER DOWN
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+
     // Add touch pointer to map
     if (e.pointerType === 'touch') {
       touchPointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -357,7 +359,7 @@ export const VisualCanvas: React.FC = () => {
         return;
       }
 
-      // If Palm Rejection is ON and pointer is touch (finger/palm instead of stylus pen):
+      // If Palm Rejection (Stylus-Only mode) is ON and pointer is touch:
       if (palmRejection) {
         isPanningRef.current = true;
         lastPanPointRef.current = { x: e.clientX, y: e.clientY };
@@ -372,9 +374,14 @@ export const VisualCanvas: React.FC = () => {
       return;
     }
 
-    if (e.button !== 0) return; // Only primary button
+    // Only primary button for mouse; touch/pen contacts are always primary
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
 
-    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    try {
+      (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    } catch {
+      // Ignored
+    }
 
     const world = screenToWorld(e.clientX, e.clientY);
     const pressure = e.pressure && e.pressure > 0 ? e.pressure : 0.5;
@@ -426,6 +433,9 @@ export const VisualCanvas: React.FC = () => {
 
   // POINTER MOVE
   const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (isDrawingRef.current || isPanningRef.current || touchPointersRef.current.size >= 2) {
+      e.preventDefault();
+    }
     // Multi-touch gestures (pinch-zoom and 2-finger pan)
     if (e.pointerType === 'touch' && touchPointersRef.current.size >= 2) {
       touchPointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });

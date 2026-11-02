@@ -120,10 +120,14 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
   strokeWidth: 3,
   highlighterColor: '#facc15',
   gridType: 'dots',
-  palmRejection: true,
+  palmRejection: false,
   zoom: 1,
   pan: { x: 0, y: 0 },
-  layoutMode: typeof window !== 'undefined' && window.innerWidth < 768 ? 'canvas-only' : 'split',
+  layoutMode:
+    typeof window !== 'undefined' &&
+    (window.innerWidth < 768 || window.screen?.width < 768 || (window as any).Capacitor?.isNativePlatform?.())
+      ? 'canvas-only'
+      : 'split',
   isDarkMode: getInitialDarkMode(),
   isSidebarOpen: typeof window !== 'undefined' && window.innerWidth >= 1024,
   isCommandPaletteOpen: false,

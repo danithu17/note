@@ -1,5 +1,5 @@
 import React from 'react';
-import { ZoomIn, ZoomOut, Shield, ShieldAlert, Trash2, Wand2 } from 'lucide-react';
+import { ZoomIn, ZoomOut, Shield, ShieldCheck, Trash2, Wand2 } from 'lucide-react';
 import { useCanvasStore } from '../../store/useCanvasStore';
 
 interface CanvasControlsProps {
@@ -22,27 +22,27 @@ export const CanvasControls: React.FC<CanvasControlsProps> = ({ onClear, hasElem
 
   return (
     <div className="flex items-center gap-1 sm:gap-1.5 pointer-events-auto select-none">
-      {/* Palm rejection badge & toggle */}
+      {/* Touch & Stylus drawing mode toggle */}
       <button
         onClick={togglePalmRejection}
         title={
           palmRejection
-            ? 'Palm Rejection ON: Stylus writes, finger pans/zooms (palm touches ignored)'
-            : 'Palm Rejection OFF: Touch drawing active'
+            ? 'Stylus-Only Mode (ON): Only active stylus draws, finger pans/zooms.'
+            : 'Touch & Pen Mode: Both finger and stylus draw! (Use 2 fingers to pan/zoom).'
         }
         className={`flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1 rounded-full text-xs font-medium shadow-sm backdrop-blur-md transition-all border ${
           palmRejection
-            ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-300'
-            : 'bg-amber-500/15 border-amber-500/40 text-amber-700 dark:text-amber-300'
+            ? 'bg-purple-500/15 border-purple-500/40 text-purple-700 dark:text-purple-300'
+            : 'bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-300'
         }`}
       >
         {palmRejection ? (
-          <Shield className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+          <Shield className="w-3.5 h-3.5 text-purple-500 shrink-0" />
         ) : (
-          <ShieldAlert className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
         )}
         <span className="text-[11px] font-semibold hidden xl:inline">
-          {palmRejection ? 'Stylus' : 'Touch'}
+          {palmRejection ? 'Stylus Only' : 'Touch & Pen'}
         </span>
       </button>
 

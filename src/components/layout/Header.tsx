@@ -345,7 +345,7 @@ export const Header: React.FC = () => {
         {/* AI Study Assistant (Direct Action) */}
         <button
           onClick={() => useAssistantStore.getState().toggleAssistant()}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-xs transition-all active:scale-95 cursor-pointer"
+          className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-xs transition-all active:scale-95 cursor-pointer"
           title="AI Study Assistant [Cmd/Ctrl+J]"
         >
           <Sparkles className="w-3.5 h-3.5" />
@@ -355,7 +355,7 @@ export const Header: React.FC = () => {
         {/* Spaced Repetition Flashcards */}
         <button
           onClick={() => openModal('flashcards')}
-          className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          className="hidden md:flex p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           title="Flashcards (SM-2 Spaced Repetition)"
         >
           <Brain className="w-4 h-4 text-purple-500" />
@@ -384,7 +384,7 @@ export const Header: React.FC = () => {
         </button>
 
         {/* Export Dropdown Menu */}
-        <div className="relative">
+        <div className="relative hidden sm:block">
           <button
             onClick={() => setIsExportMenuOpen(!isExportMenuOpen)}
             className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition-all active:scale-95 cursor-pointer"
@@ -580,6 +580,28 @@ export const Header: React.FC = () => {
               >
                 <Flame className="w-4 h-4 text-amber-500" />
                 <span>Pomodoro Focus Timer</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  openModal('flashcards');
+                  setIsMoreMenuOpen(false);
+                }}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <Brain className="w-4 h-4 text-purple-500" />
+                <span>Flashcards (SM-2 Spaced Repetition)</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setIsExportMenuOpen(true);
+                  setIsMoreMenuOpen(false);
+                }}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <Download className="w-4 h-4 text-blue-500" />
+                <span>Export Note & Drawings...</span>
               </button>
 
               <button

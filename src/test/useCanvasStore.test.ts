@@ -11,7 +11,7 @@ describe('useCanvasStore', () => {
       strokeWidth: 4,
       zoom: 1,
       pan: { x: 0, y: 0 },
-      palmRejection: true,
+      palmRejection: false,
       undoStack: [],
       redoStack: [],
     });

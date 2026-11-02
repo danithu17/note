@@ -170,58 +170,78 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         if (accessToken) {
           const parts = accessToken.split('.');
           if (parts.length >= 2) {
-            let base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-            while (base64.length % 4 !== 0) {
-              base64 += '=';
-            }
-            const jsonPayload = decodeURIComponent(
-              atob(base64)
-                .split('')
-                .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-                .join('')
-            );
-            const payload = JSON.parse(jsonPayload);
+            let b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+            const mod = b64.length % 4;
+            if (mod === 1) b64 = b64.slice(0, -1);
+            else if (mod === 2) b64 += '==';
+            else if (mod === 3) b64 += '=';
 
-            const userId = payload.sub || payload.id;
-            const userEmail = payload.email;
-            const meta = payload.user_metadata || {};
-            const isAdmin = userEmail?.toLowerCase() === 'nimjayad@gmail.com';
-            const usage = await calculateStorageUsage();
-            initializeUserTrial(userId);
+            const binary = atob(b64);
+            let userEmail: string | undefined;
+            let userName: string | undefined;
+            let userAvatar: string | undefined;
+            let userId: string | undefined;
 
-            const account: UserAccount = {
-              id: userId,
-              email: userEmail,
-              name: (isAdmin ? 'Nimjaya (Admin)' : (meta.full_name || meta.name || userEmail?.split('@')[0])) || 'Scholar',
-              avatarUrl: meta.avatar_url || meta.picture,
-              isGuest: false,
-              plan: isAdmin ? 'team' : 'pro',
-              trialStart: Date.now(),
-              trialEnd: isAdmin ? Date.now() + 100 * 365 * 24 * 3600 * 1000 : Date.now() + 14 * 24 * 3600 * 1000,
-              studyRole: isAdmin ? 'Lead Architect & Admin' : undefined,
-              subject: isAdmin ? 'Platform Architecture' : undefined,
-              storageUsedBytes: usage.totalBytes,
-              storageLimitBytes: isAdmin ? 100 * 1024 * 1024 * 1024 : PRO_STORAGE_LIMIT,
-            };
-
-            localStorage.setItem(CACHED_USER_KEY, JSON.stringify(account));
-            set({
-              user: account,
-              isOnboarding: false,
-              isLoading: false,
-              isAuthModalOpen: false,
-            });
-
-            const client = getSupabaseClient();
-            if (client && refreshToken) {
-              client.auth.setSession({
-                access_token: accessToken,
-                refresh_token: refreshToken,
-              }).catch((e) => console.warn('[Supabase] Failed to setSession:', e));
+            try {
+              const bytes = new Uint8Array(binary.length);
+              for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+              const payload = JSON.parse(new TextDecoder('utf-8').decode(bytes));
+              userEmail = payload.email;
+              const meta = payload.user_metadata || {};
+              userName = meta.full_name || meta.name || userEmail?.split('@')[0];
+              userAvatar = meta.avatar_url || meta.picture;
+              userId = payload.sub || payload.id;
+            } catch {
+              // Regex fallback
+              const emailMatch = binary.match(/"email"\s*:\s*"([^"]+)"/);
+              userEmail = emailMatch ? emailMatch[1] : undefined;
+              const nameMatch = binary.match(/"full_name"\s*:\s*"([^"]+)"/) || binary.match(/"name"\s*:\s*"([^"]+)"/);
+              userName = nameMatch ? nameMatch[1] : (userEmail ? userEmail.split('@')[0] : 'Scholar');
+              const avatarMatch = binary.match(/"avatar_url"\s*:\s*"([^"]+)"/) || binary.match(/"picture"\s*:\s*"([^"]+)"/);
+              userAvatar = avatarMatch ? avatarMatch[1] : undefined;
+              const subMatch = binary.match(/"sub"\s*:\s*"([^"]+)"/);
+              userId = subMatch ? subMatch[1] : (userEmail ? `usr_${userEmail.replace(/[^a-zA-Z0-9]/g, '_')}` : 'usr_default');
             }
 
-            // Clean up the URL hash so the address bar is clean
-            window.history.replaceState(null, '', window.location.pathname + '#app');
+            if (userEmail) {
+              const isAdmin = userEmail.toLowerCase() === 'nimjayad@gmail.com';
+              const usage = await calculateStorageUsage();
+              initializeUserTrial(userId || 'usr_default');
+
+              const account: UserAccount = {
+                id: userId || 'usr_default',
+                email: userEmail,
+                name: (isAdmin ? 'Nimjaya (Admin)' : userName) || 'Scholar',
+                avatarUrl: userAvatar,
+                isGuest: false,
+                plan: isAdmin ? 'team' : 'pro',
+                trialStart: Date.now(),
+                trialEnd: isAdmin ? Date.now() + 100 * 365 * 24 * 3600 * 1000 : Date.now() + 14 * 24 * 3600 * 1000,
+                studyRole: isAdmin ? 'Lead Architect & Admin' : undefined,
+                subject: isAdmin ? 'Platform Architecture' : undefined,
+                storageUsedBytes: usage.totalBytes,
+                storageLimitBytes: isAdmin ? 100 * 1024 * 1024 * 1024 : PRO_STORAGE_LIMIT,
+              };
+
+              localStorage.setItem(CACHED_USER_KEY, JSON.stringify(account));
+              set({
+                user: account,
+                isOnboarding: false,
+                isLoading: false,
+                isAuthModalOpen: false,
+              });
+
+              const client = getSupabaseClient();
+              if (client && refreshToken) {
+                client.auth.setSession({
+                  access_token: accessToken,
+                  refresh_token: refreshToken,
+                }).catch((e) => console.warn('[Supabase] Failed to setSession:', e));
+              }
+
+              // Clean up the URL hash so the address bar is clean
+              window.history.replaceState(null, '', window.location.pathname + '#app');
+            }
           }
         }
       } catch (tokenParseErr) {
@@ -328,8 +348,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
               isAuthModalOpen: false,
             });
           } else if (event === 'SIGNED_OUT') {
-            localStorage.removeItem(CACHED_USER_KEY);
-            set({ user: null, isLoading: false });
+            const cached = localStorage.getItem(CACHED_USER_KEY);
+            // Only wipe user if there is no locally cached session (avoids Supabase network token glitches wiping the session)
+            if (!cached) {
+              set({ user: null, isLoading: false });
+            }
           }
         });
       } catch (sbErr) {
