@@ -198,7 +198,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       console.warn('[Auth] Failed to load cached session:', e);
     }
 
-    // 1.5 Direct URL Hash OAuth Token extraction (Instant Google / Supabase callback handler)
+    // 1.5 Direct URL Hash OAuth Callback (Error or Success Handler)
+    if (typeof window !== 'undefined' && window.location.hash) {
+      const hashStr = window.location.hash.substring(1);
+      if (hashStr.includes('error=')) {
+        try {
+          const hashParams = new URLSearchParams(hashStr);
+          const errorDesc = hashParams.get('error_description') || hashParams.get('error');
+          if (errorDesc) {
+            set({ error: decodeURIComponent(errorDesc).replace(/\+/g, ' '), isLoading: false });
+            window.history.replaceState(null, '', window.location.pathname + '#app');
+          }
+        } catch { /* ignore */ }
+      }
+    }
+
     if (typeof window !== 'undefined' && window.location.hash.includes('access_token=')) {
       try {
         const hashStr = window.location.hash.substring(1);
@@ -515,7 +529,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const client = getSupabaseClient();
     if (client) {
       try {
-        const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}/#app` : undefined;
+        // Use clean origin without hash fragment as per RFC 6749 Section 3.1.2; Supabase will append auth tokens (#access_token=...) to this URL
+        const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}/` : undefined;
         const { data, error } = await client.auth.signInWithOAuth({
           provider: 'google',
           options: {

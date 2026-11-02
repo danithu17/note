@@ -90,6 +90,16 @@ export default defineConfig({
   server: {
     port: 3000,
     host: true,
+    watch: {
+      ignored: [
+        '**/android/**',
+        '**/electron/**',
+        '**/dist/**',
+        '**/.git/**',
+        '**/.system_generated/**',
+        '**/scratch/**',
+      ],
+    },
   },
   test: {
     globals: true,

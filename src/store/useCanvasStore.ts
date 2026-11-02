@@ -41,7 +41,7 @@ export interface CanvasState {
   isCommandPaletteOpen: boolean;
   isShortcutsModalOpen: boolean;
   activeModal: ActiveModalType;
-  viewMode: 'app' | 'landing';
+  viewMode: 'app' | 'landing' | 'glass-preview';
   isSoundEnabled: boolean;
   isFullscreen: boolean;
   autoShapeRecognition: boolean;
@@ -81,7 +81,7 @@ export interface CanvasState {
   toggleShortcutsModal: () => void;
   openModal: (modal: ActiveModalType) => void;
   closeModal: () => void;
-  setViewMode: (viewMode: 'app' | 'landing') => void;
+  setViewMode: (viewMode: 'app' | 'landing' | 'glass-preview') => void;
   toggleSound: () => void;
   toggleFullscreen: () => void;
   pushHistory: (elements: CanvasElement[]) => void;
@@ -111,10 +111,11 @@ function getInitialDarkMode(): boolean {
   }
 }
 
-function getInitialViewMode(): 'app' | 'landing' {
+function getInitialViewMode(): 'app' | 'landing' | 'glass-preview' {
   if (typeof window === 'undefined') return 'app';
   try {
     const hash = window.location.hash.toLowerCase();
+    if (hash.includes('glass-preview')) return 'glass-preview';
     if (hash.includes('landing')) return 'landing';
     if (hash.includes('app')) return 'app';
     const isNative = typeof window !== 'undefined' && Boolean((window as any).Capacitor?.isNativePlatform?.());
@@ -308,7 +309,8 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
   setViewMode: (viewMode) => {
     sound.click();
     if (typeof window !== 'undefined') {
-      window.location.hash = viewMode === 'app' ? '#app' : '#landing';
+      window.location.hash =
+        viewMode === 'app' ? '#app' : viewMode === 'glass-preview' ? '#glass-preview' : '#landing';
     }
     set({ viewMode });
   },

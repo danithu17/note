@@ -275,6 +275,14 @@ export const CommandPalette: React.FC = () => {
       action: () => setViewMode('landing'),
     },
     {
+      id: 'act-glass-preview',
+      title: 'Open iOS 27 Liquid Glass Design Showcase',
+      category: 'Design System',
+      shortcut: 'Cmd+G',
+      icon: <Sparkles className="w-4 h-4 text-indigo-500" />,
+      action: () => setViewMode('glass-preview'),
+    },
+    {
       id: 'act-pricing',
       title: 'Commercial Plans & 14-Day Free Trial',
       category: 'Billing',

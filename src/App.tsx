@@ -15,6 +15,8 @@ import { GlobalModals } from './components/layout/GlobalModals';
 import { TrialBanner } from './features/billing/components/TrialBanner';
 import { WelcomeAuthScreen } from './components/auth/WelcomeAuthScreen';
 import { OnboardingScreen } from './components/auth/OnboardingScreen';
+import { GlassShowcaseView } from './features/glass/components/GlassShowcaseView';
+import { useGlassStore } from './features/glass/useGlassStore';
 import { useEntitlementsStore } from './features/billing/useEntitlementsStore';
 import { paymentService, type PaymentProvider } from './features/billing/paymentService';
 import { DEFAULT_PLANS } from './features/billing/entitlements';
@@ -107,9 +109,14 @@ export function App() {
     initialize();
     useAuthStore.getState().initialize();
     useEntitlementsStore.getState().initialize();
+    useGlassStore.getState().initialize();
 
     const handleHashChange = () => {
       const hash = window.location.hash.toLowerCase();
+      if (hash.includes('glass-preview')) {
+        useCanvasStore.setState({ viewMode: 'glass-preview' });
+        return;
+      }
       if (hash.includes('access_token')) {
         // Authenticating via OAuth callback - route straight into app workspace
         useCanvasStore.setState({ viewMode: 'app' });
@@ -211,6 +218,11 @@ export function App() {
         <GlobalModals />
       </div>
     );
+  }
+
+  // 1.5 iOS 27 Liquid Glass Design System Showcase / Storybook Preview
+  if (viewMode === 'glass-preview') {
+    return <GlassShowcaseView />;
   }
 
   // 2. MANDATORY AUTH GUARD: When entering app, if unauthenticated, show Apple-grade Welcome/Auth screen!

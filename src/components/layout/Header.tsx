@@ -651,6 +651,17 @@ export const Header: React.FC = () => {
 
               <button
                 onClick={() => {
+                  setViewMode('glass-preview');
+                  setIsMoreMenuOpen(false);
+                }}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/30 hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors cursor-pointer"
+              >
+                <Sparkles className="w-4 h-4 text-purple-500" />
+                <span>iOS 27 Liquid Glass Preview</span>
+              </button>
+
+              <button
+                onClick={() => {
                   toggleFullscreen();
                   setIsMoreMenuOpen(false);
                 }}
