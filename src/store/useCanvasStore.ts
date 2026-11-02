@@ -42,6 +42,9 @@ export interface CanvasState {
   isShortcutsModalOpen: boolean;
   activeModal: ActiveModalType;
   viewMode: 'app' | 'landing' | 'glass-preview';
+  mainTab: 'home' | 'notes' | 'canvas' | 'assistant' | 'study';
+  isTabBarVisible: boolean;
+  isQuickCreateOpen: boolean;
   isSoundEnabled: boolean;
   isFullscreen: boolean;
   autoShapeRecognition: boolean;
@@ -82,6 +85,9 @@ export interface CanvasState {
   openModal: (modal: ActiveModalType) => void;
   closeModal: () => void;
   setViewMode: (viewMode: 'app' | 'landing' | 'glass-preview') => void;
+  setMainTab: (tab: 'home' | 'notes' | 'canvas' | 'assistant' | 'study') => void;
+  setTabBarVisible: (visible: boolean) => void;
+  setQuickCreateOpen: (open: boolean) => void;
   toggleSound: () => void;
   toggleFullscreen: () => void;
   pushHistory: (elements: CanvasElement[]) => void;
@@ -152,6 +158,9 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
   isShortcutsModalOpen: false,
   activeModal: null,
   viewMode: getInitialViewMode(),
+  mainTab: 'home',
+  isTabBarVisible: true,
+  isQuickCreateOpen: false,
   isSoundEnabled: true,
   isFullscreen: false,
   autoShapeRecognition: true,
@@ -313,6 +322,19 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
         viewMode === 'app' ? '#app' : viewMode === 'glass-preview' ? '#glass-preview' : '#landing';
     }
     set({ viewMode });
+  },
+
+  setMainTab: (mainTab) => {
+    sound.click();
+    set({ mainTab });
+  },
+
+  setTabBarVisible: (isTabBarVisible) => {
+    set({ isTabBarVisible });
+  },
+
+  setQuickCreateOpen: (isQuickCreateOpen) => {
+    set({ isQuickCreateOpen });
   },
 
   toggleSound: () => {

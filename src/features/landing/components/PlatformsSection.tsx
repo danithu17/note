@@ -107,7 +107,7 @@ export const PlatformsSection: React.FC<PlatformsSectionProps> = ({ onLaunchApp 
       <div className="max-w-[1240px] mx-auto">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-16 md:mb-20">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 dark:bg-blue-500/20 text-[#0071e3] text-xs font-semibold uppercase tracking-wider mb-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 dark:bg-blue-500/20 text-[#0071e3] text-sm font-semibold uppercase tracking-wider mb-4">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Cross-Platform Reach</span>
           </div>
@@ -135,7 +135,7 @@ export const PlatformsSection: React.FC<PlatformsSectionProps> = ({ onLaunchApp 
                       <Icon className="w-6 h-6" />
                     </div>
                     <span
-                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${platform.badgeColor}`}
+                      className={`inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-sm font-bold border ${platform.badgeColor}`}
                     >
                       {platform.status === 'available' ? (
                         <CheckCircle2 className="w-3.5 h-3.5" />
@@ -156,7 +156,7 @@ export const PlatformsSection: React.FC<PlatformsSectionProps> = ({ onLaunchApp 
                   {/* Feature Checklist */}
                   <div className="space-y-3 mb-8">
                     {platform.features.map((feat, idx) => (
-                      <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                      <div key={idx} className="flex items-start gap-2.5 text-sm text-slate-600 dark:text-slate-300">
                         <Check className="w-4 h-4 text-[#0071e3] dark:text-[#2997ff] shrink-0 mt-0.5" />
                         <span>{feat}</span>
                       </div>
@@ -229,7 +229,7 @@ export const PlatformsSection: React.FC<PlatformsSectionProps> = ({ onLaunchApp 
                 <button
                   type="button"
                   onClick={() => setWaitlistPlatform(null)}
-                  className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 mt-2 cursor-pointer"
+                  className="text-sm text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 mt-2 cursor-pointer"
                 >
                   Cancel
                 </button>

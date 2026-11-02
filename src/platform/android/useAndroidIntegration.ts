@@ -13,7 +13,23 @@ import { useAuthStore } from '@/core/auth/useAuthStore';
  * 4. Safe area and screen keep-alive handling
  */
 export function useAndroidIntegration() {
-  const { isDarkMode, activeModal, closeModal, isCommandPaletteOpen, closeCommandPalette, isShortcutsModalOpen, closeShortcutsModal, isSidebarOpen, setSidebarOpen, layoutMode, setLayoutMode } = useCanvasStore();
+  const {
+    isDarkMode,
+    activeModal,
+    closeModal,
+    isCommandPaletteOpen,
+    closeCommandPalette,
+    isShortcutsModalOpen,
+    closeShortcutsModal,
+    isSidebarOpen,
+    setSidebarOpen,
+    layoutMode,
+    setLayoutMode,
+    mainTab,
+    setMainTab,
+    isQuickCreateOpen,
+    setQuickCreateOpen,
+  } = useCanvasStore();
   const { isOpen: isAssistantOpen, setAssistantOpen } = useAssistantStore();
   const { isAuthModalOpen, isAccountModalOpen } = useAuthStore();
 
@@ -31,6 +47,12 @@ export function useAndroidIntegration() {
   // 2. Android Back Button / Gesture Dispatcher
   useEffect(() => {
     const removeListener = platform.app.addBackButtonListener(() => {
+      // Step 0: Close Quick Create Sheet if open
+      if (isQuickCreateOpen) {
+        setQuickCreateOpen(false);
+        return true;
+      }
+
       // Step A: Close active global modal
       if (activeModal) {
         closeModal();
@@ -67,7 +89,13 @@ export function useAndroidIntegration() {
         return true;
       }
 
-      // Step G: Return from canvas-only view to notes
+      // Step G: Return to Home Dashboard if in a secondary tab (Notes, Canvas, Assistant, Study)
+      if (mainTab !== 'home') {
+        setMainTab('home');
+        return true;
+      }
+
+      // Step G1: Return from canvas-only view to notes
       if (layoutMode === 'canvas-only') {
         setLayoutMode('notes-only');
         return true;
@@ -114,6 +142,10 @@ export function useAndroidIntegration() {
     setSidebarOpen,
     layoutMode,
     setLayoutMode,
+    mainTab,
+    setMainTab,
+    isQuickCreateOpen,
+    setQuickCreateOpen,
   ]);
 }
 

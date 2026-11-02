@@ -78,7 +78,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onStartFree, onS
       <div className="max-w-[1240px] mx-auto">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 dark:bg-blue-500/20 text-[#0071e3] text-xs font-semibold uppercase tracking-wider mb-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 dark:bg-blue-500/20 text-[#0071e3] text-sm font-semibold uppercase tracking-wider mb-4">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Honest, Predictable Pricing</span>
           </div>
@@ -96,7 +96,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onStartFree, onS
               <button
                 type="button"
                 onClick={() => setBillingCycle('monthly')}
-                className={`px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+                className={`px-5 py-2 rounded-full text-sm font-semibold transition-all cursor-pointer ${
                   billingCycle === 'monthly'
                     ? 'bg-[#1d1d1f] text-white dark:bg-white dark:text-[#1d1d1f] shadow-xs'
                     : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'
@@ -107,21 +107,21 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onStartFree, onS
               <button
                 type="button"
                 onClick={() => setBillingCycle('annual')}
-                className={`px-5 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 cursor-pointer ${
+                className={`px-5 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2 cursor-pointer ${
                   billingCycle === 'annual'
                     ? 'bg-[#0071e3] text-white shadow-xs'
                     : 'text-slate-600 dark:text-slate-300 hover:text-slate-900'
                 }`}
               >
                 <span>Annual</span>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500 text-white">
+                <span className="text-[14px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500 text-white">
                   Save 33%
                 </span>
               </button>
             </div>
 
             {/* Currency Toggle */}
-            <div className="inline-flex items-center bg-white dark:bg-[#1a1a1e] p-1.5 rounded-full border border-slate-200/90 dark:border-white/10 shadow-sm text-xs font-semibold">
+            <div className="inline-flex items-center bg-white dark:bg-[#1a1a1e] p-1.5 rounded-full border border-slate-200/90 dark:border-white/10 shadow-sm text-sm font-semibold">
               <button
                 type="button"
                 onClick={() => setCurrency('USD')}
@@ -154,7 +154,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onStartFree, onS
           <div className="relative flex flex-col justify-between rounded-[28px] p-8 sm:p-10 bg-white dark:bg-[#151518] border border-slate-200/80 dark:border-white/10 shadow-sm hover:shadow-lg transition-all duration-300">
             <div>
               <div className="mb-6">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <span className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   Essential Local Note Taking
                 </span>
                 <h3 className="text-2xl font-bold text-[#1d1d1f] dark:text-white mt-1">
@@ -175,14 +175,14 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onStartFree, onS
                     / forever
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-sm text-slate-400 mt-1">
                   14 days full Pro access, then auto-fallbacks to Free
                 </p>
               </div>
 
               {/* Bullets List */}
               <div className="space-y-3 mb-8">
-                <div className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">
+                <div className="text-sm font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">
                   What’s included:
                 </div>
                 {[
@@ -194,7 +194,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onStartFree, onS
                   '1 PDF slide deck import with vector ink',
                   'Local JSON & image backup export',
                 ].map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                  <div key={idx} className="flex items-start gap-2.5 text-sm text-slate-600 dark:text-slate-300">
                     <Check className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                     <span>{item}</span>
                   </div>
@@ -215,11 +215,11 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onStartFree, onS
           <div className="relative flex flex-col justify-between rounded-[28px] p-8 sm:p-10 bg-white dark:bg-[#18181c] border-2 border-[#0071e3] shadow-2xl shadow-blue-500/15 lg:-translate-y-2 z-10 transition-all duration-300">
             {/* Inside Badge (No clipping) */}
             <div className="flex items-center justify-between gap-2 mb-4">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/15 text-[#0071e3] dark:text-[#2997ff] text-xs font-bold">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/15 text-[#0071e3] dark:text-[#2997ff] text-sm font-bold">
                 <GraduationCap className="w-3.5 h-3.5" />
                 <span>Student Special • 50% Off</span>
               </span>
-              <span className="text-[11px] font-semibold text-slate-500">Verified Academic</span>
+              <span className="text-sm font-semibold text-slate-500">Verified Academic</span>
             </div>
 
             <div>
@@ -242,14 +242,14 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onStartFree, onS
                     {getPriceDisplay(studentPlan).period}
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                   {getPriceDisplay(studentPlan).suffix}
                 </p>
               </div>
 
               {/* Bullets List */}
               <div className="space-y-3 mb-8">
-                <div className="text-xs font-bold uppercase tracking-wider text-[#0071e3] dark:text-[#2997ff] mb-2">
+                <div className="text-sm font-bold uppercase tracking-wider text-[#0071e3] dark:text-[#2997ff] mb-2">
                   Everything in Free, plus:
                 </div>
                 {[
@@ -261,7 +261,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onStartFree, onS
                   'Spaced repetition flashcards & active recall review (SM-2)',
                   'High-res vector PDF, Markdown, and LaTeX export',
                 ].map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 dark:text-slate-200">
+                  <div key={idx} className="flex items-start gap-2.5 text-sm text-slate-700 dark:text-slate-200">
                     <Check className="w-4 h-4 text-[#0071e3] dark:text-[#2997ff] shrink-0 mt-0.5 stroke-[2.5]" />
                     <span className="font-medium">{item}</span>
                   </div>
@@ -283,7 +283,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onStartFree, onS
           <div className="relative flex flex-col justify-between rounded-[28px] p-8 sm:p-10 bg-white dark:bg-[#151518] border border-slate-200/80 dark:border-white/10 shadow-sm hover:shadow-lg transition-all duration-300">
             <div>
               <div className="mb-6">
-                <span className="text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">
+                <span className="text-sm font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">
                   Graduate & Research Workflows
                 </span>
                 <h3 className="text-2xl font-bold text-[#1d1d1f] dark:text-white mt-1">
@@ -304,14 +304,14 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onStartFree, onS
                     {getPriceDisplay(proPlan).period}
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                   {getPriceDisplay(proPlan).suffix}
                 </p>
               </div>
 
               {/* Bullets List */}
               <div className="space-y-3 mb-8">
-                <div className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">
+                <div className="text-sm font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">
                   Everything in Pro Student, plus:
                 </div>
                 {[
@@ -323,7 +323,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onStartFree, onS
                   'Premium Apple-grade themes and canvas paper styles',
                   'Priority developer email & chat support',
                 ].map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                  <div key={idx} className="flex items-start gap-2.5 text-sm text-slate-600 dark:text-slate-300">
                     <Check className="w-4 h-4 text-purple-500 shrink-0 mt-0.5" />
                     <span>{item}</span>
                   </div>
@@ -356,7 +356,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onStartFree, onS
         {/* Detailed Feature Comparison Table */}
         {showComparison && (
           <div className="mt-8 rounded-[28px] overflow-hidden bg-white dark:bg-[#151518] border border-slate-200/80 dark:border-white/10 shadow-xl overflow-x-auto animate-in fade-in duration-300">
-            <table className="w-full text-left border-collapse text-xs sm:text-sm min-w-[640px]">
+            <table className="w-full text-left border-collapse text-sm sm:text-base min-w-[640px]">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-white/10 bg-slate-50/70 dark:bg-[#1a1a1e]/70">
                   <th className="p-4 sm:p-5 font-bold text-slate-900 dark:text-white">Feature</th>
@@ -438,7 +438,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onStartFree, onS
               <Building2 className="w-7 h-7" />
             </div>
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-400">
+              <span className="text-sm font-bold uppercase tracking-wider text-blue-400">
                 Institutional Licensing
               </span>
               <h4 className="text-xl sm:text-2xl font-bold mt-1">
@@ -479,11 +479,11 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onStartFree, onS
                   <h4 className="text-xl font-bold text-slate-900 dark:text-white">
                     Campus & Institutional Inquiries
                   </h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
                     Tell us your university or school department and estimated student seats.
                   </p>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                       Academic Email
                     </label>
                     <input
@@ -499,13 +499,13 @@ export const PricingSection: React.FC<PricingSectionProps> = ({ onStartFree, onS
                     <button
                       type="button"
                       onClick={() => setShowContactModal(false)}
-                      className="flex-1 py-3 rounded-full text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                      className="flex-1 min-h-[48px] py-3 rounded-full text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 py-3 rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-bold transition-colors cursor-pointer shadow-sm"
+                      className="flex-1 min-h-[48px] py-3 rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white text-sm font-bold transition-colors cursor-pointer shadow-sm"
                     >
                       Send Inquiry
                     </button>

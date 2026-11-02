@@ -108,7 +108,7 @@ export const SocialProofStrip: React.FC = () => {
                   <div className="font-bold text-[15px] text-[#1d1d1f] dark:text-[#f5f5f7]">
                     {t.author}
                   </div>
-                  <div className="text-[13px] text-slate-500 dark:text-slate-400">
+                  <div className="text-[14px] text-slate-500 dark:text-slate-400">
                     {t.role} • {t.institution}
                   </div>
                 </div>
@@ -117,7 +117,7 @@ export const SocialProofStrip: React.FC = () => {
           ))}
         </div>
 
-        <div className="mt-8 text-center text-[13px] text-slate-400 dark:text-slate-500">
+        <div className="mt-8 text-center text-[14px] text-slate-400 dark:text-slate-500">
           * Beta student testimonials collected during ScribbleNote Campus Pre-Release.
         </div>
       </div>

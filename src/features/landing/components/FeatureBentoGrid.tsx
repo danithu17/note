@@ -52,26 +52,26 @@ export const FeatureBentoGrid: React.FC = () => {
               {/* Rough hand-drawn sketch */}
               <div className="flex flex-col items-center gap-2">
                 <div className="w-24 h-20 rounded-2xl border-2 border-dashed border-rose-400 flex items-center justify-center bg-rose-50/50 dark:bg-rose-950/20 rotate-[-4deg]">
-                  <span className="text-[12px] font-mono text-rose-500 font-bold">Wobbly loop</span>
+                  <span className="text-[14px] font-mono text-rose-500 font-bold">Wobbly loop</span>
                 </div>
-                <span className="text-[13px] font-medium text-slate-400">Your hand sketch</span>
+                <span className="text-[14px] font-medium text-slate-400">Your hand sketch</span>
               </div>
 
               <div className="flex flex-col items-center justify-center text-[#0071e3] font-bold text-[14px]">
                 <span className="animate-pulse">⟶</span>
-                <span className="text-[12px] font-mono">Snap 12ms</span>
+                <span className="text-[14px] font-mono">Snap 12ms</span>
               </div>
 
               {/* Snapped geometric shape */}
               <div className="flex flex-col items-center gap-2">
                 <div className="w-24 h-20 rounded-2xl border-2 border-[#0071e3] bg-blue-500/10 flex items-center justify-center shadow-md relative">
-                  <span className="text-[12px] font-mono text-[#0071e3] dark:text-blue-400 font-bold">Clean Box</span>
+                  <span className="text-[14px] font-mono text-[#0071e3] dark:text-blue-400 font-bold">Clean Box</span>
                   <span className="w-2 h-2 rounded-full bg-blue-600 absolute -top-1 -left-1" />
                   <span className="w-2 h-2 rounded-full bg-blue-600 absolute -top-1 -right-1" />
                   <span className="w-2 h-2 rounded-full bg-blue-600 absolute -bottom-1 -left-1" />
                   <span className="w-2 h-2 rounded-full bg-blue-600 absolute -bottom-1 -right-1" />
                 </div>
-                <span className="text-[13px] font-medium text-slate-400">Auto-vectorized</span>
+                <span className="text-[14px] font-medium text-slate-400">Auto-vectorized</span>
               </div>
             </div>
           </div>
@@ -92,11 +92,11 @@ export const FeatureBentoGrid: React.FC = () => {
 
             {/* Visual: Formatted formula box */}
             <div className="mt-6 p-4 rounded-2xl bg-slate-900 text-slate-100 font-mono text-[14px] shadow-inner border border-slate-800">
-              <div className="text-emerald-400 text-[12px] font-sans font-bold">// Gaussian Integral</div>
+              <div className="text-emerald-400 text-[14px] font-sans font-bold">// Gaussian Integral</div>
               <div className="text-blue-300 py-2 text-[15px] font-bold">
                 {'$$ \\int_{-\\infty}^{\\infty} e^{-x^2} dx = \\sqrt{\\pi} $$'}
               </div>
-              <div className="text-slate-400 text-[12px] flex items-center gap-2 pt-1 border-t border-slate-800">
+              <div className="text-slate-400 text-[14px] flex items-center gap-2 pt-1 border-t border-slate-800">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Rendered via KaTeX Engine
               </div>
             </div>
@@ -118,7 +118,7 @@ export const FeatureBentoGrid: React.FC = () => {
 
             {/* Visual: Audio waveform scrubber */}
             <div className="mt-6 p-4 rounded-2xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200/50 dark:border-rose-900/40">
-              <div className="flex items-center justify-between text-[13px] font-semibold text-rose-700 dark:text-rose-300 mb-2">
+              <div className="flex items-center justify-between text-[14px] font-semibold text-rose-700 dark:text-rose-300 mb-2">
                 <span>Lecture Recording: Physics II</span>
                 <span className="font-mono">24:18 / 50:00</span>
               </div>
@@ -154,9 +154,9 @@ export const FeatureBentoGrid: React.FC = () => {
 
             {/* Visual: Slide Deck mockup with highlighter markup */}
             <div className="mt-6 p-4 rounded-2xl bg-[#f5f5f7] dark:bg-[#202023] border border-black/5 dark:border-white/5 relative">
-              <div className="flex items-center justify-between text-[13px] text-slate-500 dark:text-slate-400 mb-2 font-medium">
+              <div className="flex items-center justify-between text-[14px] text-slate-500 dark:text-slate-400 mb-2 font-medium">
                 <span>Slide 14 of 42</span>
-                <span className="px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-600 font-semibold text-[12px]">
+                <span className="px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-600 font-semibold text-[14px]">
                   PDF Layer Active
                 </span>
               </div>
@@ -192,9 +192,9 @@ export const FeatureBentoGrid: React.FC = () => {
               </div>
               <div className="flex justify-start">
                 <div className="p-3.5 rounded-2xl rounded-tl-xs bg-white dark:bg-[#18181b] border border-black/5 dark:border-white/10 text-[#1d1d1f] dark:text-[#f5f5f7] text-[14px] max-w-sm shadow-xs">
-                  <div className="font-bold text-[#0071e3] text-[12px] mb-1">Study Assistant</div>
+                  <div className="font-bold text-[#0071e3] text-[14px] mb-1">Study Assistant</div>
                   It rescales gradients when their $L_2$ norm exceeds a threshold $c$:
-                  <div className="font-mono text-[13px] text-blue-600 dark:text-blue-400 mt-1">
+                  <div className="font-mono text-[14px] text-blue-600 dark:text-blue-400 mt-1">
                     {'$$ g \\leftarrow g \\cdot \\frac{c}{\\|g\\|} $$'}
                   </div>
                 </div>
@@ -224,7 +224,7 @@ export const FeatureBentoGrid: React.FC = () => {
                   Local Database Ready
                 </span>
               </div>
-              <span className="px-2.5 py-1 rounded-full bg-amber-200/60 dark:bg-amber-900/40 text-[12px] font-mono font-bold text-amber-900 dark:text-amber-300">
+              <span className="px-2.5 py-1 rounded-full bg-amber-200/60 dark:bg-amber-900/40 text-[14px] font-mono font-bold text-amber-900 dark:text-amber-300">
                 IndexedDB
               </span>
             </div>
@@ -247,12 +247,12 @@ export const FeatureBentoGrid: React.FC = () => {
             {/* Visual: Flashcard Flip Preview */}
             <div className="mt-6 p-4 rounded-2xl bg-[#f5f5f7] dark:bg-[#202023] border border-black/5 dark:border-white/5 flex items-center justify-between text-[14px]">
               <div>
-                <span className="text-[12px] uppercase font-bold text-slate-400">Card 3 / 20</span>
+                <span className="text-[14px] uppercase font-bold text-slate-400">Card 3 / 20</span>
                 <div className="font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] mt-0.5">
                   What is the role of softmax cross-entropy?
                 </div>
               </div>
-              <span className="px-3 py-1.5 rounded-full bg-[#0071e3] text-white text-[12px] font-bold shrink-0">
+              <span className="px-3.5 py-1.5 rounded-full bg-[#0071e3] text-white text-[14px] font-bold shrink-0">
                 Flip Answer
               </span>
             </div>
@@ -278,7 +278,7 @@ export const FeatureBentoGrid: React.FC = () => {
                 (fmt) => (
                   <span
                     key={fmt}
-                    className="px-3 py-1.5 rounded-xl bg-[#f5f5f7] dark:bg-[#202023] text-slate-700 dark:text-slate-300 border border-black/5 dark:border-white/5 text-[13px] font-medium"
+                    className="px-3.5 py-2 rounded-xl bg-[#f5f5f7] dark:bg-[#202023] text-slate-700 dark:text-slate-300 border border-black/5 dark:border-white/5 text-[14px] font-medium"
                   >
                     {fmt}
                   </span>

@@ -62,7 +62,7 @@ export const HowItWorks: React.FC = () => {
       <div className="max-w-[1240px] mx-auto">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-16 md:mb-20">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 dark:bg-blue-500/20 text-[#0071e3] text-xs font-semibold uppercase tracking-wider mb-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 dark:bg-blue-500/20 text-[#0071e3] text-sm font-semibold uppercase tracking-wider mb-4">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Workflow Simplified</span>
           </div>
@@ -89,7 +89,7 @@ export const HowItWorks: React.FC = () => {
                     <span className="text-3xl sm:text-4xl font-black font-mono tracking-tight text-[#0071e3]/80 dark:text-[#2997ff]">
                       {step.number}
                     </span>
-                    <span className="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300">
+                    <span className="text-sm font-semibold px-3 py-1 rounded-full bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300">
                       {step.badge}
                     </span>
                   </div>
@@ -111,7 +111,7 @@ export const HowItWorks: React.FC = () => {
                 {/* Highlights list */}
                 <div className="pt-6 border-t border-slate-100 dark:border-white/5 space-y-2.5">
                   {step.highlights.map((item, idx) => (
-                    <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                    <div key={idx} className="flex items-start gap-2.5 text-sm text-slate-600 dark:text-slate-300">
                       <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
                       <span>{item}</span>
                     </div>

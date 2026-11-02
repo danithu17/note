@@ -1,7 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
-import { MobileTabBar } from './components/layout/MobileTabBar';
+import { FloatingGlassTabBar } from './features/glass/components/FloatingGlassTabBar';
+import { QuickCreateSheet } from './features/home/components/QuickCreateSheet';
+import { HomeDashboardView } from './features/home/components/HomeDashboardView';
+import { useWindowSizeClass } from './platform/android/useWindowSizeClass';
+import { useAssistantStore } from './features/assistant/useAssistantStore';
 import { LectureEditor } from './components/editor/LectureEditor';
 import { VisualCanvas } from './components/canvas/VisualCanvas';
 import { SplitPane } from './components/ui/SplitPane';
@@ -40,11 +44,38 @@ interface PaymentSuccessToast {
 export function App() {
   // Native Android deep integration: back gestures, theme status bar sync, exit confirmation
   useAndroidIntegration();
+  const layoutInfo = useWindowSizeClass();
 
   const { initialize, isLoading: isNotesLoading } = useNoteStore();
-  const { isDarkMode, layoutMode, viewMode, setViewMode, openModal } = useCanvasStore();
+  const {
+    isDarkMode,
+    layoutMode,
+    setLayoutMode,
+    viewMode,
+    setViewMode,
+    openModal,
+    mainTab,
+    setMainTab,
+    isTabBarVisible,
+    setTabBarVisible,
+    isQuickCreateOpen,
+    setQuickCreateOpen,
+  } = useCanvasStore();
   const { user, isLoading: isAuthLoading, isOnboarding } = useAuthStore();
   const [paymentToast, setPaymentToast] = useState<PaymentSuccessToast | null>(null);
+
+  // Scroll-direction auto-hide for Floating Glass Tab Bar
+  const lastScrollTopRef = useRef<number>(0);
+  const handleScroll = (e: React.UIEvent<HTMLElement>) => {
+    const currentScrollTop = e.currentTarget.scrollTop;
+    const diff = currentScrollTop - lastScrollTopRef.current;
+    if (diff > 14 && currentScrollTop > 40) {
+      if (isTabBarVisible) setTabBarVisible(false);
+    } else if (diff < -8 || currentScrollTop <= 20) {
+      if (!isTabBarVisible) setTabBarVisible(true);
+    }
+    lastScrollTopRef.current = currentScrollTop;
+  };
 
   // Automatic Payment Verification & Instant Subscription Activation Listener
   useEffect(() => {
@@ -247,32 +278,64 @@ export function App() {
     <div
       className={`w-screen h-screen flex flex-col overflow-hidden bg-[#f2f2f7] dark:bg-black ${
         isDarkMode ? 'dark' : ''
-      }`}
+      } ${layoutInfo.isTabletOrFoldable ? 'adaptive-tablet' : 'adaptive-compact'}`}
     >
-      {/* Top Apple Navigation Bar */}
-      <Header />
+      {/* Main Dynamic View: Home Dashboard OR Lecture Note & Infinite Canvas Workspace */}
+      {mainTab === 'home' ? (
+        <HomeDashboardView onScroll={handleScroll} />
+      ) : (
+        <>
+          {/* Top Apple Navigation Bar */}
+          <Header />
 
-      {/* 14-Day Free Student Trial Status Banner */}
-      <TrialBanner />
+          {/* 14-Day Free Student Trial Status Banner */}
+          <TrialBanner />
 
-      {/* Main Content Workspace */}
-      <div className="flex-1 flex overflow-hidden relative pb-16 md:pb-0">
-        {/* Apple Notes Style 3-Column Sidebar Drawer */}
-        <Sidebar />
+          {/* Main Content Workspace */}
+          <div className="flex-1 flex overflow-hidden relative pb-16 md:pb-0">
+            {/* Apple Notes Style 3-Column Sidebar Drawer */}
+            <Sidebar />
 
-        {/* Dynamic Workspace Layout: Chat Timeline Feed OR Resizable Hybrid Split Workspace */}
-        {layoutMode === 'timeline' ? (
-          <ChatTimelineView />
-        ) : (
-          <SplitPane left={<LectureEditor />} right={<VisualCanvas />} />
-        )}
+            {/* Dynamic Workspace Layout: Chat Timeline Feed OR Resizable Hybrid Split Workspace */}
+            {layoutMode === 'timeline' ? (
+              <ChatTimelineView />
+            ) : (
+              <SplitPane left={<LectureEditor />} right={<VisualCanvas />} />
+            )}
 
-        {/* Apple iMessage-Style AI Study Assistant (Cmd/Ctrl+J) */}
-        <ChatAssistantPanel />
-      </div>
+            {/* Apple iMessage-Style AI Study Assistant (Cmd/Ctrl+J) */}
+            <ChatAssistantPanel />
+          </div>
+        </>
+      )}
 
-      {/* Mobile Bottom Navigation Tab Bar (Notes, Canvas, Assistant, Study) */}
-      <MobileTabBar />
+      {/* iOS 27 Liquid Glass Floating Bottom Tab Bar */}
+      <FloatingGlassTabBar
+        activeTab={mainTab}
+        isVisible={isTabBarVisible}
+        onSelectTab={(tab) => {
+          if (tab === 'home') {
+            setMainTab('home');
+          } else if (tab === 'notes') {
+            setMainTab('notes');
+            setLayoutMode('notes-only');
+          } else if (tab === 'canvas') {
+            setMainTab('canvas');
+            setLayoutMode('canvas-only');
+          } else if (tab === 'assistant') {
+            useAssistantStore.getState().setAssistantOpen(true);
+          } else if (tab === 'study') {
+            openModal('pomodoro');
+          }
+        }}
+        onQuickCreate={() => setQuickCreateOpen(true)}
+      />
+
+      {/* Quick Create Liquid Glass Bottom Sheet */}
+      <QuickCreateSheet
+        isOpen={isQuickCreateOpen}
+        onClose={() => setQuickCreateOpen(false)}
+      />
 
       {/* Global Modals (Auth, Sync, History, PDF, AI, Flashcards, Pomodoro, Pricing, Trash, Account) */}
       <GlobalModals />

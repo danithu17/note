@@ -80,7 +80,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="font-bold text-[19px] tracking-tight text-[#1d1d1f] dark:text-[#f5f5f7]">
                 ScribbleNote
               </span>
-              <span className="hidden sm:inline-flex px-2.5 py-0.5 rounded-full text-[13px] font-semibold bg-blue-500/10 dark:bg-blue-500/20 text-[#0071e3] dark:text-blue-400 border border-blue-500/20">
+              <span className="hidden sm:inline-flex px-2.5 py-0.5 rounded-full text-[14px] font-semibold bg-blue-500/10 dark:bg-blue-500/20 text-[#0071e3] dark:text-blue-400 border border-blue-500/20">
                 Pro
               </span>
             </div>
@@ -129,7 +129,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Start Free CTA (hidden on extra small screens, prominently accessible via hamburger menu) */}
             <button
               onClick={onLaunchApp}
-              className="inline-flex h-10 sm:h-12 px-3.5 sm:px-6 rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs sm:text-[15px] font-semibold shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all items-center gap-1.5 sm:gap-2 cursor-pointer"
+              className="inline-flex min-h-[48px] h-12 px-4 sm:px-6 rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white text-[14px] sm:text-[15px] font-semibold shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all items-center gap-1.5 sm:gap-2 cursor-pointer"
             >
               <span>{user ? 'Open Notes' : 'Start free'}</span>
               <ArrowRight className="w-4 h-4" />

@@ -119,10 +119,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartFree }) => {
 
               {/* Status Badges */}
               <div className="flex items-center gap-2.5">
-                <span className="px-3 py-1 rounded-full bg-blue-500/10 text-[#0071e3] dark:text-blue-400 text-[13px] font-bold">
+                <span className="px-3 py-1 rounded-full bg-blue-500/10 text-[#0071e3] dark:text-blue-400 text-[14px] font-bold">
                   Split Hybrid View
                 </span>
-                <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[13px] font-bold">
+                <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[14px] font-bold">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                   <span>Audio Rec 12:44</span>
                 </span>
@@ -133,7 +133,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartFree }) => {
             <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[500px] bg-[#fafafa] dark:bg-[#121214]">
               {/* Left Column: Sidebar Snippet */}
               <div className="hidden xl:block lg:col-span-3 p-4 border-r border-black/[0.08] dark:border-white/10 bg-[#fbfbfd] dark:bg-[#161618]">
-                <div className="text-[13px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-3 px-2">
+                <div className="text-[14px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-3 px-2">
                   Academic Notebooks
                 </div>
                 <div className="space-y-1.5">
@@ -159,7 +159,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartFree }) => {
               {/* Middle Column: Markdown & Math Editor */}
               <div className="lg:col-span-6 xl:col-span-5 p-6 border-r border-black/[0.08] dark:border-white/10 bg-white dark:bg-[#18181b] flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center gap-2 text-[13px] text-slate-400 dark:text-slate-500 mb-2 font-medium">
+                  <div className="flex items-center gap-2 text-[14px] text-slate-400 dark:text-slate-500 mb-2 font-medium">
                     <span>Week 4</span>
                     <span>•</span>
                     <span>Prof. Harrison</span>
@@ -173,7 +173,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartFree }) => {
 
                   {/* Math Formula Callout */}
                   <div className="p-4 rounded-2xl bg-slate-900 text-slate-100 font-mono text-[14px] my-4 border border-slate-800 shadow-inner">
-                    <div className="text-emerald-400 text-[12px] font-sans font-bold uppercase tracking-wider mb-1">
+                    <div className="text-emerald-400 text-[14px] font-sans font-bold uppercase tracking-wider mb-1">
                       // Stochastic Gradient Update
                     </div>
                     <div className="text-blue-300 text-[15px] font-semibold py-1">
@@ -205,15 +205,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartFree }) => {
                       <Volume2 className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="font-semibold text-rose-950 dark:text-rose-200 text-[13px]">
+                      <div className="font-semibold text-rose-950 dark:text-rose-200 text-[14px]">
                         Tap handwritten stroke to seek audio
                       </div>
-                      <div className="text-[12px] text-rose-700 dark:text-rose-300">
+                      <div className="text-[14px] text-rose-700 dark:text-rose-300">
                         Linked with vector canvas Page 1
                       </div>
                     </div>
                   </div>
-                  <span className="font-mono text-[13px] text-rose-600 dark:text-rose-400 font-bold px-2.5 py-1 rounded-lg bg-rose-100 dark:bg-rose-900/40">
+                  <span className="font-mono text-[14px] text-rose-600 dark:text-rose-400 font-bold px-2.5 py-1 rounded-lg bg-rose-100 dark:bg-rose-900/40">
                     12:44 / 45:00
                   </span>
                 </div>
@@ -223,7 +223,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartFree }) => {
               <div className="lg:col-span-6 xl:col-span-4 p-6 bg-[#fbfbfd] dark:bg-[#121214] relative flex flex-col justify-between">
                 <div className="space-y-4">
                   {/* Canvas Header */}
-                  <div className="flex items-center justify-between text-[13px] text-slate-500 dark:text-slate-400 font-medium">
+                  <div className="flex items-center justify-between text-[14px] text-slate-500 dark:text-slate-400 font-medium">
                     <span className="flex items-center gap-1.5 text-[#0071e3] dark:text-blue-400 font-semibold">
                       <Wand2 className="w-4 h-4" /> Auto-Shape Active
                     </span>
@@ -235,7 +235,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartFree }) => {
                     <div className="flex items-center justify-center gap-2 text-[14px] font-bold text-[#0071e3] dark:text-blue-400">
                       <span>Neural Node Boundary</span>
                     </div>
-                    <div className="mt-2 text-[13px] text-slate-600 dark:text-slate-400 font-mono">
+                    <div className="mt-2 text-[14px] text-slate-600 dark:text-slate-400 font-mono">
                       Hand-drawn curve snapped to rectangle (x: 120, y: 84)
                     </div>
                     <div className="mt-3 flex items-center justify-center gap-2">
@@ -247,23 +247,23 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartFree }) => {
 
                   {/* iMessage-Style Study Assistant Chat Bubble */}
                   <div className="p-4 rounded-2xl bg-white dark:bg-[#1c1c1e] border border-black/[0.08] dark:border-white/10 shadow-sm flex flex-col gap-2.5 text-[14px]">
-                    <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 font-bold text-[13px]">
+                    <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 font-bold text-[14px]">
                       <Brain className="w-4 h-4" />
                       <span>Study Assistant</span>
                     </div>
-                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed text-[13px]">
+                    <p className="text-slate-700 dark:text-slate-300 leading-relaxed text-[14px]">
                       "I noticed your gradient formula above! Would you like me to generate 5 flashcards for backpropagation?"
                     </p>
                     <div className="flex gap-2 pt-1 flex-wrap">
                       <button
                         onClick={onStartFree}
-                        className="px-3 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 text-[12px] font-semibold border border-purple-300/40 dark:border-purple-800/40 transition-colors cursor-pointer"
+                        className="px-3 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 text-[14px] font-semibold border border-purple-300/40 dark:border-purple-800/40 transition-colors cursor-pointer"
                       >
                         Generate Flashcards
                       </button>
                       <button
                         onClick={onStartFree}
-                        className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[12px] font-semibold transition-colors cursor-pointer"
+                        className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[14px] font-semibold transition-colors cursor-pointer"
                       >
                         Explain Step-by-Step
                       </button>

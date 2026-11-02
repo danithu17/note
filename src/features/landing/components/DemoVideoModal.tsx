@@ -74,7 +74,7 @@ export const DemoVideoModal: React.FC<DemoVideoModalProps> = ({
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 text-[13px] sm:text-[14px]">
+          <div className="grid grid-cols-3 gap-3 text-[14px]">
             <div className="p-3 rounded-xl bg-white/10 backdrop-blur-md flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
               <span>Offline IndexedDB</span>

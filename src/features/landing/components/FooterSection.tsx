@@ -14,7 +14,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ onStartFree }) => 
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-blue-600/20 via-indigo-600/15 to-purple-600/20 blur-3xl pointer-events-none rounded-full" />
 
         <div className="max-w-[880px] mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/20 text-[#2997ff] text-xs font-semibold uppercase tracking-wider mb-6">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/20 text-[#2997ff] text-sm font-semibold uppercase tracking-wider mb-6">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Start Learning Today</span>
           </div>
@@ -38,7 +38,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ onStartFree }) => 
             </button>
           </div>
 
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-6 text-xs sm:text-sm text-slate-400">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-6 text-sm text-slate-400">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
               <span>No credit card required</span>
@@ -89,7 +89,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ onStartFree }) => 
 
           {/* Product Column */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">Product</h4>
+            <h4 className="text-sm font-bold uppercase tracking-wider text-slate-300">Product</h4>
             <ul className="space-y-2.5 text-sm text-slate-400">
               <li>
                 <a href="#features" className="hover:text-white transition-colors">
@@ -121,19 +121,19 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ onStartFree }) => 
 
           {/* Platforms Column */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">Platforms</h4>
+            <h4 className="text-sm font-bold uppercase tracking-wider text-slate-300">Platforms</h4>
             <ul className="space-y-2.5 text-sm text-slate-400">
               <li>
                 <span className="text-slate-300">Web PWA</span>{' '}
-                <span className="text-[11px] text-emerald-400 font-semibold ml-1">Live</span>
+                <span className="text-sm text-emerald-400 font-semibold ml-1">Live</span>
               </li>
               <li>
                 <span className="text-slate-300">Android Tablet</span>{' '}
-                <span className="text-[11px] text-blue-400 font-semibold ml-1">Beta</span>
+                <span className="text-sm text-blue-400 font-semibold ml-1">Beta</span>
               </li>
               <li>
                 <span className="text-slate-300">Desktop Electron</span>{' '}
-                <span className="text-[11px] text-amber-400 font-semibold ml-1">Soon</span>
+                <span className="text-sm text-amber-400 font-semibold ml-1">Soon</span>
               </li>
               <li>
                 <a href="#platforms" className="hover:text-white transition-colors">
@@ -145,7 +145,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ onStartFree }) => 
 
           {/* Legal & Trust Column */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">Legal & Trust</h4>
+            <h4 className="text-sm font-bold uppercase tracking-wider text-slate-300">Legal & Trust</h4>
             <ul className="space-y-2.5 text-sm text-slate-400">
               <li>
                 <a href="#privacy" className="hover:text-white transition-colors">
@@ -172,7 +172,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ onStartFree }) => 
         </div>
 
         {/* Bottom Strip */}
-        <div className="mt-16 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <div className="mt-16 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
           <div>
             © {new Date().getFullYear()} ScribbleNote Technologies. Designed with precision for scholars.
           </div>

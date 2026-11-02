@@ -204,7 +204,7 @@ export const InteractiveMiniCanvas: React.FC = () => {
       <div className="max-w-[1240px] mx-auto">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 dark:bg-blue-500/20 text-[#0071e3] text-xs font-semibold uppercase tracking-wider mb-3">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 dark:bg-blue-500/20 text-[#0071e3] text-sm font-semibold uppercase tracking-wider mb-3">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Interactive Live Demo</span>
           </div>
@@ -222,7 +222,7 @@ export const InteractiveMiniCanvas: React.FC = () => {
           <div className="flex flex-wrap items-center justify-between gap-3 p-4 border-b border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#1a1a1e]/80 backdrop-blur-md">
             {/* Color Palette */}
             <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400 mr-1 hidden sm:inline">
+              <span className="text-sm font-medium text-slate-500 dark:text-slate-400 mr-1 hidden sm:inline">
                 Ink Color:
               </span>
               <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-white/5 p-1 rounded-full">
@@ -253,7 +253,7 @@ export const InteractiveMiniCanvas: React.FC = () => {
                 type="button"
                 onClick={handleUndo}
                 disabled={strokes.length === 0}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-white/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-white/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Undo</span>
@@ -262,7 +262,7 @@ export const InteractiveMiniCanvas: React.FC = () => {
                 type="button"
                 onClick={handleClear}
                 disabled={strokes.length === 0}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10 dark:hover:text-rose-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10 dark:hover:text-rose-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>Clear</span>
@@ -271,7 +271,7 @@ export const InteractiveMiniCanvas: React.FC = () => {
                 type="button"
                 onClick={handleDownload}
                 disabled={strokes.length === 0}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#0071e3] text-white hover:bg-[#0077ed] transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-sm"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-[#0071e3] text-white hover:bg-[#0077ed] transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-sm"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Save Sketch</span>
@@ -306,7 +306,7 @@ export const InteractiveMiniCanvas: React.FC = () => {
                   <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
                     Your canvas is ready. Click and drag or touch to draw.
                   </p>
-                  <p className="text-xs text-slate-400 mt-1">
+                  <p className="text-sm text-slate-400 mt-1">
                     Try drawing an arrow, a triangle, or writing a formula
                   </p>
                 </div>
@@ -315,7 +315,7 @@ export const InteractiveMiniCanvas: React.FC = () => {
 
             {/* Bottom Status Pill */}
             <div className="absolute bottom-4 left-4 pointer-events-none">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/80 dark:bg-black/60 backdrop-blur-md border border-slate-200/60 dark:border-white/10 text-[11px] font-medium text-slate-500 dark:text-slate-400">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/80 dark:bg-black/60 backdrop-blur-md border border-slate-200/60 dark:border-white/10 text-[14px] font-medium text-slate-500 dark:text-slate-400">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 60 FPS Vector Smooth Engine • Pressure & Tilt Aware
               </span>
