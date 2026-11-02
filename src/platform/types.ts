@@ -97,4 +97,5 @@ export interface IAppPlatform {
   addBackButtonListener(callback: () => boolean | void): () => void;
   setStatusBar(options: { style: 'DARK' | 'LIGHT'; backgroundColor?: string }): Promise<void>;
   keepScreenOn(enabled: boolean): Promise<void>;
+  hideSplashScreen?(): Promise<void>;
 }

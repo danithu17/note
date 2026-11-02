@@ -295,4 +295,8 @@ export class WebAppPlatform implements IAppPlatform {
       }
     }
   }
+
+  async hideSplashScreen(): Promise<void> {
+    // No-op for web
+  }
 }
